@@ -13,6 +13,6 @@
     "ter-indent": false
   },
   "linterOptions": {
-    "exclude": ["config/**/*.js", "node_modules/**/*.ts", "./**/*.js"]
+    "exclude": ["node_modules/**/*.ts", "./**/*.js"]
   }
 }

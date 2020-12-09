@@ -5,46 +5,99 @@ import { ConnectorUpdate } from '@web3-react/types'
 import { AbstractConnector } from '@web3-react/abstract-connector'
 
 import { getConfiguration } from './configuration'
-import { ProviderType, ChainId, ConnectResponse, Provider } from './types'
+import {
+  RequestArguments,
+  ProviderType,
+  ChainId,
+  ConnectResponse,
+  Provider,
+  ClosableConnector,
+  LegacyProvider
+} from './types'
 
-// .connect(): Promise<Provider>
-// .available(): Promise<ProviderType[]>
-// .connect(provider: ProviderType): Promise<Provider>
-// .disconnect(): Promise<void>
+class Connector {
+  providerType: ProviderType
+  connector: AbstractConnector
 
-export async function connect(
-  providerType: ProviderType,
-  chainId: ChainId = ChainId.MAINNET
-): Promise<ConnectResponse> {
-  const configuration = getConfiguration()
-  let connector: AbstractConnector
+  async connect(
+    providerType: ProviderType,
+    chainId: ChainId = ChainId.MAINNET
+  ): Promise<ConnectResponse> {
+    const configuration = getConfiguration()
+    this.providerType = providerType
 
-  switch (providerType) {
-    case ProviderType.METAMASK:
-      connector = new InjectedConnector({ supportedChainIds: [chainId] })
-      break
-    case ProviderType.FORMATIC:
-      const { apiKey } = configuration[providerType]
-      connector = new FortmaticConnector({ apiKey, chainId })
-      break
-    case ProviderType.WALLET_CONNECT:
-      const { urls } = configuration[providerType]
-      connector = new WalletConnectConnector({
-        rpc: { [chainId]: urls[chainId] },
-        bridge: 'https://bridge.walletconnect.org',
-        qrcode: true,
-        pollingInterval: 15000
-      })
-      break
-    default:
-      throw new Error(`Invalid provider ${providerType}`)
+    switch (this.providerType) {
+      case ProviderType.METAMASK:
+        this.connector = new InjectedConnector({ supportedChainIds: [chainId] })
+        break
+      case ProviderType.FORMATIC:
+        const { apiKey } = configuration[this.providerType]
+        this.connector = new FortmaticConnector({ apiKey, chainId })
+        break
+      case ProviderType.WALLET_CONNECT:
+        const { urls } = configuration[this.providerType]
+        this.connector = new WalletConnectConnector({
+          rpc: { [chainId]: urls[chainId] },
+          bridge: 'https://bridge.walletconnect.org',
+          qrcode: true,
+          pollingInterval: 15000
+        })
+        break
+      default:
+        throw new Error(`Invalid provider ${providerType}`)
+    }
+
+    await this.disconnect()
+
+    const {
+      provider,
+      account
+    }: ConnectorUpdate = await this.connector.activate()
+
+    return {
+      provider: this.toProvider(provider),
+      account: account || '',
+      chainId
+    }
   }
 
-  const { provider, account }: ConnectorUpdate = await connector.activate()
+  async available(): Promise<ProviderType[]> {
+    return []
+  }
 
-  return {
-    provider: provider as Provider,
-    account: account || '',
-    chainId
+  async disconnect() {
+    if (this.connector) {
+      this.connector.deactivate()
+
+      if (this.isClosableConnector()) {
+        await (this.connector as ClosableConnector).close()
+      }
+    }
+  }
+
+  private isClosableConnector() {
+    return [ProviderType.FORMATIC, ProviderType.WALLET_CONNECT].includes(
+      this.providerType
+    )
+  }
+
+  private toProvider(provider: LegacyProvider | Provider): Provider {
+    const newProvider = provider as Provider
+
+    if (this.isLegacyProvider(provider)) {
+      newProvider.request = ({ method, params }: RequestArguments) =>
+        (provider as LegacyProvider).send(method, params)
+    }
+
+    return newProvider
+  }
+
+  private isLegacyProvider(provider: LegacyProvider | Provider): boolean {
+    return (
+      typeof provider['request'] === 'undefined' &&
+      typeof provider['send'] !== undefined
+    )
   }
 }
+
+export default new Connector()
