@@ -17,37 +17,14 @@ import {
 
 class Connector {
   providerType: ProviderType
-  connector: AbstractConnector
+  connector?: AbstractConnector
 
   async connect(
     providerType: ProviderType,
     chainId: ChainId = ChainId.MAINNET
   ): Promise<ConnectResponse> {
-    const configuration = getConfiguration()
     this.providerType = providerType
-
-    switch (this.providerType) {
-      case ProviderType.METAMASK:
-        this.connector = new InjectedConnector({ supportedChainIds: [chainId] })
-        break
-      case ProviderType.FORMATIC:
-        const { apiKey } = configuration[this.providerType]
-        this.connector = new FortmaticConnector({ apiKey, chainId })
-        break
-      case ProviderType.WALLET_CONNECT:
-        const { urls } = configuration[this.providerType]
-        this.connector = new WalletConnectConnector({
-          rpc: { [chainId]: urls[chainId] },
-          bridge: 'https://bridge.walletconnect.org',
-          qrcode: true,
-          pollingInterval: 15000
-        })
-        break
-      default:
-        throw new Error(`Invalid provider ${providerType}`)
-    }
-
-    await this.disconnect()
+    this.connector = this.getConnector(providerType, chainId)
 
     const {
       provider,
@@ -61,8 +38,12 @@ class Connector {
     }
   }
 
-  async available(): Promise<ProviderType[]> {
-    return []
+  available(): ProviderType[] {
+    const available = [ProviderType.FORTMATIC, ProviderType.WALLET_CONNECT]
+    if (window.ethereum !== undefined) {
+      available.push(ProviderType.INJECTED)
+    }
+    return available
   }
 
   async disconnect() {
@@ -75,8 +56,51 @@ class Connector {
     }
   }
 
+  async getProvider() {
+    if (!this.connector) {
+      throw new Error('No valid connector found. Please .connect() first')
+    }
+    return this.connector.getProvider()
+  }
+
+  async createProvider(
+    providerType: ProviderType,
+    chainId: ChainId = ChainId.MAINNET
+  ): Promise<Provider> {
+    const connector = this.getConnector(providerType, chainId)
+    const provider = await connector.getProvider()
+    return this.toProvider(provider)
+  }
+
+  private getConnector(
+    providerType: ProviderType,
+    chainId: ChainId
+  ): AbstractConnector {
+    const configuration = getConfiguration()
+
+    switch (providerType) {
+      case ProviderType.INJECTED:
+        return new InjectedConnector({ supportedChainIds: [chainId] })
+      case ProviderType.FORTMATIC: {
+        const { apiKey } = configuration[providerType]
+        return new FortmaticConnector({ apiKey, chainId })
+      }
+      case ProviderType.WALLET_CONNECT: {
+        const { urls, bridge } = configuration[providerType]
+        return new WalletConnectConnector({
+          rpc: { [chainId]: urls[chainId] },
+          bridge,
+          qrcode: true,
+          pollingInterval: 15000
+        })
+      }
+      default:
+        throw new Error(`Invalid provider ${providerType}`)
+    }
+  }
+
   private isClosableConnector() {
-    return [ProviderType.FORMATIC, ProviderType.WALLET_CONNECT].includes(
+    return [ProviderType.FORTMATIC, ProviderType.WALLET_CONNECT].includes(
       this.providerType
     )
   }
@@ -100,4 +124,4 @@ class Connector {
   }
 }
 
-export default new Connector()
+export const connector = new Connector()

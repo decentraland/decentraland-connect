@@ -1,8 +1,9 @@
 import { AbstractConnector } from '@web3-react/abstract-connector'
+import { EventEmitter } from 'events'
 
 export enum ProviderType {
-  METAMASK = 'metamask',
-  FORMATIC = 'formatic',
+  INJECTED = 'injected',
+  FORTMATIC = 'formatic',
   WALLET_CONNECT = 'wallet_connect'
 }
 
@@ -17,16 +18,15 @@ export type RequestArguments = {
   readonly method: string
   readonly params?: readonly unknown[] | object
 }
-export interface Provider {
+export interface Provider extends EventEmitter {
   request: (reqArgs: RequestArguments) => Promise<unknown>
-}
-
-export interface LegacyProvider {
   send: (
     method: RequestArguments['method'],
     params: RequestArguments['params']
   ) => Promise<unknown>
 }
+
+export type LegacyProvider = Pick<Provider, 'send'>
 
 export type ConnectResponse = {
   provider: Provider
