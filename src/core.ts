@@ -15,7 +15,7 @@ import {
   LegacyProvider
 } from './types'
 
-class Connector {
+class ConnectionManager {
   providerType: ProviderType
   connector?: AbstractConnector
 
@@ -124,4 +124,4 @@ class Connector {
   }
 }
 
-export const connector = new Connector()
+export const connection = new ConnectionManager()
