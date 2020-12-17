@@ -1,12 +1,15 @@
-import { AbstractConnector } from '../src/connectors/AbstractConnector'
 import { ConnectorUpdate } from '@web3-react/types'
+import { AbstractConnector } from '../src/connectors/AbstractConnector'
 import { ChainId } from '../src/types'
+import { Storage } from '../src/storage'
 
 export class StubConnector extends AbstractConnector {
   async activate(): Promise<ConnectorUpdate> {
     return {
       provider: {
-        send: () => {}
+        send: () => {
+          // no-op
+        }
       },
       account: '0xdeadbeef'
     }
@@ -32,5 +35,21 @@ export class StubConnector extends AbstractConnector {
 export class StubClosableConnector extends StubConnector {
   async close() {
     // no-op
+  }
+}
+
+export class StubStorage extends Storage {
+  value: any
+
+  get() {
+    return this.value
+  }
+
+  set(_key: string, value: any) {
+    this.value = value
+  }
+
+  clean() {
+    this.value = undefined
   }
 }

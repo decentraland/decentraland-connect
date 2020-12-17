@@ -3,20 +3,23 @@ import chaiAsPromised from 'chai-as-promised'
 import sinon from 'sinon'
 import { ConnectionManager } from '../src/ConnectionManager'
 import { ChainId, ClosableConnector, ProviderType } from '../src/types'
-import { StubClosableConnector, StubConnector } from './utils'
+import { StubClosableConnector, StubConnector, StubStorage } from './utils'
 
 chai.use(chaiAsPromised)
 const { expect } = chai
 
 describe('ConnectionManager', () => {
+  let storage: StubStorage
   let connectionManager: ConnectionManager
 
   beforeEach(() => {
-    connectionManager = new ConnectionManager()
+    storage = new StubStorage()
+    connectionManager = new ConnectionManager(storage)
   })
 
   afterEach(() => {
     sinon.restore()
+    storage.clean()
   })
 
   describe('#connect', () => {
@@ -76,29 +79,66 @@ describe('ConnectionManager', () => {
     it('should not patch the provider with the request method if it already exists', async () => {
       const stubConnector = new StubConnector()
       sinon.stub(connectionManager, 'getConnector').returns(stubConnector)
-      sinon.stub(stubConnector, 'activate').resolves({
-        account: '0x123123',
-        provider: { request: () => {} }
-      })
 
       const result = await connectionManager.connect(
         ProviderType.INJECTED,
         ChainId.ROPSTEN
       )
-      const activateResult = await stubConnector.activate()
+      const { account } = await stubConnector.activate()
 
       expect(JSON.stringify(result)).to.eq(
         JSON.stringify({
           provider: {
             request: () => {}
           },
-          account: activateResult.account,
+          account,
           chainId: ChainId.ROPSTEN
         })
       )
     })
 
-    it('should store the last provider and chain')
+    it('should throw if called wihtout provider type and none is found on storage', () => {
+      expect(connectionManager.connect()).to.eventually.throw(
+        new Error('connect called without a provider and none was stored')
+      )
+    })
+
+    it('should store the last provider and chain', async () => {
+      const stubConnector = new StubConnector()
+      sinon.stub(connectionManager, 'getConnector').returns(stubConnector)
+
+      await connectionManager.connect(ProviderType.INJECTED)
+
+      expect(storage.get()).to.eq(ProviderType.INJECTED)
+    })
+
+    it('should connect to the last supplied provider', async () => {
+      const stubConnector = new StubConnector()
+      const getConnectorStub = sinon
+        .stub(connectionManager, 'getConnector')
+        .returns(stubConnector)
+
+      await connectionManager.connect(ProviderType.FORTMATIC)
+      const result = await connectionManager.connect()
+      const { account } = await stubConnector.activate()
+
+      expect(
+        getConnectorStub.firstCall.calledWith(ProviderType.FORTMATIC)
+      ).to.eq(true)
+      expect(
+        getConnectorStub.secondCall.calledWith(ProviderType.FORTMATIC)
+      ).to.eq(true)
+
+      expect(JSON.stringify(result)).to.eq(
+        JSON.stringify({
+          provider: {
+            request: () => {}
+          },
+          account,
+          chainId: ChainId.MAINNET
+        })
+      )
+    })
   })
 
   describe('#disconnect', () => {

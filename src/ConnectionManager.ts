@@ -5,6 +5,7 @@ import {
   InjectedConnector,
   WalletConnectConnector
 } from './connectors'
+import { LocalStorage, Storage } from './storage'
 import {
   RequestArguments,
   ProviderType,
@@ -14,18 +15,28 @@ import {
   ClosableConnector,
   LegacyProvider
 } from './types'
+import { getConfiguration } from './configuration'
 import './declarations'
 
 export class ConnectionManager {
   providerType?: ProviderType
   connector?: AbstractConnector
 
+  constructor(public storage: Storage) {}
+
   async connect(
-    providerType: ProviderType,
+    providerType?: ProviderType,
     chainId: ChainId = ChainId.MAINNET
   ): Promise<ConnectResponse> {
-    this.providerType = providerType
-    this.connector = this.getConnector(providerType, chainId)
+    const { storageKey } = getConfiguration()
+
+    this.providerType = providerType || this.storage.get(storageKey)
+    if (!this.providerType) {
+      throw new Error('connect called without a provider and none was stored')
+    }
+
+    this.storage.set(storageKey, providerType)
+    this.connector = this.getConnector(this.providerType!, chainId)
 
     const {
       provider,
@@ -114,4 +125,4 @@ export class ConnectionManager {
   }
 }
 
-export const connection = new ConnectionManager()
+export const connection = new ConnectionManager(new LocalStorage())
