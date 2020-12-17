@@ -5,10 +5,9 @@
     "module": "commonjs",
     "target": "es6",
     "lib": ["es2017", "dom"],
+    "strict": true,
     "sourceMap": true,
-    "jsx": "react",
     "moduleResolution": "node",
-    "rootDir": "src",
     "forceConsistentCasingInFileNames": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
@@ -24,10 +23,9 @@
   },
   "exclude": [
     "node_modules",
+    "dist",
     "build",
     "scripts",
-    "acceptance-tests",
-    "webpack",
-    "test",
+    "webpack"
   ]
 }

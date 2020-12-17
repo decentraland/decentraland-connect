@@ -1,10 +1,10 @@
-import { FortmaticConnector } from '@web3-react/fortmatic-connector'
-import { InjectedConnector } from '@web3-react/injected-connector'
-import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
 import { ConnectorUpdate } from '@web3-react/types'
-import { AbstractConnector } from '@web3-react/abstract-connector'
-
-import { getConfiguration } from './configuration'
+import {
+  AbstractConnector,
+  FortmaticConnector,
+  InjectedConnector,
+  WalletConnectConnector
+} from './connectors'
 import {
   RequestArguments,
   ProviderType,
@@ -14,9 +14,10 @@ import {
   ClosableConnector,
   LegacyProvider
 } from './types'
+import './declarations'
 
-class ConnectionManager {
-  providerType: ProviderType
+export class ConnectionManager {
+  providerType?: ProviderType
   connector?: AbstractConnector
 
   async connect(
@@ -38,9 +39,9 @@ class ConnectionManager {
     }
   }
 
-  available(): ProviderType[] {
+  getAvailableProviders(): ProviderType[] {
     const available = [ProviderType.FORTMATIC, ProviderType.WALLET_CONNECT]
-    if (window.ethereum !== undefined) {
+    if (typeof window !== 'undefined' && window.ethereum !== undefined) {
       available.push(ProviderType.INJECTED)
     }
     return available
@@ -56,7 +57,7 @@ class ConnectionManager {
     }
   }
 
-  async getProvider() {
+  async getProvider(): Promise<Provider> {
     if (!this.connector) {
       throw new Error('No valid connector found. Please .connect() first')
     }
@@ -72,28 +73,17 @@ class ConnectionManager {
     return this.toProvider(provider)
   }
 
-  private getConnector(
+  getConnector(
     providerType: ProviderType,
     chainId: ChainId
   ): AbstractConnector {
-    const configuration = getConfiguration()
-
     switch (providerType) {
       case ProviderType.INJECTED:
-        return new InjectedConnector({ supportedChainIds: [chainId] })
-      case ProviderType.FORTMATIC: {
-        const { apiKey } = configuration[providerType]
-        return new FortmaticConnector({ apiKey, chainId })
-      }
-      case ProviderType.WALLET_CONNECT: {
-        const { urls, bridge } = configuration[providerType]
-        return new WalletConnectConnector({
-          rpc: { [chainId]: urls[chainId] },
-          bridge,
-          qrcode: true,
-          pollingInterval: 15000
-        })
-      }
+        return new InjectedConnector(chainId)
+      case ProviderType.FORTMATIC:
+        return new FortmaticConnector(chainId)
+      case ProviderType.WALLET_CONNECT:
+        return new WalletConnectConnector(chainId)
       default:
         throw new Error(`Invalid provider ${providerType}`)
     }
@@ -101,7 +91,7 @@ class ConnectionManager {
 
   private isClosableConnector() {
     return [ProviderType.FORTMATIC, ProviderType.WALLET_CONNECT].includes(
-      this.providerType
+      this.providerType!
     )
   }
 
@@ -119,7 +109,7 @@ class ConnectionManager {
   private isLegacyProvider(provider: LegacyProvider | Provider): boolean {
     return (
       typeof provider['request'] === 'undefined' &&
-      typeof provider['send'] !== undefined
+      typeof provider['send'] !== 'undefined'
     )
   }
 }
