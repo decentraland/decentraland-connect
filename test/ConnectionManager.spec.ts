@@ -51,7 +51,7 @@ describe('ConnectionManager', () => {
       expect(activateStub.calledOnce).to.eq(true)
     })
 
-    it.only('should return the connection data', async () => {
+    it('should return the connection data', async () => {
       const stubConnector = new StubConnector()
       sinon.stub(connectionManager, 'getConnector').returns(stubConnector)
 
