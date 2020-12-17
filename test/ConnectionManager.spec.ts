@@ -1,7 +1,8 @@
 import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
 import sinon from 'sinon'
-import { ConnectionManager } from '../src/ConnectionManager'
+import { ConnectionManager, connection } from '../src/ConnectionManager'
+import { LocalStorage } from '../src/storage'
 import { ChainId, ClosableConnector, ProviderType } from '../src/types'
 import { StubClosableConnector, StubConnector, StubStorage } from './utils'
 
@@ -20,6 +21,12 @@ describe('ConnectionManager', () => {
   afterEach(() => {
     sinon.restore()
     storage.clean()
+  })
+
+  describe('connection', () => {
+    it('should use LocalStorage as its storage', () => {
+      expect(connection.storage).to.instanceOf(LocalStorage)
+    })
   })
 
   describe('#connect', () => {
