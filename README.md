@@ -19,15 +19,15 @@ Connect to the Ethereum network with ease
 - [Development](#development)
 - [Copyright](#copyright)
 
-## API
+# API
 
 The API surface is fairly small, you'll mainly be using the exported `connection` object, which is an instance of the also exported `ConnectionManager` using the default `LocalStorage`.
 
-### ConnectionManager
+## ConnectionManager
 
 Handles the connection to the Ethereum network. It takes a [`Storage`](#Storage) as the only argument, which will be used to store the last used connection.
 
-#### .connect()
+### .connect()
 
 **Definition**
 
@@ -36,21 +36,13 @@ Handles the connection to the Ethereum network. It takes a [`Storage`](#Storage)
 **Response**
 A [`ConnectionResponse`](#ConnectionResponse) object
 
-#### .disconnect()
+### .disconnect()
 
 **Definition**
 
 **Usage**
 
-#### .getAvialableProviders()
-
-**Definition**
-
-**Usage**
-
-**Response**
-
-#### .getProvider()
+### .getAvialableProviders()
 
 **Definition**
 
@@ -58,7 +50,7 @@ A [`ConnectionResponse`](#ConnectionResponse) object
 
 **Response**
 
-#### .createProvider()
+### .getProvider()
 
 **Definition**
 
@@ -66,7 +58,15 @@ A [`ConnectionResponse`](#ConnectionResponse) object
 
 **Response**
 
-### connection
+### .createProvider()
+
+**Definition**
+
+**Usage**
+
+**Response**
+
+## connection
 
 Instance of [`ConnectionManager`](#ConnectionManager), using [`LocalStorage`](#LocalStorage) as it's internal storage engine, which translates to:
 
@@ -74,7 +74,7 @@ Instance of [`ConnectionManager`](#ConnectionManager), using [`LocalStorage`](#L
 export const connection = new ConnectionMager(new LocalStorage())
 ```
 
-### Storage
+## Storage
 
 Abstract class that defines the methods needed to create a new Storage engine. It only defines two methods:
 
@@ -83,13 +83,13 @@ abstract get(key: string): any | undefined
 abstract set(key: string, value: any): void
 ```
 
-#### LocalStorage
+### LocalStorage
 
 An implementation of the Storage engine which uses `window.localStorage` to store data
 
-### Types
+## Types
 
-#### ProviderType
+### ProviderType
 
 ```typescript
 export enum ProviderType {
@@ -99,7 +99,7 @@ export enum ProviderType {
 }
 ```
 
-#### ChainId
+### ChainId
 
 ```typescript
 export enum ChainId {
@@ -110,7 +110,7 @@ export enum ChainId {
 }
 ```
 
-#### ConnectionResponse
+### ConnectionResponse
 
 ```typescript
 export type ConnectResponse = {
@@ -120,7 +120,7 @@ export type ConnectResponse = {
 }
 ```
 
-## Example use
+# Example use
 
 ```typescript
 import {
@@ -153,7 +153,7 @@ function showAvailableProviders() {
 }
 ```
 
-### Development
+# Development
 
 To run the project you simply need to
 
@@ -169,6 +169,6 @@ you can also check the test report using
 npm run test:report
 ```
 
-## Copyright
+# Copyright
 
 This repository is protected with a standard Apache 2 license. See the terms and conditions in the [LICENSE](https://github.com/decentraland/decentraland-connect/blob/master/LICENSE) file.
