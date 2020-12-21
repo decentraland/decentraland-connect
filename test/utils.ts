@@ -41,7 +41,7 @@ export class StubClosableConnector extends StubConnector {
 export class StubStorage extends Storage {
   value: any
 
-  get(_key: string) {
+  get(_key: string = '') {
     return this.value
   }
 

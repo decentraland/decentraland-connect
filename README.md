@@ -27,7 +27,7 @@ The API surface is fairly small, you'll mainly be using the exported `connection
 
 Handles the connection to the Ethereum network. It takes a [`Storage`](#Storage) as the only argument, which will be used to store the last used connection.
 
-#### `.connect()`
+#### .connect()
 
 **Definition**
 
@@ -36,21 +36,13 @@ Handles the connection to the Ethereum network. It takes a [`Storage`](#Storage)
 **Response**
 A [`ConnectionResponse`](#ConnectionResponse) object
 
-#### `.disconnect()`
+#### .disconnect()
 
 **Definition**
 
 **Usage**
 
-#### `.getAvialableProviders()`
-
-**Definition**
-
-**Usage**
-
-**Response**
-
-#### `.getProvider()`
+#### .getAvialableProviders()
 
 **Definition**
 
@@ -58,7 +50,15 @@ A [`ConnectionResponse`](#ConnectionResponse) object
 
 **Response**
 
-#### `.createProvider()`
+#### .getProvider()
+
+**Definition**
+
+**Usage**
+
+**Response**
+
+#### .createProvider()
 
 **Definition**
 

@@ -55,32 +55,33 @@ describe('connectors', () => {
 
   describe('WalletConnectConnector', () => {
     describe('#constructor', () => {
-      it('should call super with the configuration and supplied chain id')
-      const chainId = ChainId.KOVAN
-      const url = 'some-weird-url'
+      it('should call super with the configuration and supplied chain id', () => {
+        const chainId = ChainId.KOVAN
+        const url = 'some-weird-url'
 
-      const mockConfiguration = {
-        ...configuration,
-        [ProviderType.WALLET_CONNECT]: {
-          ...configuration[ProviderType.WALLET_CONNECT],
-          urls: {
-            ...configuration[ProviderType.WALLET_CONNECT].urls,
-            [chainId]: url
+        const mockConfiguration = {
+          ...configuration,
+          [ProviderType.WALLET_CONNECT]: {
+            ...configuration[ProviderType.WALLET_CONNECT],
+            urls: {
+              ...configuration[ProviderType.WALLET_CONNECT].urls,
+              [chainId]: url
+            }
           }
         }
-      }
-      const configurationStub = sinon
-        .stub(configurationMethods, 'getConfiguration')
-        .returns(mockConfiguration)
+        const configurationStub = sinon
+          .stub(configurationMethods, 'getConfiguration')
+          .returns(mockConfiguration)
 
-      const connector = new WalletConnectConnector(chainId)
+        const connector = new WalletConnectConnector(chainId)
 
-      expect(connector.getChainId()).to.eventually.eq(chainId)
-      expect(connector.getRpc()).to.eventually.eq(url)
-      expect(connector.getQrCode()).to.eq(true)
-      expect(connector.getPollingInterval()).to.eq(15000)
+        expect(connector.getChainId()).to.eventually.eq(chainId)
+        expect(connector.getRpc()).to.eventually.eq(url)
+        expect(connector.getQrCode()).to.eq(true)
+        expect(connector.getPollingInterval()).to.eq(15000)
 
-      configurationStub.restore()
+        configurationStub.restore()
+      })
     })
   })
 })
