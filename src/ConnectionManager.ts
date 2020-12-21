@@ -36,7 +36,7 @@ export class ConnectionManager {
     }
 
     this.storage.set(storageKey, providerType)
-    this.connector = this.getConnector(this.providerType!, chainId)
+    this.connector = this.getConnector(this.providerType, chainId)
 
     const {
       provider,
