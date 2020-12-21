@@ -1,3 +1,4 @@
+import { expect } from 'chai'
 import Sinon from 'sinon'
 import sinon from 'sinon'
 import { LocalStorage } from '../src/storage'
@@ -10,12 +11,12 @@ describe('LocalStorage', () => {
   }
   let mockStorage: Sinon.SinonMock
 
-  before(() => {
+  beforeEach(() => {
     mockStorage = sinon.mock(windowLocalStorage)
     browser.window = { localStorage: windowLocalStorage }
   })
 
-  after(() => {
+  afterEach(() => {
     mockStorage.restore()
     browser.window = undefined
   })
@@ -23,15 +24,33 @@ describe('LocalStorage', () => {
   describe('#get', () => {
     it('should call the window localStorage get method', () => {
       const key = 'key'
+      const value = 'value'
       mockStorage
         .expects('getItem')
         .once()
         .withArgs(key)
+        .returns(value)
 
       const localStorage = new LocalStorage()
-      localStorage.get(key)
+      const result = localStorage.get(key)
 
       mockStorage.verify()
+      expect(result).to.eq(value)
+    })
+
+    it('should return undefined when the key does not exist', () => {
+      const key = 'key'
+      mockStorage
+        .expects('getItem')
+        .once()
+        .withArgs(key)
+        .returns(null)
+
+      const localStorage = new LocalStorage()
+      const result = localStorage.get(key)
+
+      mockStorage.verify()
+      expect(result).to.eq(undefined)
     })
   })
 

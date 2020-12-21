@@ -8,6 +8,7 @@
     "contracts": "web3x-codegen",
     "test": "nyc mocha --require ts-node/register --project ./tsconfig.json --watch-files src, test/**/*.ts",
     "test:watch": "npm test -- --watch",
+    "test:report": "npx nyc --silent --no-clean npm run test && npx nyc report --reporter=lcov --reporter=text",
     "semantic-release": "semantic-release",
     "commitmsg": "validate-commit-msg"
   },

@@ -1,31 +1,29 @@
 import { ChainId, ProviderType } from './types'
 
-export function getConfiguration() {
-  return {
-    storageKey: getEnv('STORAGE_KEY'),
+const configuration = Object.freeze({
+  storageKey: 'storage-key',
 
-    [ProviderType.INJECTED]: {},
+  [ProviderType.INJECTED]: {},
 
-    [ProviderType.FORTMATIC]: {
-      apiKeys: {
-        [ChainId.MAINNET]: getEnv('FORTMATIC_LIVE_KEY'),
-        [ChainId.ROPSTEN]: getEnv('FORTMATIC_TEST_KEY'),
-        [ChainId.RINKEBY]: getEnv('FORTMATIC_TEST_KEY'),
-        [ChainId.KOVAN]: getEnv('FORTMATIC_TEST_KEY')
-      }
-    },
+  [ProviderType.FORTMATIC]: {
+    apiKeys: {
+      [ChainId.MAINNET]: 'pk_live_D7297F51E9776DD2',
+      [ChainId.ROPSTEN]: 'pk_test_198DDD3CA646DE2F',
+      [ChainId.RINKEBY]: 'pk_test_198DDD3CA646DE2F',
+      [ChainId.KOVAN]: 'pk_test_198DDD3CA646DE2F'
+    }
+  },
 
-    [ProviderType.WALLET_CONNECT]: {
-      urls: {
-        [ChainId.MAINNET]: getEnv('WALLET_CONNECT_LIVE_RPC'),
-        [ChainId.ROPSTEN]: getEnv('WALLET_CONNECT_TEST_RPC'),
-        [ChainId.RINKEBY]: getEnv('WALLET_CONNECT_TEST_RPC'),
-        [ChainId.KOVAN]: getEnv('WALLET_CONNECT_TEST_RPC')
-      }
+  [ProviderType.WALLET_CONNECT]: {
+    urls: {
+      [ChainId.MAINNET]: 'https://mainnet.mycustomnode.com',
+      [ChainId.ROPSTEN]: 'https://ropsten.mycustomnode.com',
+      [ChainId.RINKEBY]: 'https://ropsten.mycustomnode.com',
+      [ChainId.KOVAN]: 'https://ropsten.mycustomnode.com'
     }
   }
-}
+})
 
-function getEnv(key: string): string {
-  return process.env[key] || ''
+export function getConfiguration() {
+  return configuration
 }

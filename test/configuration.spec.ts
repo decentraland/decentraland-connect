@@ -3,23 +3,7 @@ import { getConfiguration } from '../src/configuration'
 import { ChainId, ProviderType } from '../src/types'
 
 describe('#getConfiguration', () => {
-  let env: NodeJS.ProcessEnv = process.env
-
-  after(() => {
-    process.env = env
-  })
-
   it('should return the configuration using the environment', () => {
-    process.env = {
-      STORAGE_KEY: 'storage-key',
-
-      FORTMATIC_TEST_KEY: 'pk_test_198DDD3CA646DE2F',
-      FORTMATIC_LIVE_KEY: 'pk_live_D7297F51E9776DD2',
-
-      WALLET_CONNECT_TEST_RPC: 'https://ropsten.mycustomnode.com',
-      WALLET_CONNECT_LIVE_RPC: 'https://mainnet.mycustomnode.com'
-    }
-
     expect(getConfiguration()).to.deep.eq({
       storageKey: 'storage-key',
 
