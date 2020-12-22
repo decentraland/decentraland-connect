@@ -1,6 +1,7 @@
 import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
 import sinon from 'sinon'
+import { getConfiguration } from '../src/configuration'
 import { ConnectionManager, connection } from '../src/ConnectionManager'
 import { LocalStorage } from '../src/storage'
 import { ChainId, ClosableConnector, ProviderType } from '../src/types'
@@ -20,7 +21,7 @@ describe('ConnectionManager', () => {
 
   afterEach(() => {
     sinon.restore()
-    storage.clean()
+    storage.clear()
   })
 
   describe('connection', () => {
@@ -30,15 +31,6 @@ describe('ConnectionManager', () => {
   })
 
   describe('#connect', () => {
-    it('should set the provider type', async () => {
-      const stubConnector = new StubConnector()
-      sinon.stub(connectionManager, 'getConnector').returns(stubConnector)
-
-      expect(connectionManager.providerType).to.eq(undefined)
-      await connectionManager.connect(ProviderType.INJECTED)
-      expect(connectionManager.providerType).to.eq(ProviderType.INJECTED)
-    })
-
     it('should set the connector', async () => {
       const stubConnector = new StubConnector()
       sinon.stub(connectionManager, 'getConnector').returns(stubConnector)
@@ -112,11 +104,16 @@ describe('ConnectionManager', () => {
 
     it('should store the last provider and chain', async () => {
       const stubConnector = new StubConnector()
+      const configuration = getConfiguration()
       sinon.stub(connectionManager, 'getConnector').returns(stubConnector)
 
-      await connectionManager.connect(ProviderType.INJECTED)
+      await connectionManager.connect(ProviderType.INJECTED, ChainId.KOVAN)
 
-      expect(storage.get()).to.eq(ProviderType.INJECTED)
+      const value = JSON.stringify({
+        providerType: ProviderType.INJECTED,
+        chainId: ChainId.KOVAN
+      })
+      expect(storage.get(configuration.storageKey)).to.eq(value)
     })
 
     it('should connect to the last supplied provider', async () => {
@@ -166,23 +163,34 @@ describe('ConnectionManager', () => {
     })
 
     it('should call close if the provider type allows it', async () => {
-      await deactivate(ProviderType.FORTMATIC, true)
-      await deactivate(ProviderType.WALLET_CONNECT, true)
-      await deactivate(ProviderType.INJECTED, false)
+      connectionManager.connector = new StubClosableConnector()
+      const closeStub = sinon.stub(
+        connectionManager.connector as ClosableConnector,
+        'close'
+      )
 
-      async function deactivate(providerType: ProviderType, result: boolean) {
-        connectionManager.providerType = providerType
-        connectionManager.connector = new StubClosableConnector()
-        const closeStub = sinon.stub(
-          connectionManager.connector as ClosableConnector,
-          'close'
-        )
+      await connectionManager.disconnect()
 
-        await connectionManager.disconnect()
+      expect(closeStub.calledOnce).to.eq(true)
+      sinon.restore()
+    })
 
-        expect(closeStub.calledOnce).to.eq(result)
-        sinon.restore()
-      }
+    it('should clean the storage', async () => {
+      const configuration = getConfiguration()
+      storage.set(configuration.storageKey, 'data')
+
+      connectionManager.connector = new StubConnector()
+      await connectionManager.disconnect()
+
+      expect(storage.get(configuration.storageKey)).to.eq(undefined)
+    })
+
+    it('should clean the instance variables', async () => {
+      connectionManager.connector = new StubConnector()
+
+      await connectionManager.disconnect()
+
+      expect(connectionManager.connector).to.eq(undefined)
     })
   })
 

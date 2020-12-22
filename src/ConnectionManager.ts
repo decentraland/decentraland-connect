@@ -10,7 +10,8 @@ import {
   RequestArguments,
   ProviderType,
   ChainId,
-  ConnectResponse,
+  ConnectionData,
+  ConnectionResponse,
   Provider,
   ClosableConnector,
   LegacyProvider
@@ -19,7 +20,6 @@ import { getConfiguration } from './configuration'
 import './declarations'
 
 export class ConnectionManager {
-  providerType?: ProviderType
   connector?: AbstractConnector
 
   constructor(public storage: Storage) {}
@@ -27,16 +27,18 @@ export class ConnectionManager {
   async connect(
     providerType?: ProviderType,
     chainId: ChainId = ChainId.MAINNET
-  ): Promise<ConnectResponse> {
-    const { storageKey } = getConfiguration()
-
-    this.providerType = providerType || this.storage.get(storageKey)
-    if (!this.providerType) {
-      throw new Error('connect called without a provider and none was stored')
+  ): Promise<ConnectionResponse> {
+    if (!providerType) {
+      const connectionData = this.getConnectionData()
+      if (!connectionData) {
+        throw new Error('connect called without a provider and none was stored')
+      }
+      providerType = connectionData.providerType
+      chainId = connectionData.chainId
     }
 
-    this.storage.set(storageKey, providerType)
-    this.connector = this.getConnector(this.providerType, chainId)
+    this.setConnectionData(providerType, chainId)
+    this.connector = this.getConnector(providerType, chainId)
 
     const {
       provider,
@@ -65,6 +67,9 @@ export class ConnectionManager {
       if (this.isClosableConnector()) {
         await (this.connector as ClosableConnector).close()
       }
+
+      this.storage.clear()
+      this.connector = undefined
     }
   }
 
@@ -100,10 +105,23 @@ export class ConnectionManager {
     }
   }
 
+  private getConnectionData(): ConnectionData | undefined {
+    const { storageKey } = getConfiguration()
+    const connectionData = this.storage.get(storageKey)
+    return connectionData ? JSON.parse(connectionData) : undefined
+  }
+
+  private setConnectionData(providerType: ProviderType, chainId: ChainId) {
+    const { storageKey } = getConfiguration()
+    const connectionData = JSON.stringify({
+      providerType,
+      chainId
+    } as ConnectionData)
+    this.storage.set(storageKey, connectionData)
+  }
+
   private isClosableConnector() {
-    return [ProviderType.FORTMATIC, ProviderType.WALLET_CONNECT].includes(
-      this.providerType!
-    )
+    return this.connector && typeof this.connector['close'] !== 'undefined'
   }
 
   private toProvider(provider: LegacyProvider | Provider): Provider {

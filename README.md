@@ -38,7 +38,7 @@ Calling `.connect()` (no params) with no previous successfull call, will throw.
 async connect(
   providerType?: ProviderType,
   chainId: ChainId = ChainId.MAINNET
-): Promise<ConnectResponse>
+): Promise<ConnectionResponse>
 ```
 
 **Usage**
@@ -177,7 +177,7 @@ export enum ChainId {
 ### ConnectionResponse
 
 ```typescript
-export type ConnectResponse = {
+export type ConnectionResponse = {
   provider: Provider
   chainId: ChainId
   account: null | string
@@ -189,13 +189,13 @@ export type ConnectResponse = {
 ```typescript
 import {
   connection,
-  ConnectResponse,
+  ConnectionResponse,
   ProviderType,
   ChainId
 } from 'decentraland-connection'
 
 async function connect() {
-  let result: ConnectResponse
+  let result: ConnectionResponse
   try {
     result = await connection.connect() // this will throw if no successful connect was called before
   } catch (error) {

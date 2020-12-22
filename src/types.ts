@@ -28,7 +28,12 @@ export interface Provider extends EventEmitter {
 
 export type LegacyProvider = Pick<Provider, 'send'>
 
-export type ConnectResponse = {
+export type ConnectionData = {
+  providerType: ProviderType
+  chainId: ChainId
+}
+
+export type ConnectionResponse = {
   provider: Provider
   chainId: ChainId
   account: null | string

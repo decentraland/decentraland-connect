@@ -39,17 +39,17 @@ export class StubClosableConnector extends StubConnector {
 }
 
 export class StubStorage extends Storage {
-  value: any
+  cache: Record<string, any> = {}
 
-  get(_key: string = '') {
-    return this.value
+  get(key: string) {
+    return this.cache[key]
   }
 
-  set(_key: string, value: any) {
-    this.value = value
+  set(key: string, value: any) {
+    this.cache[key] = value
   }
 
-  clean() {
-    this.value = undefined
+  clear() {
+    this.cache = {}
   }
 }

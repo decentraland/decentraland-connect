@@ -9,4 +9,8 @@ export class LocalStorage extends Storage {
   set(key: string, value: any): void {
     window.localStorage.setItem(key, value)
   }
+
+  clear(): void {
+    window.localStorage.clear()
+  }
 }
