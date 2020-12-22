@@ -141,6 +141,7 @@ Abstract class that defines the methods needed to create a new Storage engine. I
 ```typescript
 abstract get(key: string): any | undefined
 abstract set(key: string, value: any): void
+abstract clear(): void
 ```
 
 ### LocalStorage
