@@ -29,42 +29,102 @@ Handles the connection to the Ethereum network. It takes a [`Storage`](#Storage)
 
 ### .connect()
 
+connects to the supplied provider type and chain. It'll default to `mainnet` if no chain is supplied. After a successfull call the params will be stored using the supplied [Storage](#Storage), which will allow you to call connect without any params.
+Calling `.connect()` (no params) with no previous successfull call, will throw.
+
 **Definition**
+
+```typescript
+async connect(
+  providerType?: ProviderType,
+  chainId: ChainId = ChainId.MAINNET
+): Promise<ConnectResponse>
+```
 
 **Usage**
 
-**Response**
-A [`ConnectionResponse`](#ConnectionResponse) object
+```typescript
+const connection = new ConnectionManager(new Storage())
+await connection.connect(ProviderType.INJECTED, ChainId.ROPSTEN)
+
+// if successfull you can later do
+await connection.connect() // Connects with ProviderType.INJECTED ChainId.ROPSTEN
+```
 
 ### .disconnect()
 
+Disconnects the previous connection. It'll do nothing if no connection is found.
+
 **Definition**
 
+```typescript
+async disconnect()
+```
+
 **Usage**
+
+```typescript
+const connection = new ConnectionManager(new Storage())
+connection.connect(ProviderType.INJECTED, ChainId.ROPSTEN)
+
+// (...)
+
+connection.disconnect()
+```
 
 ### .getAvialableProviders()
 
+Returns the providers available for connection. If for example no `window` object is found, `ProviderType.INJECTED` will not be returned on the list
+
 **Definition**
+
+```typescript
+getAvailableProviders(): ProviderType[]
+```
 
 **Usage**
 
-**Response**
+```typescript
+connection.getAvailableProviders()
+```
 
 ### .getProvider()
 
+Get's the currently connected provider. It'll throw if no connection was made, similar to calling [.connect()](#connect) wihtout params the first time
+
 **Definition**
+
+```typescript
+async getProvider(): Promise<Provider>
+```
 
 **Usage**
 
-**Response**
+```typescript
+const provider = await connection.getProvider()
+```
 
 ### .createProvider()
 
+It creates a new provider using the supplied arguments. Similar to calling `.connect()` but without actually connecting.
+
 **Definition**
+
+```typescript
+async createProvider(
+  providerType: ProviderType,
+  chainId: ChainId = ChainId.MAINNET
+): Promise<Provider> {
+```
 
 **Usage**
 
-**Response**
+```typescript
+const provider = await connection.createProvider(
+  Provider.FORTMATIC,
+  ChainId.ROPSTEN
+)
+```
 
 ## connection
 
@@ -91,6 +151,8 @@ An implementation of the Storage engine which uses `window.localStorage` to stor
 
 ### ProviderType
 
+Represents the different types of connectors to the Ethereum Network
+
 ```typescript
 export enum ProviderType {
   INJECTED = 'injected',
@@ -100,6 +162,8 @@ export enum ProviderType {
 ```
 
 ### ChainId
+
+Different Ethereum chains
 
 ```typescript
 export enum ChainId {
