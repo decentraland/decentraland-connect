@@ -3,6 +3,11 @@ import chaiAsPromised from 'chai-as-promised'
 import sinon from 'sinon'
 import { getConfiguration } from '../src/configuration'
 import { ConnectionManager, connection } from '../src/ConnectionManager'
+import {
+  FortmaticConnector,
+  InjectedConnector,
+  WalletConnectConnector
+} from '../src/connectors'
 import { LocalStorage } from '../src/storage'
 import { ChainId, ClosableConnector, ProviderType } from '../src/types'
 import { StubClosableConnector, StubConnector, StubStorage } from './utils'
@@ -238,6 +243,7 @@ describe('ConnectionManager', () => {
     })
 
     it('should throw if no successful connect occurred', () => {
+      connectionManager.connector = undefined
       expect(connectionManager.getProvider()).to.eventually.throw(
         new Error('No valid connector found. Please .connect() first')
       )
@@ -263,6 +269,42 @@ describe('ConnectionManager', () => {
       ])
 
       browser.window = undefined
+    })
+  })
+
+  describe('#getConnector', () => {
+    it('should throw if an invalid provider type is supplied', () => {
+      const providerType = 'Invalid Provider Type' as any
+      expect(() =>
+        connectionManager.getConnector(providerType, ChainId.MAINNET)
+      ).to.throw(`Invalid provider ${providerType}`)
+    })
+
+    it('should return an instance of FortmaticConnector for the supplied chain', () => {
+      const connector = connectionManager.getConnector(
+        ProviderType.FORTMATIC,
+        ChainId.KOVAN
+      )
+      expect(connector).to.be.instanceOf(FortmaticConnector)
+      expect(connector.getChainId()).to.eventually.eq(ChainId.KOVAN)
+    })
+
+    it('should return an instance of InjectedConnector for the supplied chain', () => {
+      const connector = connectionManager.getConnector(
+        ProviderType.INJECTED,
+        ChainId.KOVAN
+      )
+      expect(connector).to.be.instanceOf(InjectedConnector)
+      expect(connector.getChainId()).to.eventually.eq(ChainId.KOVAN)
+    })
+
+    it('should return an instance of WalletConnectConnector for the supplied chain', () => {
+      const connector = connectionManager.getConnector(
+        ProviderType.WALLET_CONNECT,
+        ChainId.KOVAN
+      )
+      expect(connector).to.be.instanceOf(WalletConnectConnector)
+      expect(connector.getChainId()).to.eventually.eq(ChainId.KOVAN)
     })
   })
 })

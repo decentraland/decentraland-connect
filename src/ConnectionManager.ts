@@ -94,10 +94,10 @@ export class ConnectionManager {
     chainId: ChainId
   ): AbstractConnector {
     switch (providerType) {
-      case ProviderType.INJECTED:
-        return new InjectedConnector(chainId)
       case ProviderType.FORTMATIC:
         return new FortmaticConnector(chainId)
+      case ProviderType.INJECTED:
+        return new InjectedConnector(chainId)
       case ProviderType.WALLET_CONNECT:
         return new WalletConnectConnector(chainId)
       default:
