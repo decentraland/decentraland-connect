@@ -120,7 +120,7 @@ describe('ConnectionManager', () => {
     it('should throw if called without provider type and none is found on storage', () => {
       expect(connectionManager.tryPreviousConnection()).to.eventually.throw(
         new Error(
-          "Couldn't find a valid provider. Make sure to call the `connect` method first"
+          'Could not find a valid provider. Make sure to call the `connect` method first'
         )
       )
     })

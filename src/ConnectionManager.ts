@@ -47,7 +47,7 @@ export class ConnectionManager {
     const connectionData = this.getConnectionData()
     if (!connectionData) {
       throw new Error(
-        "Couldn't find a valid provider. Make sure to call the `connect` method first"
+        'Could not find a valid provider. Make sure to call the `connect` method first'
       )
     }
 
