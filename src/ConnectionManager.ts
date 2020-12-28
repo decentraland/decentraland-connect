@@ -25,18 +25,9 @@ export class ConnectionManager {
   constructor(public storage: Storage) {}
 
   async connect(
-    providerType?: ProviderType,
+    providerType: ProviderType,
     chainId: ChainId = ChainId.MAINNET
   ): Promise<ConnectionResponse> {
-    if (!providerType) {
-      const connectionData = this.getConnectionData()
-      if (!connectionData) {
-        throw new Error('connect called without a provider and none was stored')
-      }
-      providerType = connectionData.providerType
-      chainId = connectionData.chainId
-    }
-
     this.setConnectionData(providerType, chainId)
     this.connector = this.getConnector(providerType, chainId)
 
@@ -50,6 +41,17 @@ export class ConnectionManager {
       account: account || '',
       chainId
     }
+  }
+
+  async tryPreviousConnection(): Promise<ConnectionResponse> {
+    const connectionData = this.getConnectionData()
+    if (!connectionData) {
+      throw new Error(
+        'Could not find a valid provider. Make sure to call the `connect` method first'
+      )
+    }
+
+    return this.connect(connectionData.providerType, connectionData.chainId)
   }
 
   getAvailableProviders(): ProviderType[] {

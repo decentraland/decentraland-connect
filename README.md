@@ -29,14 +29,13 @@ Handles the connection to the Ethereum network. It takes a [`Storage`](#Storage)
 
 ### .connect()
 
-connects to the supplied provider type and chain. It'll default to `mainnet` if no chain is supplied. After a successfull call the params will be stored using the supplied [Storage](#Storage), which will allow you to call connect without any params.
-Calling `.connect()` (no params) with no previous successfull call, will throw.
+Connects to the supplied provider type and chain. It'll default to `mainnet` if no chain is supplied. After a successfull call the params will be stored using the supplied [Storage](#Storage), which will allow you to call `tryPreviousConnection()`.
 
 **Definition**
 
 ```typescript
 async connect(
-  providerType?: ProviderType,
+  providerType: ProviderType,
   chainId: ChainId = ChainId.MAINNET
 ): Promise<ConnectionResponse>
 ```
@@ -46,14 +45,31 @@ async connect(
 ```typescript
 const connection = new ConnectionManager(new Storage())
 await connection.connect(ProviderType.INJECTED, ChainId.ROPSTEN)
+```
 
-// if successfull you can later do
-await connection.connect() // Connects with ProviderType.INJECTED ChainId.ROPSTEN
+### .tryPreviousConnection()
+
+Will try to connect to the provider and chain stored from the last successfull `.connect()`. It'll throw otherwise.
+
+**Definition**
+
+```typescript
+async tryPreviousConnection(): Promise<ConnectionResponse>
+```
+
+**Usage**
+
+```typescript
+// Calls connect first
+const connection = new ConnectionManager(new Storage())
+await connection.connect(ProviderType.INJECTED, ChainId.ROPSTEN)
+
+await connection.tryPreviousConnection() // Connects with ProviderType.INJECTED ChainId.ROPSTEN
 ```
 
 ### .disconnect()
 
-Disconnects the previous connection. It'll do nothing if no connection is found.
+Disconnects the previous connection and clears the storage. It'll do nothing if no connection is found.
 
 **Definition**
 
@@ -90,7 +106,7 @@ connection.getAvailableProviders()
 
 ### .getProvider()
 
-Get's the currently connected provider. It'll throw if no connection was made, similar to calling [.connect()](#connect) wihtout params the first time
+Get's the currently connected provider. It'll throw if no connection was made, similar to calling `.connect()` without params the first time
 
 **Definition**
 

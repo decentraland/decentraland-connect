@@ -101,12 +101,6 @@ describe('ConnectionManager', () => {
       )
     })
 
-    it('should throw if called wihtout provider type and none is found on storage', () => {
-      expect(connectionManager.connect()).to.eventually.throw(
-        new Error('connect called without a provider and none was stored')
-      )
-    })
-
     it('should store the last provider and chain', async () => {
       const stubConnector = new StubConnector()
       const configuration = getConfiguration()
@@ -120,6 +114,16 @@ describe('ConnectionManager', () => {
       })
       expect(storage.get(configuration.storageKey)).to.eq(value)
     })
+  })
+
+  describe('#tryPreviousConnection', () => {
+    it('should throw if called without provider type and none is found on storage', () => {
+      expect(connectionManager.tryPreviousConnection()).to.eventually.throw(
+        new Error(
+          'Could not find a valid provider. Make sure to call the `connect` method first'
+        )
+      )
+    })
 
     it('should connect to the last supplied provider', async () => {
       const stubConnector = new StubConnector()
@@ -128,7 +132,7 @@ describe('ConnectionManager', () => {
         .returns(stubConnector)
 
       await connectionManager.connect(ProviderType.FORTMATIC)
-      const result = await connectionManager.connect()
+      const result = await connectionManager.tryPreviousConnection()
       const { account } = await stubConnector.activate()
 
       expect(
