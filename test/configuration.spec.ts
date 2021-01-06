@@ -5,7 +5,7 @@ import { ChainId, ProviderType } from '../src/types'
 describe('#getConfiguration', () => {
   it('should return the configuration using the environment', () => {
     expect(getConfiguration()).to.deep.eq({
-      storageKey: 'storage-key',
+      storageKey: 'decentraland-connect-storage-key',
 
       [ProviderType.INJECTED]: {},
       [ProviderType.FORTMATIC]: {
