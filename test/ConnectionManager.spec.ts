@@ -267,9 +267,9 @@ describe('ConnectionManager', () => {
       browser.window = { ethereum: true }
 
       expect(connectionManager.getAvailableProviders()).to.deep.eq([
+        ProviderType.INJECTED,
         ProviderType.FORTMATIC,
-        ProviderType.WALLET_CONNECT,
-        ProviderType.INJECTED
+        ProviderType.WALLET_CONNECT
       ])
 
       browser.window = undefined

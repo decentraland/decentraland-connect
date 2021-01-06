@@ -1,7 +1,7 @@
 import { ChainId, ProviderType } from './types'
 
 const configuration = Object.freeze({
-  storageKey: 'storage-key',
+  storageKey: 'decentraland-connect-storage-key',
 
   [ProviderType.INJECTED]: {},
 
