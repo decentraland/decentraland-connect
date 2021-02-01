@@ -201,7 +201,7 @@ export type ConnectionResponse = {
 }
 ```
 
-# Example use
+# Example
 
 ```typescript
 import {
