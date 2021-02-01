@@ -4,7 +4,7 @@
 
 Connect to the Ethereum network with ease
 
-# Table of content
+# Table of contents
 
 - [API](#api)
   - [ConnectionManager](#ConnectionManager)
