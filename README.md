@@ -209,7 +209,7 @@ import {
   ConnectionResponse,
   ProviderType,
   ChainId
-} from 'decentraland-connection'
+} from 'decentraland-connect'
 
 async function connect() {
   let result: ConnectionResponse
