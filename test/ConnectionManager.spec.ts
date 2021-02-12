@@ -38,7 +38,7 @@ describe('ConnectionManager', () => {
   describe('#connect', () => {
     it('should set the connector', async () => {
       const stubConnector = new StubConnector()
-      sinon.stub(connectionManager, 'getConnector').returns(stubConnector)
+      sinon.stub(connectionManager, 'buildConnector').returns(stubConnector)
 
       expect(connectionManager.connector).to.eq(undefined)
       await connectionManager.connect(ProviderType.INJECTED)
@@ -48,7 +48,7 @@ describe('ConnectionManager', () => {
     it('should activate the connector', async () => {
       const stubConnector = new StubConnector()
       const getConnectorStub = sinon
-        .stub(connectionManager, 'getConnector')
+        .stub(connectionManager, 'buildConnector')
         .returns(stubConnector)
       const activateStub = sinon.stub(stubConnector, 'activate').callThrough()
 
@@ -60,7 +60,7 @@ describe('ConnectionManager', () => {
 
     it('should return the connection data', async () => {
       const stubConnector = new StubConnector()
-      sinon.stub(connectionManager, 'getConnector').returns(stubConnector)
+      sinon.stub(connectionManager, 'buildConnector').returns(stubConnector)
 
       const result = await connectionManager.connect(
         ProviderType.INJECTED,
@@ -82,7 +82,7 @@ describe('ConnectionManager', () => {
 
     it('should not patch the provider with the request method if it already exists', async () => {
       const stubConnector = new StubConnector()
-      sinon.stub(connectionManager, 'getConnector').returns(stubConnector)
+      sinon.stub(connectionManager, 'buildConnector').returns(stubConnector)
 
       const result = await connectionManager.connect(
         ProviderType.INJECTED,
@@ -104,7 +104,7 @@ describe('ConnectionManager', () => {
     it('should store the last provider and chain', async () => {
       const stubConnector = new StubConnector()
       const configuration = getConfiguration()
-      sinon.stub(connectionManager, 'getConnector').returns(stubConnector)
+      sinon.stub(connectionManager, 'buildConnector').returns(stubConnector)
 
       await connectionManager.connect(ProviderType.INJECTED, ChainId.KOVAN)
 
@@ -128,7 +128,7 @@ describe('ConnectionManager', () => {
     it('should connect to the last supplied provider', async () => {
       const stubConnector = new StubConnector()
       const getConnectorStub = sinon
-        .stub(connectionManager, 'getConnector')
+        .stub(connectionManager, 'buildConnector')
         .returns(stubConnector)
 
       await connectionManager.connect(ProviderType.FORTMATIC)
@@ -151,6 +151,24 @@ describe('ConnectionManager', () => {
           chainId: ChainId.MAINNET
         })
       )
+    })
+  })
+
+  describe('#getConnectionData', () => {
+    it('should return the data used on the last successful connection', async () => {
+      const stubConnector = new StubConnector()
+      sinon.stub(connectionManager, 'buildConnector').returns(stubConnector)
+
+      await connectionManager.connect(ProviderType.INJECTED, ChainId.KOVAN)
+
+      expect(connectionManager.getConnectionData()).to.deep.eq({
+        providerType: ProviderType.INJECTED,
+        chainId: ChainId.KOVAN
+      })
+    })
+
+    it('should return undefined if no connection happneed', () => {
+      expect(connectionManager.getConnectionData()).to.eq(undefined)
     })
   })
 
@@ -214,7 +232,7 @@ describe('ConnectionManager', () => {
         const provider = { send: () => {} }
 
         const getConnectorStub = sinon
-          .stub(connectionManager, 'getConnector')
+          .stub(connectionManager, 'buildConnector')
           .returns(stubConnector)
         const getProviderStub = sinon
           .stub(stubConnector, 'getProvider')
@@ -276,16 +294,16 @@ describe('ConnectionManager', () => {
     })
   })
 
-  describe('#getConnector', () => {
+  describe('#buildConnector', () => {
     it('should throw if an invalid provider type is supplied', () => {
       const providerType = 'Invalid Provider Type' as any
       expect(() =>
-        connectionManager.getConnector(providerType, ChainId.MAINNET)
+        connectionManager.buildConnector(providerType, ChainId.MAINNET)
       ).to.throw(`Invalid provider ${providerType}`)
     })
 
     it('should return an instance of FortmaticConnector for the supplied chain', () => {
-      const connector = connectionManager.getConnector(
+      const connector = connectionManager.buildConnector(
         ProviderType.FORTMATIC,
         ChainId.KOVAN
       )
@@ -294,7 +312,7 @@ describe('ConnectionManager', () => {
     })
 
     it('should return an instance of InjectedConnector for the supplied chain', () => {
-      const connector = connectionManager.getConnector(
+      const connector = connectionManager.buildConnector(
         ProviderType.INJECTED,
         ChainId.KOVAN
       )
@@ -303,7 +321,7 @@ describe('ConnectionManager', () => {
     })
 
     it('should return an instance of WalletConnectConnector for the supplied chain', () => {
-      const connector = connectionManager.getConnector(
+      const connector = connectionManager.buildConnector(
         ProviderType.WALLET_CONNECT,
         ChainId.KOVAN
       )

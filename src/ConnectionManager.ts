@@ -29,7 +29,7 @@ export class ConnectionManager {
     chainId: ChainId = ChainId.MAINNET
   ): Promise<ConnectionResponse> {
     this.setConnectionData(providerType, chainId)
-    this.connector = this.getConnector(providerType, chainId)
+    this.connector = this.buildConnector(providerType, chainId)
 
     const {
       provider,
@@ -86,12 +86,12 @@ export class ConnectionManager {
     providerType: ProviderType,
     chainId: ChainId = ChainId.MAINNET
   ): Promise<Provider> {
-    const connector = this.getConnector(providerType, chainId)
+    const connector = this.buildConnector(providerType, chainId)
     const provider = await connector.getProvider()
     return this.toProvider(provider)
   }
 
-  getConnector(
+  buildConnector(
     providerType: ProviderType,
     chainId: ChainId
   ): AbstractConnector {
@@ -107,7 +107,7 @@ export class ConnectionManager {
     }
   }
 
-  private getConnectionData(): ConnectionData | undefined {
+  getConnectionData(): ConnectionData | undefined {
     const { storageKey } = getConfiguration()
     const connectionData = this.storage.get(storageKey)
     return connectionData ? JSON.parse(connectionData) : undefined
