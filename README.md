@@ -88,6 +88,29 @@ connection.connect(ProviderType.INJECTED, ChainId.ROPSTEN)
 connection.disconnect()
 ```
 
+### .getConnectionData()
+
+Returns the data used for the last successfull [.connect()](#connect) call. It's used by [.tryPreviousConnection](#trypreviousconnection) to determine which connection to use. Check [ConnectionData](#ConnectionData) for more info on the returned type
+
+**Definition**
+
+```typescript
+getConnectionData(): ConnectionData | undefined
+```
+
+**Usage**
+
+```typescript
+const connection = new ConnectionManager(new Storage())
+connection.connect(ProviderType.INJECTED, ChainId.ROPSTEN)
+
+// (...)
+
+const connectionData = connection.getConnectionData() // => connectionData is ConnectionData
+```
+
+
+
 ### .getAvialableProviders()
 
 Returns the providers available for connection. If for example no `window` object is found, `ProviderType.INJECTED` will not be returned on the list
@@ -198,6 +221,15 @@ export type ConnectionResponse = {
   provider: Provider
   chainId: ChainId
   account: null | string
+}
+```
+
+### ConnectionData
+
+```typescript
+export type ConnectionData = {
+  providerType: ProviderType
+  chainId: ChainId
 }
 ```
 
