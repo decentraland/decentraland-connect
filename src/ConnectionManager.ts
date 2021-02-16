@@ -26,7 +26,7 @@ export class ConnectionManager {
 
   async connect(
     providerType: ProviderType,
-    chainId: ChainId = ChainId.MAINNET
+    chainId: ChainId = ChainId.ETHEREUM_MAINNET
   ): Promise<ConnectionResponse> {
     this.setConnectionData(providerType, chainId)
     this.connector = this.buildConnector(providerType, chainId)
@@ -84,7 +84,7 @@ export class ConnectionManager {
 
   async createProvider(
     providerType: ProviderType,
-    chainId: ChainId = ChainId.MAINNET
+    chainId: ChainId = ChainId.ETHEREUM_MAINNET
   ): Promise<Provider> {
     const connector = this.buildConnector(providerType, chainId)
     const provider = await connector.getProvider()

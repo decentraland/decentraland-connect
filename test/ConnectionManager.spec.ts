@@ -64,7 +64,7 @@ describe('ConnectionManager', () => {
 
       const result = await connectionManager.connect(
         ProviderType.INJECTED,
-        ChainId.ROPSTEN
+        ChainId.ETHEREUM_ROPSTEN
       )
       const activateResult = await stubConnector.activate()
 
@@ -75,7 +75,7 @@ describe('ConnectionManager', () => {
             send: () => {}
           },
           account: activateResult.account,
-          chainId: ChainId.ROPSTEN
+          chainId: ChainId.ETHEREUM_ROPSTEN
         })
       )
     })
@@ -86,7 +86,7 @@ describe('ConnectionManager', () => {
 
       const result = await connectionManager.connect(
         ProviderType.INJECTED,
-        ChainId.ROPSTEN
+        ChainId.ETHEREUM_ROPSTEN
       )
       const { account } = await stubConnector.activate()
 
@@ -96,7 +96,7 @@ describe('ConnectionManager', () => {
             request: () => {}
           },
           account,
-          chainId: ChainId.ROPSTEN
+          chainId: ChainId.ETHEREUM_ROPSTEN
         })
       )
     })
@@ -106,11 +106,14 @@ describe('ConnectionManager', () => {
       const configuration = getConfiguration()
       sinon.stub(connectionManager, 'buildConnector').returns(stubConnector)
 
-      await connectionManager.connect(ProviderType.INJECTED, ChainId.KOVAN)
+      await connectionManager.connect(
+        ProviderType.INJECTED,
+        ChainId.ETHEREUM_KOVAN
+      )
 
       const value = JSON.stringify({
         providerType: ProviderType.INJECTED,
-        chainId: ChainId.KOVAN
+        chainId: ChainId.ETHEREUM_KOVAN
       })
       expect(storage.get(configuration.storageKey)).to.eq(value)
     })
@@ -148,7 +151,7 @@ describe('ConnectionManager', () => {
             request: () => {}
           },
           account,
-          chainId: ChainId.MAINNET
+          chainId: ChainId.ETHEREUM_MAINNET
         })
       )
     })
@@ -159,11 +162,14 @@ describe('ConnectionManager', () => {
       const stubConnector = new StubConnector()
       sinon.stub(connectionManager, 'buildConnector').returns(stubConnector)
 
-      await connectionManager.connect(ProviderType.INJECTED, ChainId.KOVAN)
+      await connectionManager.connect(
+        ProviderType.INJECTED,
+        ChainId.ETHEREUM_KOVAN
+      )
 
       expect(connectionManager.getConnectionData()).to.deep.eq({
         providerType: ProviderType.INJECTED,
-        chainId: ChainId.KOVAN
+        chainId: ChainId.ETHEREUM_KOVAN
       })
     })
 
@@ -298,35 +304,35 @@ describe('ConnectionManager', () => {
     it('should throw if an invalid provider type is supplied', () => {
       const providerType = 'Invalid Provider Type' as any
       expect(() =>
-        connectionManager.buildConnector(providerType, ChainId.MAINNET)
+        connectionManager.buildConnector(providerType, ChainId.ETHEREUM_MAINNET)
       ).to.throw(`Invalid provider ${providerType}`)
     })
 
     it('should return an instance of FortmaticConnector for the supplied chain', () => {
       const connector = connectionManager.buildConnector(
         ProviderType.FORTMATIC,
-        ChainId.KOVAN
+        ChainId.ETHEREUM_KOVAN
       )
       expect(connector).to.be.instanceOf(FortmaticConnector)
-      expect(connector.getChainId()).to.eventually.eq(ChainId.KOVAN)
+      expect(connector.getChainId()).to.eventually.eq(ChainId.ETHEREUM_KOVAN)
     })
 
     it('should return an instance of InjectedConnector for the supplied chain', () => {
       const connector = connectionManager.buildConnector(
         ProviderType.INJECTED,
-        ChainId.KOVAN
+        ChainId.ETHEREUM_KOVAN
       )
       expect(connector).to.be.instanceOf(InjectedConnector)
-      expect(connector.getChainId()).to.eventually.eq(ChainId.KOVAN)
+      expect(connector.getChainId()).to.eventually.eq(ChainId.ETHEREUM_KOVAN)
     })
 
     it('should return an instance of WalletConnectConnector for the supplied chain', () => {
       const connector = connectionManager.buildConnector(
         ProviderType.WALLET_CONNECT,
-        ChainId.KOVAN
+        ChainId.ETHEREUM_KOVAN
       )
       expect(connector).to.be.instanceOf(WalletConnectConnector)
-      expect(connector.getChainId()).to.eventually.eq(ChainId.KOVAN)
+      expect(connector.getChainId()).to.eventually.eq(ChainId.ETHEREUM_KOVAN)
     })
   })
 })

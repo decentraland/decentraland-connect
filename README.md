@@ -36,7 +36,7 @@ Connects to the supplied provider type and chain. It'll default to `mainnet` if 
 ```typescript
 async connect(
   providerType: ProviderType,
-  chainId: ChainId = ChainId.MAINNET
+  chainId: ChainId = ChainId.ETHEREUM_MAINNET
 ): Promise<ConnectionResponse>
 ```
 
@@ -44,7 +44,7 @@ async connect(
 
 ```typescript
 const connection = new ConnectionManager(new Storage())
-await connection.connect(ProviderType.INJECTED, ChainId.ROPSTEN)
+await connection.connect(ProviderType.INJECTED, ChainId.ETHEREUM_ROPSTEN)
 ```
 
 ### .tryPreviousConnection()
@@ -62,9 +62,9 @@ async tryPreviousConnection(): Promise<ConnectionResponse>
 ```typescript
 // Calls connect first
 const connection = new ConnectionManager(new Storage())
-await connection.connect(ProviderType.INJECTED, ChainId.ROPSTEN)
+await connection.connect(ProviderType.INJECTED, ChainId.ETHEREUM_ROPSTEN)
 
-await connection.tryPreviousConnection() // Connects with ProviderType.INJECTED ChainId.ROPSTEN
+await connection.tryPreviousConnection() // Connects with ProviderType.INJECTED ChainId.ETHEREUM.ROPSTEN
 ```
 
 ### .disconnect()
@@ -81,7 +81,7 @@ async disconnect()
 
 ```typescript
 const connection = new ConnectionManager(new Storage())
-connection.connect(ProviderType.INJECTED, ChainId.ROPSTEN)
+connection.connect(ProviderType.INJECTED, ChainId.ETHEREUM_ROPSTEN)
 
 // (...)
 
@@ -102,7 +102,7 @@ getConnectionData(): ConnectionData | undefined
 
 ```typescript
 const connection = new ConnectionManager(new Storage())
-connection.connect(ProviderType.INJECTED, ChainId.ROPSTEN)
+connection.connect(ProviderType.INJECTED, ChainId.ETHEREUM_ROPSTEN)
 
 // (...)
 
@@ -152,7 +152,7 @@ It creates a new provider using the supplied arguments. Similar to calling `.con
 ```typescript
 async createProvider(
   providerType: ProviderType,
-  chainId: ChainId = ChainId.MAINNET
+  chainId: ChainId = ChainId.ETHEREUM_MAINNET
 ): Promise<Provider> {
 ```
 
@@ -161,7 +161,7 @@ async createProvider(
 ```typescript
 const provider = await connection.createProvider(
   Provider.FORTMATIC,
-  ChainId.ROPSTEN
+  ChainId.ETHEREUM_ROPSTEN
 )
 ```
 
@@ -194,7 +194,7 @@ An implementation of the Storage engine which uses `window.localStorage` to stor
 Represents the different types of connectors to the Ethereum Network
 
 ```typescript
-export enum ProviderType {
+enum ProviderType {
   INJECTED = 'injected',
   FORTMATIC = 'formatic',
   WALLET_CONNECT = 'wallet_connect'
@@ -206,18 +206,21 @@ export enum ProviderType {
 Different Ethereum chains
 
 ```typescript
-export enum ChainId {
-  MAINNET = 1,
-  ROPSTEN = 3,
-  RINKEBY = 4,
-  KOVAN = 42
+enum ChainId {
+  ETHEREUM_MAINNET = 1,
+  ETHEREUM_ROPSTEN = 3,
+  ETHEREUM_RINKEBY = 4,
+  ETHEREUM_GOERLI = 5,
+  ETHEREUM_KOVAN = 42,
+  MATIC_MUMBAI = 13881,
+  MATIC_MAINNET = 89
 }
 ```
 
 ### ConnectionResponse
 
 ```typescript
-export type ConnectionResponse = {
+type ConnectionResponse = {
   provider: Provider
   chainId: ChainId
   account: null | string
@@ -227,7 +230,7 @@ export type ConnectionResponse = {
 ### ConnectionData
 
 ```typescript
-export type ConnectionData = {
+type ConnectionData = {
   providerType: ProviderType
   chainId: ChainId
 }
