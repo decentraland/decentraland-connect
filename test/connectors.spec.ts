@@ -14,7 +14,7 @@ describe('connectors', () => {
   describe('FortmaticConnector', () => {
     describe('#constructor', () => {
       it('should call super with the Fortmatic configuration for the supplied chain id', () => {
-        const chainId = ChainId.ROPSTEN
+        const chainId = ChainId.ETHEREUM_ROPSTEN
         const apiKey = 'test-api-key'
 
         const mockConfiguration = {
@@ -44,7 +44,7 @@ describe('connectors', () => {
   describe('InjectedConnector', () => {
     describe('#constructor', () => {
       it('should call super with the supplied chain id as supported chain ids', () => {
-        const chainId = ChainId.RINKEBY
+        const chainId = ChainId.ETHEREUM_RINKEBY
         const connector = new InjectedConnector(chainId)
 
         expect(connector.getChainId()).to.eventually.eq(chainId)
@@ -56,7 +56,7 @@ describe('connectors', () => {
   describe('WalletConnectConnector', () => {
     describe('#constructor', () => {
       it('should call super with the configuration and supplied chain id', () => {
-        const chainId = ChainId.KOVAN
+        const chainId = ChainId.ETHEREUM_KOVAN
         const url = 'some-weird-url'
 
         const mockConfiguration = {

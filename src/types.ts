@@ -8,10 +8,13 @@ export enum ProviderType {
 }
 
 export enum ChainId {
-  MAINNET = 1,
-  ROPSTEN = 3,
-  RINKEBY = 4,
-  KOVAN = 42
+  ETHEREUM_MAINNET = 1,
+  ETHEREUM_ROPSTEN = 3,
+  ETHEREUM_RINKEBY = 4,
+  ETHEREUM_GOERLI = 5,
+  ETHEREUM_KOVAN = 42,
+  MATIC_MUMBAI = 13881,
+  MATIC_MAINNET = 89
 }
 
 export type RequestArguments = {

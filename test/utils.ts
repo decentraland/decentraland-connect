@@ -20,7 +20,7 @@ export class StubConnector extends AbstractConnector {
   }
 
   async getChainId(): Promise<number | string> {
-    return ChainId.MAINNET
+    return ChainId.ETHEREUM_MAINNET
   }
 
   async getAccount(): Promise<null | string> {
