@@ -1,8 +1,9 @@
 import { expect } from 'chai'
 import sinon from 'sinon'
 import {
-  FortmaticConnector,
   InjectedConnector,
+  FortmaticConnector,
+  NetworkConnector,
   WalletConnectConnector
 } from '../src/connectors'
 import * as configurationMethods from '../src/configuration'
@@ -10,6 +11,18 @@ import { ChainId, ProviderType } from '../src/types'
 
 describe('connectors', () => {
   const configuration = configurationMethods.getConfiguration()
+
+  describe('InjectedConnector', () => {
+    describe('#constructor', () => {
+      it('should call super with the supplied chain id as supported chain ids', () => {
+        const chainId = ChainId.ETHEREUM_RINKEBY
+        const connector = new InjectedConnector(chainId)
+
+        expect(connector.getChainId()).to.eventually.eq(chainId)
+        expect(connector.supportedChainIds).to.deep.eq([chainId])
+      })
+    })
+  })
 
   describe('FortmaticConnector', () => {
     describe('#constructor', () => {
@@ -41,14 +54,30 @@ describe('connectors', () => {
     })
   })
 
-  describe('InjectedConnector', () => {
+  describe('NetworkConnector', () => {
     describe('#constructor', () => {
-      it('should call super with the supplied chain id as supported chain ids', () => {
+      it('should call super with the supplied chain id as default chain id', () => {
         const chainId = ChainId.ETHEREUM_RINKEBY
-        const connector = new InjectedConnector(chainId)
+        const connector = new NetworkConnector(chainId)
 
         expect(connector.getChainId()).to.eventually.eq(chainId)
-        expect(connector.supportedChainIds).to.deep.eq([chainId])
+      })
+    })
+
+    describe('#getURLs', () => {
+      it('should return the available RPC urls', () => {
+        const connector = new NetworkConnector(ChainId.ETHEREUM_MAINNET)
+        const urls = connector.getURLs()
+        // We only care about keys here, the values can change
+        expect(Object.keys(urls).map(Number)).to.deep.eq([
+          ChainId.ETHEREUM_MAINNET,
+          ChainId.ETHEREUM_ROPSTEN,
+          ChainId.ETHEREUM_RINKEBY,
+          ChainId.ETHEREUM_GOERLI,
+          ChainId.ETHEREUM_KOVAN,
+          ChainId.MATIC_MAINNET,
+          ChainId.MATIC_MUMBAI
+        ])
       })
     })
   })

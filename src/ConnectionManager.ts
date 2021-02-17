@@ -1,9 +1,10 @@
 import { ConnectorUpdate } from '@web3-react/types'
 import {
   AbstractConnector,
-  FortmaticConnector,
   InjectedConnector,
-  WalletConnectConnector
+  FortmaticConnector,
+  WalletConnectConnector,
+  NetworkConnector
 } from './connectors'
 import { LocalStorage, Storage } from './storage'
 import {
@@ -96,12 +97,14 @@ export class ConnectionManager {
     chainId: ChainId
   ): AbstractConnector {
     switch (providerType) {
-      case ProviderType.FORTMATIC:
-        return new FortmaticConnector(chainId)
       case ProviderType.INJECTED:
         return new InjectedConnector(chainId)
+      case ProviderType.FORTMATIC:
+        return new FortmaticConnector(chainId)
       case ProviderType.WALLET_CONNECT:
         return new WalletConnectConnector(chainId)
+      case ProviderType.NETWORK:
+        return new NetworkConnector(chainId)
       default:
         throw new Error(`Invalid provider ${providerType}`)
     }
