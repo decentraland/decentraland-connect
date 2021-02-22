@@ -1,6 +1,7 @@
+import { ChainId } from '@dcl/schemas'
 import { expect } from 'chai'
 import { getConfiguration } from '../src/configuration'
-import { ChainId, ProviderType } from '../src/types'
+import { ProviderType } from '../src/types'
 
 describe('#getConfiguration', () => {
   it('should return the configuration using the environment', () => {

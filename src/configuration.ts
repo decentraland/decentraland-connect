@@ -1,4 +1,5 @@
-import { ChainId, ProviderType } from './types'
+import { ChainId } from '@dcl/schemas'
+import { ProviderType } from './types'
 
 const configuration = Object.freeze({
   storageKey: 'decentraland-connect-storage-key',

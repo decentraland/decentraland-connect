@@ -1,6 +1,6 @@
+import { ChainId } from '@dcl/schemas'
 import { ConnectorUpdate } from '@web3-react/types'
 import { AbstractConnector } from '../src/connectors/AbstractConnector'
-import { ChainId } from '../src/types'
 import { Storage } from '../src/storage'
 
 export class StubConnector extends AbstractConnector {

@@ -1,3 +1,4 @@
+import { ChainId } from '@dcl/schemas'
 import { AbstractConnector } from '@web3-react/abstract-connector'
 import { EventEmitter } from 'events'
 
@@ -6,16 +7,6 @@ export enum ProviderType {
   FORTMATIC = 'formatic',
   NETWORK = 'network',
   WALLET_CONNECT = 'wallet_connect'
-}
-
-export enum ChainId {
-  ETHEREUM_MAINNET = 1,
-  ETHEREUM_ROPSTEN = 3,
-  ETHEREUM_RINKEBY = 4,
-  ETHEREUM_GOERLI = 5,
-  ETHEREUM_KOVAN = 42,
-  MATIC_MAINNET = 89,
-  MATIC_MUMBAI = 13881
 }
 
 export type RequestArguments = {

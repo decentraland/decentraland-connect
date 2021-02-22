@@ -1,5 +1,4 @@
 import { expect } from 'chai'
-import Sinon from 'sinon'
 import sinon from 'sinon'
 import { LocalStorage } from '../src/storage'
 
@@ -10,7 +9,7 @@ describe('LocalStorage', () => {
     setItem: (_key: string, _value: any) => {},
     clear: () => {}
   }
-  let mockStorage: Sinon.SinonMock
+  let mockStorage: sinon.SinonMock
 
   beforeEach(() => {
     mockStorage = sinon.mock(windowLocalStorage)

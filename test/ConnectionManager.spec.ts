@@ -1,6 +1,7 @@
 import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
 import sinon from 'sinon'
+import { ChainId } from '@dcl/schemas'
 import { getConfiguration } from '../src/configuration'
 import { ConnectionManager, connection } from '../src/ConnectionManager'
 import {
@@ -9,7 +10,7 @@ import {
   WalletConnectConnector
 } from '../src/connectors'
 import { LocalStorage } from '../src/storage'
-import { ChainId, ClosableConnector, ProviderType } from '../src/types'
+import { ClosableConnector, ProviderType } from '../src/types'
 import { StubClosableConnector, StubConnector, StubStorage } from './utils'
 
 chai.use(chaiAsPromised)

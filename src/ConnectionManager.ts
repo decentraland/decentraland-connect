@@ -1,3 +1,4 @@
+import { ChainId } from '@dcl/schemas'
 import { ConnectorUpdate } from '@web3-react/types'
 import {
   AbstractConnector,
@@ -10,7 +11,6 @@ import { LocalStorage, Storage } from './storage'
 import {
   RequestArguments,
   ProviderType,
-  ChainId,
   ConnectionData,
   ConnectionResponse,
   Provider,
