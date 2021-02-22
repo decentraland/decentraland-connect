@@ -4,6 +4,7 @@ import { EventEmitter } from 'events'
 export enum ProviderType {
   INJECTED = 'injected',
   FORTMATIC = 'formatic',
+  NETWORK = 'network',
   WALLET_CONNECT = 'wallet_connect'
 }
 
@@ -13,8 +14,8 @@ export enum ChainId {
   ETHEREUM_RINKEBY = 4,
   ETHEREUM_GOERLI = 5,
   ETHEREUM_KOVAN = 42,
-  MATIC_MUMBAI = 13881,
-  MATIC_MAINNET = 89
+  MATIC_MAINNET = 89,
+  MATIC_MUMBAI = 13881
 }
 
 export type RequestArguments = {

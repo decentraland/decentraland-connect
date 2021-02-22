@@ -109,8 +109,6 @@ connection.connect(ProviderType.INJECTED, ChainId.ETHEREUM_ROPSTEN)
 const connectionData = connection.getConnectionData() // => connectionData is ConnectionData
 ```
 
-
-
 ### .getAvialableProviders()
 
 Returns the providers available for connection. If for example no `window` object is found, `ProviderType.INJECTED` will not be returned on the list
@@ -197,6 +195,7 @@ Represents the different types of connectors to the Ethereum Network
 enum ProviderType {
   INJECTED = 'injected',
   FORTMATIC = 'formatic',
+  NETWORK = 'network'
   WALLET_CONNECT = 'wallet_connect'
 }
 ```
