@@ -1,5 +1,5 @@
+import { ChainId } from '@dcl/schemas'
 import { NetworkConnector as BaseNetworkConnector } from '@web3-react/network-connector'
-import { ChainId } from '../types'
 
 export const RPC_URLS = Object.freeze({
   [ChainId.ETHEREUM_MAINNET]:

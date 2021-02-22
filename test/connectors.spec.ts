@@ -1,5 +1,6 @@
 import { expect } from 'chai'
 import sinon from 'sinon'
+import { ChainId } from '@dcl/schemas'
 import {
   InjectedConnector,
   FortmaticConnector,
@@ -7,7 +8,7 @@ import {
   WalletConnectConnector
 } from '../src/connectors'
 import * as configurationMethods from '../src/configuration'
-import { ChainId, ProviderType } from '../src/types'
+import { ProviderType } from '../src/types'
 
 describe('connectors', () => {
   const configuration = configurationMethods.getConfiguration()

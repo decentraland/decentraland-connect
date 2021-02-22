@@ -1,6 +1,7 @@
+import { ChainId } from '@dcl/schemas'
 import { FortmaticConnector as BaseFortmaticConnector } from '@web3-react/fortmatic-connector'
 import { getConfiguration } from '../configuration'
-import { ChainId, ProviderType } from '../types'
+import { ProviderType } from '../types'
 
 export class FortmaticConnector extends BaseFortmaticConnector {
   apiKeys: Record<number, string>
