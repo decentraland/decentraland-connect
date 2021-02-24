@@ -9,16 +9,16 @@ export enum ProviderType {
   WALLET_CONNECT = 'wallet_connect'
 }
 
+export type RequestMethod = string
+export type RequestParams = readonly unknown[] | object
+
 export type RequestArguments = {
-  readonly method: string
-  readonly params?: readonly unknown[] | object
+  readonly method: RequestMethod
+  readonly params?: RequestParams
 }
 export interface Provider extends EventEmitter {
   request: (reqArgs: RequestArguments) => Promise<unknown>
-  send: (
-    method: RequestArguments['method'],
-    params: RequestArguments['params']
-  ) => Promise<unknown>
+  send: (method: RequestMethod, params?: RequestParams) => Promise<unknown>
 }
 
 export type LegacyProvider = Pick<Provider, 'send'>

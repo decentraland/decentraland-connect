@@ -15,7 +15,9 @@ import {
   ConnectionResponse,
   Provider,
   ClosableConnector,
-  LegacyProvider
+  LegacyProvider,
+  RequestMethod,
+  RequestParams
 } from './types'
 import { getConfiguration } from './configuration'
 import './declarations'
@@ -130,14 +132,17 @@ export class ConnectionManager {
   }
 
   private toProvider(provider: LegacyProvider | Provider): Provider {
-    const newProvider = provider as Provider
+    const newProvider = provider as LegacyProvider & Provider
 
     if (this.isLegacyProvider(provider)) {
       newProvider.request = ({ method, params }: RequestArguments) =>
-        (provider as LegacyProvider).send(method, params)
+        newProvider.send(method, params)
+    } else {
+      newProvider.send = (method: RequestMethod, params?: RequestParams) =>
+        newProvider.request({ method, params })
     }
 
-    return newProvider
+    return provider as Provider
   }
 
   private isLegacyProvider(provider: LegacyProvider | Provider): boolean {
