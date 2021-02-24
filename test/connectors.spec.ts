@@ -64,23 +64,6 @@ describe('connectors', () => {
         expect(connector.getChainId()).to.eventually.eq(chainId)
       })
     })
-
-    describe('#getURLs', () => {
-      it('should return the available RPC urls', () => {
-        const connector = new NetworkConnector(ChainId.ETHEREUM_MAINNET)
-        const urls = connector.getURLs()
-        // We only care about keys here, the values can change
-        expect(Object.keys(urls).map(Number)).to.deep.eq([
-          ChainId.ETHEREUM_MAINNET,
-          ChainId.ETHEREUM_ROPSTEN,
-          ChainId.ETHEREUM_RINKEBY,
-          ChainId.ETHEREUM_GOERLI,
-          ChainId.ETHEREUM_KOVAN,
-          ChainId.MATIC_MAINNET,
-          ChainId.MATIC_MUMBAI
-        ])
-      })
-    })
   })
 
   describe('WalletConnectConnector', () => {
