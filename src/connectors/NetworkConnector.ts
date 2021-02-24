@@ -20,8 +20,4 @@ export class NetworkConnector extends BaseNetworkConnector {
   constructor(chainId: ChainId) {
     super({ urls: RPC_URLS, defaultChainId: chainId })
   }
-
-  getURLs() {
-    return RPC_URLS
-  }
 }
