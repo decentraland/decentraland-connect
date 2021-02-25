@@ -9,17 +9,14 @@ import {
 } from './connectors'
 import { LocalStorage, Storage } from './storage'
 import {
-  RequestArguments,
   ProviderType,
   ConnectionData,
   ConnectionResponse,
   Provider,
-  ClosableConnector,
-  LegacyProvider,
-  RequestMethod,
-  RequestParams
+  ClosableConnector
 } from './types'
 import { getConfiguration } from './configuration'
+import { ProviderAdapter } from './ProviderAdapter'
 import './declarations'
 
 export class ConnectionManager {
@@ -40,7 +37,8 @@ export class ConnectionManager {
     }: ConnectorUpdate = await this.connector.activate()
 
     return {
-      provider: this.toProvider(provider),
+      provider: ProviderAdapter.adapt(provider),
+      providerType,
       account: account || '',
       chainId
     }
@@ -91,7 +89,7 @@ export class ConnectionManager {
   ): Promise<Provider> {
     const connector = this.buildConnector(providerType, chainId)
     const provider = await connector.getProvider()
-    return this.toProvider(provider)
+    return ProviderAdapter.adapt(provider)
   }
 
   buildConnector(
@@ -129,27 +127,6 @@ export class ConnectionManager {
 
   private isClosableConnector() {
     return this.connector && typeof this.connector['close'] !== 'undefined'
-  }
-
-  private toProvider(provider: LegacyProvider | Provider): Provider {
-    const newProvider = provider as LegacyProvider & Provider
-
-    if (this.isLegacyProvider(provider)) {
-      newProvider.request = ({ method, params }: RequestArguments) =>
-        newProvider.send(method, params)
-    } else {
-      newProvider.send = (method: RequestMethod, params?: RequestParams) =>
-        newProvider.request({ method, params })
-    }
-
-    return provider as Provider
-  }
-
-  private isLegacyProvider(provider: LegacyProvider | Provider): boolean {
-    return (
-      typeof provider['request'] === 'undefined' &&
-      typeof provider['send'] !== 'undefined'
-    )
   }
 }
 
