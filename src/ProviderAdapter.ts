@@ -6,6 +6,11 @@ type Params = Request.Params
 type Arguments = Request.Arguments
 type Callback = Request.Callback
 
+/**
+ * Adapt popular provider methods to they can work across different popular web3 libs (such as web3x and ethers).
+ * `sendAsync`, another popular method, is not being adapted here as we didn't find it necessary in our testing.
+ * In case you need to adapt it, please create and issue or send a PR
+ */
 export class ProviderAdapter {
   constructor(public provider: LegacyProvider | Provider) {}
 
