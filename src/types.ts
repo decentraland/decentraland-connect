@@ -23,11 +23,13 @@ export namespace Request {
 }
 
 export interface Provider extends EventEmitter {
-  request: (reqArgs: Request.Arguments) => Promise<unknown>
-  send: (
+  request(reqArgs: Request.Arguments): Promise<unknown>
+  send(method: Request.Method, params?: Request.Params): Promise<unknown>
+  send(method: Request.Arguments, params?: Request.Callback): Promise<void>
+  send(
     method: Request.Method | Request.Arguments,
     params?: Request.Params | Request.Callback
-  ) => Promise<unknown>
+  ): Promise<unknown>
 }
 
 export type LegacyProvider = Pick<Provider, 'send'>
