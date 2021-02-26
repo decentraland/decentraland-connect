@@ -18,7 +18,7 @@ describe('LocalStorage', () => {
 
   afterEach(() => {
     mockStorage.restore()
-    browser.window = undefined
+    delete browser.window
   })
 
   describe('#get', () => {

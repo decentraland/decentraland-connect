@@ -11,7 +11,12 @@ import {
 } from '../src/connectors'
 import { LocalStorage } from '../src/storage'
 import { ClosableConnector, ProviderType } from '../src/types'
-import { StubClosableConnector, StubConnector, StubStorage } from './utils'
+import {
+  StubClosableConnector,
+  StubConnector,
+  StubStorage,
+  getSendableProvider
+} from './utils'
 
 chai.use(chaiAsPromised)
 const { expect } = chai
@@ -75,6 +80,7 @@ describe('ConnectionManager', () => {
             request: () => {},
             send: () => {}
           },
+          providerType: ProviderType.INJECTED,
           account: activateResult.account,
           chainId: ChainId.ETHEREUM_ROPSTEN
         })
@@ -96,6 +102,7 @@ describe('ConnectionManager', () => {
           provider: {
             request: () => {}
           },
+          providerType: ProviderType.INJECTED,
           account,
           chainId: ChainId.ETHEREUM_ROPSTEN
         })
@@ -108,12 +115,12 @@ describe('ConnectionManager', () => {
       sinon.stub(connectionManager, 'buildConnector').returns(stubConnector)
 
       await connectionManager.connect(
-        ProviderType.INJECTED,
+        ProviderType.NETWORK,
         ChainId.ETHEREUM_KOVAN
       )
 
       const value = JSON.stringify({
-        providerType: ProviderType.INJECTED,
+        providerType: ProviderType.NETWORK,
         chainId: ChainId.ETHEREUM_KOVAN
       })
       expect(storage.get(configuration.storageKey)).to.eq(value)
@@ -122,10 +129,10 @@ describe('ConnectionManager', () => {
 
   describe('#tryPreviousConnection', () => {
     it('should throw if called without provider type and none is found on storage', () => {
-      expect(connectionManager.tryPreviousConnection()).to.eventually.throw(
-        new Error(
-          'Could not find a valid provider. Make sure to call the `connect` method first'
-        )
+      return expect(
+        connectionManager.tryPreviousConnection()
+      ).to.be.rejectedWith(
+        'Could not find a valid provider. Make sure to call the `connect` method first'
       )
     })
 
@@ -151,6 +158,7 @@ describe('ConnectionManager', () => {
           provider: {
             request: () => {}
           },
+          providerType: ProviderType.FORTMATIC,
           account,
           chainId: ChainId.ETHEREUM_MAINNET
         })
@@ -181,7 +189,7 @@ describe('ConnectionManager', () => {
 
   describe('#disconnect', () => {
     it('should not do anything if no connector exists', () => {
-      expect(connectionManager.disconnect()).not.to.eventually.throw()
+      return expect(connectionManager.disconnect()).not.to.be.rejected
     })
 
     it('should deactivate the connector', async () => {
@@ -251,7 +259,6 @@ describe('ConnectionManager', () => {
 
         expect(getConnectorStub.calledWith(providerType)).to.eq(true)
         expect(getProviderStub.calledOnce).to.eq(true)
-        expect(createdProvider).to.eq(provider)
         expect(createdProvider.request).not.to.eq(undefined)
         sinon.restore()
       }
@@ -273,8 +280,8 @@ describe('ConnectionManager', () => {
 
     it('should throw if no successful connect occurred', () => {
       connectionManager.connector = undefined
-      expect(connectionManager.getProvider()).to.eventually.throw(
-        new Error('No valid connector found. Please .connect() first')
+      return expect(connectionManager.getProvider()).to.be.rejectedWith(
+        'No valid connector found. Please .connect() first'
       )
     })
   })
@@ -302,6 +309,13 @@ describe('ConnectionManager', () => {
   })
 
   describe('#buildConnector', () => {
+    const browser: any = global
+    const chainId = ChainId.ETHEREUM_KOVAN
+
+    after(() => {
+      delete browser.window
+    })
+
     it('should throw if an invalid provider type is supplied', () => {
       const providerType = 'Invalid Provider Type' as any
       expect(() =>
@@ -312,28 +326,34 @@ describe('ConnectionManager', () => {
     it('should return an instance of FortmaticConnector for the supplied chain', () => {
       const connector = connectionManager.buildConnector(
         ProviderType.FORTMATIC,
-        ChainId.ETHEREUM_KOVAN
+        chainId
       )
       expect(connector).to.be.instanceOf(FortmaticConnector)
-      expect(connector.getChainId()).to.eventually.eq(ChainId.ETHEREUM_KOVAN)
+      return expect(connector.getChainId()).to.eventually.eq(chainId)
     })
 
     it('should return an instance of InjectedConnector for the supplied chain', () => {
       const connector = connectionManager.buildConnector(
         ProviderType.INJECTED,
-        ChainId.ETHEREUM_KOVAN
+        chainId
       )
+      browser.window = { ethereum: getSendableProvider(chainId) }
+
       expect(connector).to.be.instanceOf(InjectedConnector)
-      expect(connector.getChainId()).to.eventually.eq(ChainId.ETHEREUM_KOVAN)
+      return expect(connector.getChainId()).to.eventually.eq(chainId)
     })
 
-    it('should return an instance of WalletConnectConnector for the supplied chain', () => {
+    it('should return an instance of WalletConnectConnector for the supplied chain', async () => {
       const connector = connectionManager.buildConnector(
         ProviderType.WALLET_CONNECT,
-        ChainId.ETHEREUM_KOVAN
+        chainId
       )
+      ;(connector as WalletConnectConnector).walletConnectProvider = getSendableProvider(
+        chainId
+      )
+
       expect(connector).to.be.instanceOf(WalletConnectConnector)
-      expect(connector.getChainId()).to.eventually.eq(ChainId.ETHEREUM_KOVAN)
+      return expect(connector.getChainId()).to.eventually.eq(chainId)
     })
   })
 })

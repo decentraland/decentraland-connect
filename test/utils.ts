@@ -53,3 +53,16 @@ export class StubStorage extends Storage {
     this.cache = {}
   }
 }
+
+export function getSendableProvider(chainId?: ChainId) {
+  return {
+    send: async (method: string) => {
+      switch (method) {
+        case 'eth_chainId':
+          return chainId
+        default:
+          return undefined
+      }
+    }
+  }
+}
