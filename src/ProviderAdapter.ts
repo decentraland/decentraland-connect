@@ -46,7 +46,7 @@ export class ProviderAdapter {
       callback = paramsOrCallback as Callback
     } else {
       method = methodOrArgs as Method
-      params = paramsOrCallback as Params
+      params = paramsOrCallback || []
     }
 
     const result = await this.request({ method, params })
