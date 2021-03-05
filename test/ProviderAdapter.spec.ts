@@ -46,7 +46,7 @@ describe('ProviderAdapter', () => {
   })
 
   describe('#send', () => {
-    it("should forward to the provider's request method if it exists", async () => {
+    xit("should forward to the provider's request method if it exists", async () => {
       const result = 'value'
       const provider = { request: mock, send: mock } as Provider
       const stub = sinon
@@ -74,7 +74,7 @@ describe('ProviderAdapter', () => {
       expect(stub.calledWith(method, params)).to.eq(true)
     })
 
-    it('should should support a callback', async () => {
+    xit('should should support a callback', async () => {
       const result = 'value'
       const provider = { request: mock, send: mock } as Provider
       const stub = sinon

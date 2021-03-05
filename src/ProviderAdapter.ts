@@ -40,27 +40,20 @@ export class ProviderAdapter {
     let callback: Callback | undefined
 
     if (typeof paramsOrCallback === 'function') {
-      const args = methodOrArgs as Arguments // if sendParams is a function, the first argument has all the other data
-      params = args.params || []
-      method = args.method
       callback = paramsOrCallback as Callback
+
+      const [err, value] = await new Promise(resolve =>
+        this.provider.send(methodOrArgs, (err, value) => {
+          resolve([err, value])
+        })
+      )
+
+      return callback(err, value)
     } else {
       method = methodOrArgs as Method
       params = paramsOrCallback || []
-    }
 
-    const result = await this.request({ method, params })
-
-    if (callback) {
-      // web3x's LegacyProvider does not support undefined results, so we return null instead
-      const returnValue = {
-        id: '',
-        jsonrpc: '2.0',
-        result: typeof result === 'undefined' ? null : result
-      }
-      return callback(null, returnValue)
-    } else {
-      return result
+      return this.provider.send(method, params)
     }
   }
 
