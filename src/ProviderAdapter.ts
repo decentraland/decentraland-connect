@@ -52,7 +52,12 @@ export class ProviderAdapter {
     const result = await this.request({ method, params })
 
     if (callback) {
-      const returnValue = { id: '', jsonrpc: '2.0', result }
+      // web3x's LegacyProvider does not support undefined results, so we return null instead
+      const returnValue = {
+        id: '',
+        jsonrpc: '2.0',
+        result: typeof result === 'undefined' ? null : result
+      }
       return callback(null, returnValue)
     } else {
       return result
