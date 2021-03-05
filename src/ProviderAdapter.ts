@@ -57,10 +57,18 @@ export class ProviderAdapter {
         return callback(err, value)
       }
     } else {
-      method = methodOrArgs as Method
-      params = paramsOrCallback || []
+      if (this.isModernProvider()) {
+        const args = methodOrArgs as Arguments // if sendParams is a function, the first argument has all the other data
+        params = args.params || []
+        method = args.method
 
-      return this.provider.send(method, params)
+        return (this.provider as Provider).request({ method, params })
+      } else {
+        method = methodOrArgs as Method
+        params = paramsOrCallback || []
+
+        return this.provider.send(method, params)
+      }
     }
   }
 
