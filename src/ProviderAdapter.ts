@@ -39,36 +39,33 @@ export class ProviderAdapter {
     let params: Params
     let callback: Callback | undefined
 
-    if (typeof paramsOrCallback === 'function') {
-      callback = paramsOrCallback as Callback
-
-      if (this.isModernProvider()) {
+    if (this.isModernProvider()) {
+      if (typeof paramsOrCallback === 'function') {
         const args = methodOrArgs as Arguments // if sendParams is a function, the first argument has all the other data
         params = args.params || []
         method = args.method
-
-        return (this.provider as Provider).request({ method, params })
-      } else {
-        const [err, value] = await new Promise(resolve =>
-          this.provider.send(methodOrArgs, (err, value) => {
-            resolve([err, value])
-          })
-        )
-        return callback(err, value)
-      }
-    } else {
-      if (this.isModernProvider()) {
-        const args = methodOrArgs as Arguments // if sendParams is a function, the first argument has all the other data
-        params = args.params || []
-        method = args.method
-
-        return (this.provider as Provider).request({ method, params })
       } else {
         method = methodOrArgs as Method
         params = paramsOrCallback || []
-
-        return this.provider.send(method, params)
       }
+
+      return (this.provider as Provider).request({ method, params })
+    }
+
+    if (typeof paramsOrCallback === 'function') {
+      callback = paramsOrCallback as Callback
+
+      const [err, value] = await new Promise(resolve =>
+        this.provider.send(methodOrArgs, (err, value) => {
+          resolve([err, value])
+        })
+      )
+      return callback(err, value)
+    } else {
+      method = methodOrArgs as Method
+      params = paramsOrCallback || []
+
+      return this.provider.send(method, params)
     }
   }
 
