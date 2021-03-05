@@ -24,9 +24,9 @@ export class ProviderAdapter {
   }
 
   async request({ method, params }: Arguments) {
-    return this.isLegacyProvider()
-      ? this.provider.send(method, params)
-      : (this.provider as Provider).request({ method, params })
+    return this.isModernProvider()
+      ? (this.provider as Provider).request({ method, params })
+      : this.provider.send(method, params)
   }
 
   async send(method: Method, params?: Params): Promise<unknown>
@@ -42,13 +42,20 @@ export class ProviderAdapter {
     if (typeof paramsOrCallback === 'function') {
       callback = paramsOrCallback as Callback
 
-      const [err, value] = await new Promise(resolve =>
-        this.provider.send(methodOrArgs, (err, value) => {
-          resolve([err, value])
-        })
-      )
+      if (this.isModernProvider()) {
+        const args = methodOrArgs as Arguments // if sendParams is a function, the first argument has all the other data
+        params = args.params || []
+        method = args.method
 
-      return callback(err, value)
+        return (this.provider as Provider).request({ method, params })
+      } else {
+        const [err, value] = await new Promise(resolve =>
+          this.provider.send(methodOrArgs, (err, value) => {
+            resolve([err, value])
+          })
+        )
+        return callback(err, value)
+      }
     } else {
       method = methodOrArgs as Method
       params = paramsOrCallback || []
@@ -57,10 +64,7 @@ export class ProviderAdapter {
     }
   }
 
-  isLegacyProvider(): boolean {
-    return (
-      typeof this.provider['request'] === 'undefined' &&
-      typeof this.provider['send'] !== 'undefined'
-    )
+  isModernProvider(): boolean {
+    return typeof this.provider['request'] === 'function'
   }
 }

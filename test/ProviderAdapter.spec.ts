@@ -46,21 +46,6 @@ describe('ProviderAdapter', () => {
   })
 
   describe('#send', () => {
-    xit("should forward to the provider's request method if it exists", async () => {
-      const result = 'value'
-      const provider = { request: mock, send: mock } as Provider
-      const stub = sinon
-        .stub(provider, 'request')
-        .returns(Promise.resolve(result))
-
-      const method = 'method'
-      const params = ['0x', 2]
-      const providerAdapter = new ProviderAdapter(provider)
-
-      expect(await providerAdapter.send(method, params)).to.eq(result)
-      expect(stub.calledOnceWith({ method, params })).to.eq(true)
-    })
-
     it("should forward to the provider's send if it lacks a request", async () => {
       const result = 'value'
       const provider = { send: mock } as Provider
@@ -74,12 +59,10 @@ describe('ProviderAdapter', () => {
       expect(stub.calledWith(method, params)).to.eq(true)
     })
 
-    xit('should should support a callback', async () => {
+    it.only('should should support a callback', async () => {
       const result = 'value'
       const provider = { request: mock, send: mock } as Provider
-      const stub = sinon
-        .stub(provider, 'request')
-        .returns(Promise.resolve(result))
+      const stub = sinon.stub(provider, 'send').returns(Promise.resolve(result))
 
       const method = 'method'
       const params = ['0x', 2]
