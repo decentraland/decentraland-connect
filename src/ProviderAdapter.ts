@@ -38,8 +38,9 @@ export class ProviderAdapter {
     let method: Method
     let params: Params
     let callback: Callback
+    const hasCallback = typeof paramsOrCallback === 'function'
 
-    if (typeof paramsOrCallback === 'function') {
+    if (hasCallback) {
       const args = methodOrArgs as Arguments // if sendParams is a function, the first argument has all the other data
       params = args.params || []
       method = args.method
@@ -55,17 +56,19 @@ export class ProviderAdapter {
         method,
         params
       })
-      const returnValue =
-        typeof paramsOrCallback === 'function'
-          ? { id: '', jsonrpc: '2.0', result }
-          : result
+      const returnValue = hasCallback
+        ? { id: '', jsonrpc: '2.0', result }
+        : result
       return callback(null, returnValue)
     } else {
-      const [err, value] = await new Promise(resolve =>
-        this.provider.send(methodOrArgs, (err, value) => {
-          resolve([err, value])
-        })
-      )
+      const [err, value]: [number | null, any] = hasCallback
+        ? await new Promise(resolve =>
+            this.provider.send(methodOrArgs, (err, value) => {
+              resolve([err, value])
+            })
+          )
+        : await this.provider.send(method, params).then(value => [null, value])
+
       return callback(err, value)
     }
   }
