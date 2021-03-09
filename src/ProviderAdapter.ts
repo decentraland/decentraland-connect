@@ -12,7 +12,7 @@ type Callback = Request.Callback
  * In case you need to adapt it, please create and issue or send a PR
  */
 export class ProviderAdapter {
-  constructor(public provider: LegacyProvider | Provider) {}
+  constructor(public provider: LegacyProvider | Provider) { }
 
   static adapt(provider: LegacyProvider | Provider) {
     const providerAdapter = new ProviderAdapter(provider)
@@ -63,11 +63,16 @@ export class ProviderAdapter {
     } else {
       const [err, value]: [number | null, any] = hasCallback
         ? await new Promise(resolve =>
-            this.provider.send(methodOrArgs, (err, value) => {
-              resolve([err, value])
-            })
-          )
-        : await this.provider.send(method, params).then(value => [null, value])
+          this.provider.send(methodOrArgs, (err, value) => {
+            resolve([err, value])
+          })
+        )
+        : await new Promise(resolve => this.provider.send({
+          method,
+          params
+        }, (err, value) => {
+          resolve([err, value.result])
+        }))
 
       return callback(err, value)
     }
