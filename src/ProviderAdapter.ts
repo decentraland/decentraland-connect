@@ -96,6 +96,7 @@ export class ProviderAdapter {
     // Patch for old providers and mobile providers which do not use promises at send as sendAsync
     if (
       this.provider &&
+      !this.provider.isDapper &&
       typeof this.provider.sendAsync === 'function' &&
       this.provider.send !== this.provider.sendAsync
     ) {
