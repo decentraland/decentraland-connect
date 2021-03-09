@@ -61,6 +61,8 @@ export class ProviderAdapter {
         : result
       return callback(null, returnValue)
     } else {
+      this.patchOldMobile()
+
       const [err, value]: [number | null, any] = hasCallback
         ? await new Promise(resolve =>
             this.provider.send(methodOrArgs, (err, value) => {
@@ -74,7 +76,10 @@ export class ProviderAdapter {
                 params
               },
               (err, value) => {
-                resolve([err, value.result])
+                resolve([
+                  err,
+                  value.hasOwnProperty('result') ? value.result : value
+                ])
               }
             )
           )
@@ -85,5 +90,17 @@ export class ProviderAdapter {
 
   isModernProvider(): boolean {
     return typeof this.provider['request'] === 'function'
+  }
+
+  patchOldMobile() {
+    // Patch for old providers and mobile providers which do not use promises at send as sendAsync
+    if (
+      this.provider &&
+      typeof this.provider.sendAsync === 'function' &&
+      this.provider.send !== this.provider.sendAsync
+    ) {
+      // send has to be replaced by sendAsync for old providers
+      this.provider.send = this.provider.sendAsync as any
+    }
   }
 }
