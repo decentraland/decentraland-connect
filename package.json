@@ -5,6 +5,7 @@
   "scripts": {
     "prebuild": "rimraf dist",
     "lint": "tslint --project tsconfig.json -e '*.json' -c tslint.json 'src/**/*.ts{,x}'",
+    "lint:fix": "tslint  --fix --project tsconfig.json -e '*.json' -c tslint.json 'src/**/*.ts{,x}'",
     "build": "npm run lint && tsc --project tsconfig.json",
     "test": "nyc mocha --require ts-node/register --project ./tsconfig.json --watch-files src, test/**/*.ts",
     "test:watch": "npm test -- --watch",
