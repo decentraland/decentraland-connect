@@ -23,6 +23,7 @@ export namespace Request {
 }
 
 export interface Provider extends EventEmitter {
+  isDapper: boolean
   request(reqArgs: Request.Arguments): Promise<unknown>
   send(method: Request.Method, params?: Request.Params): Promise<unknown>
   send(method: Request.Arguments, params?: Request.Callback): Promise<void>
@@ -33,7 +34,7 @@ export interface Provider extends EventEmitter {
   sendAsync(method: Request.Arguments, params?: Request.Callback): Promise<void>
 }
 
-export type LegacyProvider = Pick<Provider, 'send' | 'sendAsync'>
+export type LegacyProvider = Pick<Provider, 'send' | 'sendAsync' | 'isDapper'>
 
 export type ConnectionData = {
   providerType: ProviderType
