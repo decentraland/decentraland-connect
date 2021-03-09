@@ -30,9 +30,10 @@ export interface Provider extends EventEmitter {
     method: Request.Method | Request.Arguments,
     params?: Request.Params | Request.Callback
   ): Promise<unknown>
+  sendAsync(method: Request.Arguments, params?: Request.Callback): Promise<void>
 }
 
-export type LegacyProvider = Pick<Provider, 'send'>
+export type LegacyProvider = Pick<Provider, 'send' | 'sendAsync'>
 
 export type ConnectionData = {
   providerType: ProviderType
