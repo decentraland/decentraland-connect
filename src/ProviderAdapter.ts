@@ -85,7 +85,7 @@ export class ProviderAdapter {
               },
               (err, value) => {
                 resolve([
-                  err,
+                  value && value.hasOwnProperty('error') ? value.error : err,
                   value && value.hasOwnProperty('result') ? value.result : value
                 ])
               }
