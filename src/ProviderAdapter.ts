@@ -72,6 +72,7 @@ export class ProviderAdapter {
         : await new Promise(resolve =>
             this.provider.send(
               {
+                jsonrpc: '2.0',
                 method,
                 params
               },
@@ -97,6 +98,8 @@ export class ProviderAdapter {
     if (
       this.provider &&
       !this.provider.isDapper &&
+      !this.provider.isFortmatic &&
+      !this.provider.isMetamask &&
       typeof this.provider.sendAsync === 'function' &&
       this.provider.send !== this.provider.sendAsync
     ) {
