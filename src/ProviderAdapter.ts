@@ -49,7 +49,12 @@ export class ProviderAdapter {
     } else {
       method = methodOrArgs as Method
       params = paramsOrCallback || []
-      callback = (_err, value) => value
+      callback = (err, value) => {
+        if (err) {
+          throw err
+        }
+        return value
+      }
     }
 
     if (this.isModernProvider()) {
