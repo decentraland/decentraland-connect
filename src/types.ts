@@ -18,6 +18,7 @@ export namespace Request {
     readonly method: Method
     readonly params?: Params
     readonly jsonrpc?: string
+    readonly id?: number
   }
 
   export type Callback = (err: number | null, value: any) => void
