@@ -17,6 +17,7 @@ export namespace Request {
   export type Arguments = {
     readonly method: Method
     readonly params?: Params
+    readonly jsonrpc?: string
   }
 
   export type Callback = (err: number | null, value: any) => void
@@ -24,6 +25,8 @@ export namespace Request {
 
 export interface Provider extends EventEmitter {
   isDapper: boolean
+  isFortmatic: boolean
+  isMetamask: boolean
   request(reqArgs: Request.Arguments): Promise<unknown>
   send(method: Request.Method, params?: Request.Params): Promise<unknown>
   send(method: Request.Arguments, params?: Request.Callback): Promise<void>
@@ -34,7 +37,10 @@ export interface Provider extends EventEmitter {
   sendAsync(method: Request.Arguments, params?: Request.Callback): Promise<void>
 }
 
-export type LegacyProvider = Pick<Provider, 'send' | 'sendAsync' | 'isDapper'>
+export type LegacyProvider = Pick<
+  Provider,
+  'send' | 'sendAsync' | 'isDapper' | 'isFortmatic' | 'isMetamask'
+>
 
 export type ConnectionData = {
   providerType: ProviderType
