@@ -12,6 +12,7 @@ type Callback = Request.Callback
  * In case you need to adapt it, please create and issue or send a PR
  */
 export class ProviderAdapter {
+  id: number = 0
   constructor(public provider: LegacyProvider | Provider) {}
 
   static adapt(provider: LegacyProvider | Provider) {
@@ -73,13 +74,14 @@ export class ProviderAdapter {
             this.provider.send(
               {
                 jsonrpc: '2.0',
+                id: ++this.id,
                 method,
                 params
               },
               (err, value) => {
                 resolve([
                   err,
-                  value.hasOwnProperty('result') ? value.result : value
+                  value && value.hasOwnProperty('result') ? value.result : value
                 ])
               }
             )
