@@ -30,6 +30,10 @@ export class ProviderAdapter {
       : this.provider.send(method, params)
   }
 
+  async sendAsync(args: Arguments, callback: Callback) {
+    return this.provider.sendAsync(args, callback)
+  }
+
   async send(method: Method, params?: Params): Promise<unknown>
   async send(args: Arguments, callback: Callback): Promise<void>
   async send(
