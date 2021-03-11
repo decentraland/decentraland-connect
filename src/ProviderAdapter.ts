@@ -20,7 +20,8 @@ export class ProviderAdapter {
     return {
       ...provider,
       request: providerAdapter.request.bind(providerAdapter),
-      send: providerAdapter.send.bind(providerAdapter)
+      send: providerAdapter.send.bind(providerAdapter),
+      sendAsync: providerAdapter.sendAsync.bind(providerAdapter)
     } as Provider
   }
 
