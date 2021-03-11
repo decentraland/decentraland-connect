@@ -31,7 +31,9 @@ export class ProviderAdapter {
   }
 
   async sendAsync(args: Arguments, callback: Callback) {
-    return this.provider.sendAsync(args, callback)
+    return this.hasSendAsync()
+      ? this.provider.sendAsync(args, callback)
+      : this.send(args, callback)
   }
 
   async send(method: Method, params?: Params): Promise<unknown>
@@ -104,6 +106,10 @@ export class ProviderAdapter {
     return typeof this.provider['request'] === 'function'
   }
 
+  hasSendAsync(): boolean {
+    return typeof this.provider['sendAsync'] === 'function'
+  }
+
   patchOldMobile() {
     // Patch for old providers and mobile providers which do not use promises at send as sendAsync
     if (
@@ -111,7 +117,7 @@ export class ProviderAdapter {
       !this.provider.isDapper &&
       !this.provider.isFortmatic &&
       !this.provider.isMetamask &&
-      typeof this.provider.sendAsync === 'function' &&
+      this.hasSendAsync() &&
       this.provider.send !== this.provider.sendAsync
     ) {
       // send has to be replaced by sendAsync for old providers
