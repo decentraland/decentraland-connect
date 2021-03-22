@@ -82,23 +82,23 @@ describe('ProviderAdapter', () => {
     })
   })
 
-  describe('#isLegacyProvider', () => {
-    it('should return true if the provider supplied has a send method but lacks a request', () => {
+  describe('#isModernProvider', () => {
+    it('should return false if the provider supplied has a send method but lacks a request', () => {
       const provider = { send: mock } as LegacyProvider
-      expect(new ProviderAdapter(provider).isLegacyProvider()).to.eq(true)
+      expect(new ProviderAdapter(provider).isModernProvider()).to.eq(false)
     })
 
-    it('should return false if the provider supplied has a send and also has a request', () => {
+    it('should return true if the provider supplied has a send and also has a request', () => {
       const provider = {
         request: mock,
         send: mock
       } as Provider
-      expect(new ProviderAdapter(provider).isLegacyProvider()).to.eq(false)
+      expect(new ProviderAdapter(provider).isModernProvider()).to.eq(false)
     })
 
-    it('should return false if the provider supplied has a request but lacks a send', () => {
+    it('should return true if the provider supplied has a request but lacks a send', () => {
       const provider = { request: mock } as Provider
-      expect(new ProviderAdapter(provider).isLegacyProvider()).to.eq(false)
+      expect(new ProviderAdapter(provider).isModernProvider()).to.eq(true)
     })
   })
 })
