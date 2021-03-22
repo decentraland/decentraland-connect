@@ -10,7 +10,7 @@ export class LocalStorage extends Storage {
     window.localStorage.setItem(key, value)
   }
 
-  clear(): void {
-    window.localStorage.clear()
+  remove(key: string): void {
+    window.localStorage.removeItem(key)
   }
 }

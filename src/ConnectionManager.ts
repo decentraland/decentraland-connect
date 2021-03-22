@@ -70,8 +70,8 @@ export class ConnectionManager {
       if (this.isClosableConnector()) {
         await (this.connector as ClosableConnector).close()
       }
-
-      this.storage.clear()
+      const { storageKey } = getConfiguration()
+      this.storage.remove(storageKey)
       this.connector = undefined
     }
   }

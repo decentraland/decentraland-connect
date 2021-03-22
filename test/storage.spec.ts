@@ -68,12 +68,16 @@ describe('LocalStorage', () => {
     })
   })
 
-  describe('#clear', () => {
-    it('should call the window localStorage clear method', () => {
-      mockStorage.expects('clear').once()
+  describe('#remove', () => {
+    it('should call the window localStorage removeItem method', () => {
+      const key = 'key'
+      mockStorage
+        .expects('removeItem')
+        .once()
+        .withArgs(key)
 
       const localStorage = new LocalStorage()
-      localStorage.clear()
+      localStorage.remove(key)
     })
   })
 })
