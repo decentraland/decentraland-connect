@@ -5,9 +5,9 @@ import { LocalStorage } from '../src/storage'
 describe('LocalStorage', () => {
   const browser: any = global
   const windowLocalStorage = {
-    getItem: (_key: string) => {},
-    setItem: (_key: string, _value: any) => {},
-    clear: () => {}
+    getItem: (_key: string) => { },
+    setItem: (_key: string, _value: any) => { },
+    removeItem: (_key: string) => { }
   }
   let mockStorage: sinon.SinonMock
 

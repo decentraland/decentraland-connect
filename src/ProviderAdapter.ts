@@ -13,7 +13,7 @@ type Callback = Request.Callback
  */
 export class ProviderAdapter {
   id: number = 0
-  constructor(public provider: LegacyProvider | Provider) {}
+  constructor(public provider: LegacyProvider | Provider) { }
 
   static adapt(provider: LegacyProvider | Provider) {
     const providerAdapter = new ProviderAdapter(provider)
@@ -78,26 +78,27 @@ export class ProviderAdapter {
 
       const [err, value]: [number | null, any] = hasCallback
         ? await new Promise(resolve =>
-            this.provider.send(methodOrArgs, (err, value) => {
-              resolve([err, value])
-            })
+          this.provider.send(methodOrArgs, (err, value) => {
+            resolve([err, value])
+          })
+        )
+        : await new Promise(resolve => {
+          return this.provider.send(
+            {
+              jsonrpc: '2.0',
+              id: ++this.id,
+              method,
+              params
+            },
+            (err, value) => {
+              resolve([
+                value && value.hasOwnProperty('error') ? value.error : err,
+                value && value.hasOwnProperty('result') ? value.result : value
+              ])
+            }
           )
-        : await new Promise(resolve =>
-            this.provider.send(
-              {
-                jsonrpc: '2.0',
-                id: ++this.id,
-                method,
-                params
-              },
-              (err, value) => {
-                resolve([
-                  value && value.hasOwnProperty('error') ? value.error : err,
-                  value && value.hasOwnProperty('result') ? value.result : value
-                ])
-              }
-            )
-          )
+        }
+        )
 
       return callback(err, value)
     }

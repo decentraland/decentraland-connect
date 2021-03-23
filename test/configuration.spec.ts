@@ -11,10 +11,10 @@ describe('#getConfiguration', () => {
       [ProviderType.INJECTED]: {},
       [ProviderType.FORTMATIC]: {
         apiKeys: {
-          [ChainId.ETHEREUM_MAINNET]: 'pk_live_D7297F51E9776DD2',
-          [ChainId.ETHEREUM_ROPSTEN]: 'pk_test_198DDD3CA646DE2F',
-          [ChainId.ETHEREUM_RINKEBY]: 'pk_test_198DDD3CA646DE2F',
-          [ChainId.ETHEREUM_KOVAN]: 'pk_test_198DDD3CA646DE2F'
+          [ChainId.ETHEREUM_MAINNET]: 'pk_live_F8E24DF8DD5BCBC5',
+          [ChainId.ETHEREUM_ROPSTEN]: 'pk_test_5B728BEFE5C10911',
+          [ChainId.ETHEREUM_RINKEBY]: 'pk_test_5B728BEFE5C10911',
+          [ChainId.ETHEREUM_KOVAN]: 'pk_test_5B728BEFE5C10911'
         }
       },
       [ProviderType.WALLET_CONNECT]: {
