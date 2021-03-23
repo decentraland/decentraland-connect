@@ -32,7 +32,8 @@ describe('ConnectionManager', () => {
 
   afterEach(() => {
     sinon.restore()
-    storage.clear()
+    const { storageKey } = getConfiguration()
+    storage.remove(storageKey)
   })
 
   describe('connection', () => {

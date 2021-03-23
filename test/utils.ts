@@ -49,8 +49,8 @@ export class StubStorage extends Storage {
     this.cache[key] = value
   }
 
-  clear() {
-    this.cache = {}
+  remove(key: string) {
+    delete this.cache[key]
   }
 }
 

@@ -5,9 +5,9 @@ import { LocalStorage } from '../src/storage'
 describe('LocalStorage', () => {
   const browser: any = global
   const windowLocalStorage = {
-    getItem: (_key: string) => {},
-    setItem: (_key: string, _value: any) => {},
-    clear: () => {}
+    getItem: (_key: string) => { },
+    setItem: (_key: string, _value: any) => { },
+    removeItem: (_key: string) => { }
   }
   let mockStorage: sinon.SinonMock
 
@@ -68,12 +68,16 @@ describe('LocalStorage', () => {
     })
   })
 
-  describe('#clear', () => {
-    it('should call the window localStorage clear method', () => {
-      mockStorage.expects('clear').once()
+  describe('#remove', () => {
+    it('should call the window localStorage removeItem method', () => {
+      const key = 'key'
+      mockStorage
+        .expects('removeItem')
+        .once()
+        .withArgs(key)
 
       const localStorage = new LocalStorage()
-      localStorage.clear()
+      localStorage.remove(key)
     })
   })
 })

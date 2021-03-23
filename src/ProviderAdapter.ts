@@ -82,8 +82,8 @@ export class ProviderAdapter {
               resolve([err, value])
             })
           )
-        : await new Promise(resolve =>
-            this.provider.send(
+        : await new Promise(resolve => {
+            return this.provider.send(
               {
                 jsonrpc: '2.0',
                 id: ++this.id,
@@ -97,7 +97,7 @@ export class ProviderAdapter {
                 ])
               }
             )
-          )
+          })
 
       return callback(err, value)
     }
