@@ -65,14 +65,18 @@ export class ProviderAdapter {
     }
 
     if (this.isModernProvider()) {
-      const result = await (this.provider as Provider).request({
-        method,
-        params
-      })
+      const [err, result] = await (this.provider as Provider)
+        .request({
+          method,
+          params
+        })
+        .then(result => [null, result])
+        .catch(error => [error, undefined])
+
       const returnValue = hasCallback
         ? { id: '', jsonrpc: '2.0', result }
         : result
-      return callback(null, returnValue)
+      return callback(err, returnValue)
     } else {
       this.patchOldMobile()
 
@@ -82,8 +86,8 @@ export class ProviderAdapter {
               resolve([err, value])
             })
           )
-        : await new Promise(resolve => {
-            return this.provider.send(
+        : await new Promise(resolve =>
+            this.provider.send(
               {
                 jsonrpc: '2.0',
                 id: ++this.id,
@@ -97,7 +101,7 @@ export class ProviderAdapter {
                 ])
               }
             )
-          })
+          )
 
       return callback(err, value)
     }
