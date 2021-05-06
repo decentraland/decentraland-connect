@@ -40,7 +40,14 @@ export interface Provider extends EventEmitter {
 
 export type LegacyProvider = Pick<
   Provider,
-  'send' | 'sendAsync' | 'isDapper' | 'isFortmatic' | 'isMetamask'
+  | 'send'
+  | 'sendAsync'
+  | 'on'
+  | 'emit'
+  | 'removeListener'
+  | 'isDapper'
+  | 'isFortmatic'
+  | 'isMetamask'
 >
 
 export type ConnectionData = {
