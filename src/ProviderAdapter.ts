@@ -19,6 +19,9 @@ export class ProviderAdapter {
     const providerAdapter = new ProviderAdapter(provider)
     return {
       ...provider,
+      on: provider.on.bind(provider),
+      emit: provider.emit.bind(provider),
+      removeListener: provider.removeListener.bind(provider),
       request: providerAdapter.request.bind(providerAdapter),
       send: providerAdapter.send.bind(providerAdapter),
       sendAsync: providerAdapter.sendAsync.bind(providerAdapter)
