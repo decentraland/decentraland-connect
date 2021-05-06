@@ -19,29 +19,44 @@ export class ProviderAdapter {
     const providerAdapter = new ProviderAdapter(provider)
     return {
       ...provider,
-      on: provider.on.bind(provider),
-      emit: provider.emit.bind(provider),
-      removeListener: provider.removeListener.bind(provider),
-      request: providerAdapter.request.bind(providerAdapter),
-      send: providerAdapter.send.bind(providerAdapter),
-      sendAsync: providerAdapter.sendAsync.bind(providerAdapter)
+      on: providerAdapter.on,
+      emit: providerAdapter.emit,
+      removeListener: providerAdapter.removeListener,
+      request: providerAdapter.request,
+      sendAsync: providerAdapter.sendAsync,
+      send: providerAdapter.send.bind(providerAdapter)
     } as Provider
   }
 
-  async request({ method, params }: Arguments) {
+  on = (event: string | symbol, listener: (...args: any[]) => void) => {
+    return this.provider.on(event, listener)
+  }
+
+  emit = (event: string | symbol, ...args: any[]) => {
+    return this.provider.emit(event, args)
+  }
+
+  removeListener = (
+    event: string | symbol,
+    listener: (...args: any[]) => void
+  ) => {
+    return this.provider.removeListener(event, listener)
+  }
+
+  request = async ({ method, params }: Arguments) => {
     return this.isModernProvider()
       ? (this.provider as Provider).request({ method, params })
       : this.provider.send(method, params)
   }
 
-  async sendAsync(args: Arguments, callback: Callback) {
+  sendAsync = async (args: Arguments, callback: Callback) => {
     return this.hasSendAsync()
       ? this.provider.sendAsync(args, callback)
       : this.send(args, callback)
   }
 
-  async send(method: Method, params?: Params): Promise<unknown>
-  async send(args: Arguments, callback: Callback): Promise<void>
+  send(method: Method, params?: Params): Promise<unknown>
+  send(args: Arguments, callback: Callback): Promise<void>
   async send(
     methodOrArgs: Method | Arguments,
     paramsOrCallback?: Params | Callback
