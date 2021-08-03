@@ -46,7 +46,7 @@ export class ProviderAdapter {
   request = async ({ method, params }: Arguments) => {
     return this.isModernProvider()
       ? (this.provider as Provider).request({ method, params })
-      : this.provider.send(method, params)
+      : this.send(method, params)
   }
 
   sendAsync = async (args: Arguments, callback: Callback) => {
