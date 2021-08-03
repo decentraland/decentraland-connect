@@ -17,16 +17,23 @@ describe('ProviderAdapter', () => {
 
   describe('#request', () => {
     it("should forward to the provider's send method if it's legacy", async () => {
-      const provider = { send: mock } as LegacyProvider
+      const provider = { send: (_args: any, callback: any) => callback(null, result) } as Provider
       const result = 'value'
-      const stub = sinon.stub(provider, 'send').returns(Promise.resolve(result))
+      const stub = sinon.stub(provider, 'send').yields(null, result)
 
       const method = 'method'
       const params = ['0x', 2]
       const providerAdapter = new ProviderAdapter(provider)
 
       expect(await providerAdapter.request({ method, params })).to.eq(result)
-      expect(stub.calledOnceWith(method, params)).to.eq(true)
+      expect(stub.calledWith(
+        {
+          jsonrpc: '2.0',
+          id: 1,
+          method,
+          params
+        }
+      )).to.eq(true)
     })
 
     it("should forward to the provider's request method if it exists", async () => {
