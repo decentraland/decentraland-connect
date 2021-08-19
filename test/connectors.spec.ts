@@ -76,7 +76,7 @@ describe('connectors', () => {
 
   describe('WalletConnectConnector', () => {
     describe('#constructor', () => {
-      it('should call super with the configuration and supplied chain id', async () => {
+      it('should call super with the correct configuration', async () => {
         const chainId = ChainId.ETHEREUM_KOVAN
         const url = 'some-weird-url'
 
@@ -94,11 +94,11 @@ describe('connectors', () => {
           .stub(configurationMethods, 'getConfiguration')
           .returns(mockConfiguration)
 
-        const connector = new WalletConnectConnector(chainId)
+        const connector = new WalletConnectConnector()
         connector.walletConnectProvider = getSendableProvider(chainId)
 
         expect(connector.getQrCode()).to.eq(true)
-        expect(connector.getPollingInterval()).to.eq(15000)
+        expect(connector.getPollingInterval()).to.eq(150000)
         expect(await connector.getChainId()).to.eq(chainId)
         expect(await connector.getRpc()).to.eq(url)
 
