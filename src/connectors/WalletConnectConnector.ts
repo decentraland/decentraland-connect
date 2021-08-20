@@ -1,4 +1,3 @@
-import { ChainId } from '@dcl/schemas'
 import { WalletConnectConnector as BaseWalletConnectConnector } from '@web3-react/walletconnect-connector'
 import { getConfiguration } from '../configuration'
 import { ProviderType } from '../types'
@@ -10,12 +9,12 @@ export class WalletConnectConnector extends BaseWalletConnectConnector {
     pollingInterval: number
   }
 
-  constructor(chainId: ChainId) {
+  constructor() {
     const { urls } = getConfiguration()[ProviderType.WALLET_CONNECT]
     const params = {
-      rpc: { [chainId]: urls[chainId] },
+      rpc: urls,
       qrcode: true,
-      pollingInterval: 15000
+      pollingInterval: 150000
     }
 
     super(params)
