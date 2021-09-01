@@ -344,7 +344,7 @@ describe('ConnectionManager', () => {
       return expect(connector.getChainId()).to.eventually.eq(chainId)
     })
 
-    it('should return an instance of WalletConnectConnector for the supplied chain', async () => {
+    it('should return an instance of WalletConnectConnector supporting all chain ids', () => {
       const connector = connectionManager.buildConnector(
         ProviderType.WALLET_CONNECT,
         chainId
@@ -354,7 +354,12 @@ describe('ConnectionManager', () => {
       )
 
       expect(connector).to.be.instanceOf(WalletConnectConnector)
-      return expect(connector.getChainId()).to.eventually.eq(chainId)
+      expect(connector.supportedChainIds).to.deep.eq([
+        ChainId.ETHEREUM_MAINNET,
+        ChainId.ETHEREUM_ROPSTEN,
+        ChainId.ETHEREUM_RINKEBY,
+        ChainId.ETHEREUM_KOVAN
+      ])
     })
   })
 })
