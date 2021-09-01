@@ -99,8 +99,12 @@ describe('connectors', () => {
 
         expect(connector.getQrCode()).to.eq(true)
         expect(connector.getPollingInterval()).to.eq(150000)
-        expect(await connector.getChainId()).to.eq(chainId)
-        expect(await connector.getRpc()).to.eq(url)
+        expect(connector.supportedChainIds).to.deep.eq([
+          ChainId.ETHEREUM_MAINNET,
+          ChainId.ETHEREUM_ROPSTEN,
+          ChainId.ETHEREUM_RINKEBY,
+          ChainId.ETHEREUM_KOVAN
+        ])
 
         configurationStub.restore()
       })
