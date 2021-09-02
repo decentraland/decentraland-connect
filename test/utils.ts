@@ -4,14 +4,18 @@ import { AbstractConnector } from '../src/connectors/AbstractConnector'
 import { Storage } from '../src/storage'
 
 export class StubConnector extends AbstractConnector {
+  public account: string | null = null
+
   async activate(): Promise<ConnectorUpdate> {
+    this.account = '0xdeadbeef'
+
     return {
       provider: {
         send: () => {
           // no-op
         }
       },
-      account: '0xdeadbeef'
+      account: this.account
     }
   }
 
@@ -24,11 +28,11 @@ export class StubConnector extends AbstractConnector {
   }
 
   async getAccount(): Promise<null | string> {
-    return null
+    return this.account
   }
 
   deactivate(): void {
-    // no-op
+    this.account = null
   }
 }
 
