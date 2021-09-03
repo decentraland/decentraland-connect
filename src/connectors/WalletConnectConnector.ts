@@ -32,6 +32,7 @@ function getSupportedChains({
 }
 
 export class BaseWalletConnectConnector extends AbstractConnector {
+  public static isEnabling?: boolean = false
   public walletConnectProvider?: any
 
   private readonly config: WalletConnectConnectorArguments
@@ -54,28 +55,25 @@ export class BaseWalletConnectConnector extends AbstractConnector {
       this.walletConnectProvider = new WalletConnectProvider(this.config)
     }
 
-    // ensure that the uri is going to be available, and emit an event if there's a new uri
-    if (!this.walletConnectProvider.wc.connected) {
-      await this.walletConnectProvider.wc.createSession({
-        chainId:
-          this.supportedChainIds && this.supportedChainIds.length > 0
-            ? this.supportedChainIds[0]
-            : 1
-      })
-      this.emit(URI_AVAILABLE, this.walletConnectProvider.wc.uri)
+    let account = ''
+    if (!BaseWalletConnectConnector.isEnabling) {
+      BaseWalletConnectConnector.isEnabling = true
+
+      account = await this.walletConnectProvider
+        .enable()
+        .then((accounts: string[]): string => accounts[0])
+        .catch((error: Error): void => {
+          // TODO ideally this would be a better check
+          if (error.message === 'User closed modal') {
+            throw new UserRejectedRequestError()
+          }
+
+          throw error
+        })
+        .finally(() => {
+          BaseWalletConnectConnector.isEnabling = false
+        })
     }
-
-    const account = await this.walletConnectProvider
-      .enable()
-      .then((accounts: string[]): string => accounts[0])
-      .catch((error: Error): void => {
-        // TODO ideally this would be a better check
-        if (error.message === 'User closed modal') {
-          throw new UserRejectedRequestError()
-        }
-
-        throw error
-      })
 
     this.walletConnectProvider.on('disconnect', this.handleDisconnect)
     this.walletConnectProvider.on('chainChanged', this.handleChainChanged)

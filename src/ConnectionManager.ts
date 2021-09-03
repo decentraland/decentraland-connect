@@ -28,26 +28,13 @@ export class ConnectionManager {
     providerType: ProviderType,
     chainId: ChainId = ChainId.ETHEREUM_MAINNET
   ): Promise<ConnectionResponse> {
+    this.setConnectionData(providerType, chainId)
     this.connector = this.buildConnector(providerType, chainId)
 
-    let provider: Provider
-    let account: string
-
-    const connectionData = this.getConnectionData()
-    if (
-      connectionData &&
-      connectionData.providerType === providerType &&
-      connectionData.chainId === chainId
-    ) {
-      provider = await this.getProvider()
-      account = (await this.connector.getAccount()) || ''
-    } else {
-      this.setConnectionData(providerType, chainId)
-
-      const activateResult: ConnectorUpdate = await this.connector.activate()
-      provider = activateResult.provider
-      account = activateResult.account || ''
-    }
+    const {
+      provider,
+      account
+    }: ConnectorUpdate = await this.connector.activate()
 
     return {
       provider: ProviderAdapter.adapt(provider),

@@ -7,15 +7,13 @@ export class StubConnector extends AbstractConnector {
   public account: string | null = null
 
   async activate(): Promise<ConnectorUpdate> {
-    this.account = '0xdeadbeef'
-
     return {
       provider: {
         send: () => {
           // no-op
         }
       },
-      account: this.account
+      account: '0xdeadbeef'
     }
   }
 
@@ -28,11 +26,11 @@ export class StubConnector extends AbstractConnector {
   }
 
   async getAccount(): Promise<null | string> {
-    return this.account
+    return null
   }
 
   deactivate(): void {
-    this.account = null
+    // no-op
   }
 }
 
