@@ -1,7 +1,8 @@
 import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
 import sinon from 'sinon'
-import { ChainId } from '@dcl/schemas'
+import { ChainId } from '@dcl/schemas/dist/dapps/chain-id'
+import { ProviderType } from '@dcl/schemas/dist/dapps/provider-type'
 import { getConfiguration } from '../src/configuration'
 import { ConnectionManager, connection } from '../src/ConnectionManager'
 import {
@@ -10,7 +11,7 @@ import {
   WalletConnectConnector
 } from '../src/connectors'
 import { LocalStorage } from '../src/storage'
-import { ClosableConnector, ProviderType } from '../src/types'
+import { ClosableConnector } from '../src/types'
 import {
   StubClosableConnector,
   StubConnector,
@@ -78,8 +79,8 @@ describe('ConnectionManager', () => {
       expect(JSON.stringify(result)).to.eq(
         JSON.stringify({
           provider: {
-            request: () => {},
-            send: () => {}
+            request: () => { },
+            send: () => { }
           },
           providerType: ProviderType.INJECTED,
           account: activateResult.account,
@@ -101,7 +102,7 @@ describe('ConnectionManager', () => {
       expect(JSON.stringify(result)).to.eq(
         JSON.stringify({
           provider: {
-            request: () => {}
+            request: () => { }
           },
           providerType: ProviderType.INJECTED,
           account,
@@ -157,7 +158,7 @@ describe('ConnectionManager', () => {
       expect(JSON.stringify(result)).to.eq(
         JSON.stringify({
           provider: {
-            request: () => {}
+            request: () => { }
           },
           providerType: ProviderType.FORTMATIC,
           account,
@@ -245,7 +246,7 @@ describe('ConnectionManager', () => {
 
       async function createProvider(providerType: ProviderType) {
         const stubConnector = new StubConnector()
-        const provider = { send: () => {} }
+        const provider = { send: () => { } }
 
         const getConnectorStub = sinon
           .stub(connectionManager, 'buildConnector')
@@ -349,9 +350,9 @@ describe('ConnectionManager', () => {
         ProviderType.WALLET_CONNECT,
         chainId
       )
-      ;(connector as WalletConnectConnector).walletConnectProvider = getSendableProvider(
-        chainId
-      )
+        ; (connector as WalletConnectConnector).walletConnectProvider = getSendableProvider(
+          chainId
+        )
 
       expect(connector).to.be.instanceOf(WalletConnectConnector)
       expect(connector.supportedChainIds).to.deep.eq([

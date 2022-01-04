@@ -1,7 +1,7 @@
-import { ChainId } from '@dcl/schemas'
+import { ChainId } from '@dcl/schemas/dist/dapps/chain-id'
+import { ProviderType } from '@dcl/schemas/dist/dapps/provider-type'
 import { expect } from 'chai'
 import { getConfiguration } from '../src/configuration'
-import { ProviderType } from '../src/types'
 
 describe('#getConfiguration', () => {
   it('should return the configuration using the environment', () => {

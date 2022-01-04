@@ -1,6 +1,7 @@
 import { expect } from 'chai'
 import sinon from 'sinon'
-import { ChainId } from '@dcl/schemas'
+import { ChainId } from '@dcl/schemas/dist/dapps/chain-id'
+import { ProviderType } from '@dcl/schemas/dist/dapps/provider-type'
 import {
   InjectedConnector,
   FortmaticConnector,
@@ -8,7 +9,6 @@ import {
   WalletConnectConnector
 } from '../src/connectors'
 import * as configurationMethods from '../src/configuration'
-import { ProviderType } from '../src/types'
 import { getSendableProvider } from './utils'
 
 describe('connectors', () => {
