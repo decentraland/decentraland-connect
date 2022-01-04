@@ -349,10 +349,11 @@ describe('ConnectionManager', () => {
       const connector = connectionManager.buildConnector(
         ProviderType.WALLET_CONNECT,
         chainId
+      ) as WalletConnectConnector
+
+      connector.walletConnectProvider = getSendableProvider(
+        chainId
       )
-        ; (connector as WalletConnectConnector).walletConnectProvider = getSendableProvider(
-          chainId
-        )
 
       expect(connector).to.be.instanceOf(WalletConnectConnector)
       expect(connector.supportedChainIds).to.deep.eq([
