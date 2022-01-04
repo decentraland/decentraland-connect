@@ -1,9 +1,9 @@
+import { ProviderType } from '@dcl/schemas/dist/dapps/provider-type'
 import { ConnectorUpdate } from '@web3-react/types'
 import { AbstractConnector } from '@web3-react/abstract-connector'
 import { IWalletConnectProviderOptions } from '@walletconnect/types'
 
 import { getConfiguration } from '../configuration'
-import { ProviderType } from '../types'
 
 export const URI_AVAILABLE = 'URI_AVAILABLE'
 

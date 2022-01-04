@@ -1,4 +1,5 @@
-import { ChainId } from '@dcl/schemas'
+import { ChainId } from '@dcl/schemas/dist/dapps/chain-id'
+import { ProviderType } from '@dcl/schemas/dist/dapps/provider-type'
 import { ConnectorUpdate } from '@web3-react/types'
 import {
   AbstractConnector,
@@ -9,7 +10,6 @@ import {
 } from './connectors'
 import { LocalStorage, Storage } from './storage'
 import {
-  ProviderType,
   ConnectionData,
   ConnectionResponse,
   Provider,

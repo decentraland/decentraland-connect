@@ -1,13 +1,7 @@
-import { ChainId } from '@dcl/schemas'
+import { ChainId } from '@dcl/schemas/dist/dapps/chain-id'
+import { ProviderType } from '@dcl/schemas/dist/dapps/provider-type'
 import { AbstractConnector } from '@web3-react/abstract-connector'
 import { EventEmitter } from 'events'
-
-export enum ProviderType {
-  INJECTED = 'injected',
-  FORTMATIC = 'formatic',
-  NETWORK = 'network',
-  WALLET_CONNECT = 'wallet_connect'
-}
 
 export namespace Request {
   export type Method = string
