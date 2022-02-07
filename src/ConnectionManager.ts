@@ -6,7 +6,8 @@ import {
   InjectedConnector,
   FortmaticConnector,
   WalletConnectConnector,
-  NetworkConnector
+  NetworkConnector,
+  WalletLinkConnector
 } from './connectors'
 import { LocalStorage, Storage } from './storage'
 import {
@@ -56,7 +57,11 @@ export class ConnectionManager {
   }
 
   getAvailableProviders(): ProviderType[] {
-    const available = [ProviderType.FORTMATIC, ProviderType.WALLET_CONNECT]
+    const available = [
+      ProviderType.FORTMATIC,
+      ProviderType.WALLET_CONNECT,
+      ProviderType.WALLET_LINK
+    ]
     if (typeof window !== 'undefined' && window.ethereum !== undefined) {
       available.unshift(ProviderType.INJECTED)
     }
@@ -103,6 +108,8 @@ export class ConnectionManager {
         return new FortmaticConnector(chainId)
       case ProviderType.WALLET_CONNECT:
         return new WalletConnectConnector()
+      case ProviderType.WALLET_LINK:
+        return new WalletLinkConnector(chainId)
       case ProviderType.NETWORK:
         return new NetworkConnector(chainId)
       default:
