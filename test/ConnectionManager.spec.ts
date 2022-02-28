@@ -8,7 +8,8 @@ import { ConnectionManager, connection } from '../src/ConnectionManager'
 import {
   FortmaticConnector,
   InjectedConnector,
-  WalletConnectConnector
+  WalletConnectConnector,
+  WalletLinkConnector
 } from '../src/connectors'
 import { LocalStorage } from '../src/storage'
 import { ClosableConnector } from '../src/types'
@@ -362,6 +363,14 @@ describe('ConnectionManager', () => {
         ChainId.ETHEREUM_RINKEBY,
         ChainId.ETHEREUM_KOVAN
       ])
+    })
+
+    it('should return an instance of WalletLinkConnector', () => {
+      const connector = connectionManager.buildConnector(
+        ProviderType.WALLET_LINK,
+        chainId
+      )
+      expect(connector).to.be.instanceOf(WalletLinkConnector)
     })
   })
 })
