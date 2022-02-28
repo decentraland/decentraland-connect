@@ -6,7 +6,8 @@ import {
   InjectedConnector,
   FortmaticConnector,
   NetworkConnector,
-  WalletConnectConnector
+  WalletConnectConnector,
+  WalletLinkConnector
 } from '../src/connectors'
 import * as configurationMethods from '../src/configuration'
 import { getSendableProvider } from './utils'
@@ -107,6 +108,17 @@ describe('connectors', () => {
         ])
 
         configurationStub.restore()
+      })
+    })
+  })
+
+  describe('WalletLinkConnector', () => {
+    describe('#constructor', () => {
+      it('should call super with the correct configuration', async () => {
+        const chainId = ChainId.ETHEREUM_RINKEBY
+        const connector = new WalletLinkConnector(chainId)
+
+        expect(connector.supportedChainIds).to.deep.eq([chainId])
       })
     })
   })

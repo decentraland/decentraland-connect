@@ -8,7 +8,8 @@ import { ConnectionManager, connection } from '../src/ConnectionManager'
 import {
   FortmaticConnector,
   InjectedConnector,
-  WalletConnectConnector
+  WalletConnectConnector,
+  WalletLinkConnector
 } from '../src/connectors'
 import { LocalStorage } from '../src/storage'
 import { ClosableConnector } from '../src/types'
@@ -79,8 +80,8 @@ describe('ConnectionManager', () => {
       expect(JSON.stringify(result)).to.eq(
         JSON.stringify({
           provider: {
-            request: () => { },
-            send: () => { }
+            request: () => {},
+            send: () => {}
           },
           providerType: ProviderType.INJECTED,
           account: activateResult.account,
@@ -102,7 +103,7 @@ describe('ConnectionManager', () => {
       expect(JSON.stringify(result)).to.eq(
         JSON.stringify({
           provider: {
-            request: () => { }
+            request: () => {}
           },
           providerType: ProviderType.INJECTED,
           account,
@@ -158,7 +159,7 @@ describe('ConnectionManager', () => {
       expect(JSON.stringify(result)).to.eq(
         JSON.stringify({
           provider: {
-            request: () => { }
+            request: () => {}
           },
           providerType: ProviderType.FORTMATIC,
           account,
@@ -246,7 +247,7 @@ describe('ConnectionManager', () => {
 
       async function createProvider(providerType: ProviderType) {
         const stubConnector = new StubConnector()
-        const provider = { send: () => { } }
+        const provider = { send: () => {} }
 
         const getConnectorStub = sinon
           .stub(connectionManager, 'buildConnector')
@@ -292,7 +293,8 @@ describe('ConnectionManager', () => {
     it('should return an array with the provider types', () => {
       expect(connectionManager.getAvailableProviders()).to.deep.eq([
         ProviderType.FORTMATIC,
-        ProviderType.WALLET_CONNECT
+        ProviderType.WALLET_CONNECT,
+        ProviderType.WALLET_LINK
       ])
     })
 
@@ -303,7 +305,8 @@ describe('ConnectionManager', () => {
       expect(connectionManager.getAvailableProviders()).to.deep.eq([
         ProviderType.INJECTED,
         ProviderType.FORTMATIC,
-        ProviderType.WALLET_CONNECT
+        ProviderType.WALLET_CONNECT,
+        ProviderType.WALLET_LINK
       ])
 
       browser.window = undefined
@@ -351,9 +354,7 @@ describe('ConnectionManager', () => {
         chainId
       ) as WalletConnectConnector
 
-      connector.walletConnectProvider = getSendableProvider(
-        chainId
-      )
+      connector.walletConnectProvider = getSendableProvider(chainId)
 
       expect(connector).to.be.instanceOf(WalletConnectConnector)
       expect(connector.supportedChainIds).to.deep.eq([
@@ -362,6 +363,15 @@ describe('ConnectionManager', () => {
         ChainId.ETHEREUM_RINKEBY,
         ChainId.ETHEREUM_KOVAN
       ])
+    })
+
+    it('should return an instance of WalletLinkConnector', () => {
+      const connector = connectionManager.buildConnector(
+        ProviderType.WALLET_LINK,
+        chainId
+      )
+      expect(connector).to.be.instanceOf(WalletLinkConnector)
+      expect(connector.supportedChainIds).to.deep.eq([chainId])
     })
   })
 })
