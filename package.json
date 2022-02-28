@@ -48,7 +48,7 @@
     "validate-commit-message": "^3.0.1"
   },
   "peerDependencies": {
-    "@dcl/schemas": ">=3.1.1"
+    "@dcl/schemas": ">=3.9.0"
   },
   "prettier": {
     "printWidth": 80,
