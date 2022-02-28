@@ -4,6 +4,7 @@ import { RPC_URLS } from './NetworkConnector'
 
 const APP_NAME = 'Decentraland'
 
+// Coinbase connector to connect a wallet with the Coinbase mobile wallet
 export class WalletLinkConnector extends BaseWalletLinkConnector {
   constructor(chainId: ChainId) {
     super({
