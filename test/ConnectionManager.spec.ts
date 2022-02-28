@@ -371,6 +371,7 @@ describe('ConnectionManager', () => {
         chainId
       )
       expect(connector).to.be.instanceOf(WalletLinkConnector)
+      expect(connector.supportedChainIds).to.deep.eq([chainId])
     })
   })
 })

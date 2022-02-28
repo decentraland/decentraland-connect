@@ -8,7 +8,8 @@ export class WalletLinkConnector extends BaseWalletLinkConnector {
   constructor(chainId: ChainId) {
     super({
       url: RPC_URLS[chainId],
-      appName: APP_NAME
+      appName: APP_NAME,
+      supportedChainIds: [chainId]
     })
   }
 }
