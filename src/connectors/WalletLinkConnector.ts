@@ -1,4 +1,4 @@
-import { ChainId } from '@dcl/schemas'
+import { ChainId } from '@dcl/schemas/dist/dapps/chain-id'
 import { WalletLinkConnector as BaseWalletLinkConnector } from '@web3-react/walletlink-connector'
 import { RPC_URLS } from './NetworkConnector'
 
