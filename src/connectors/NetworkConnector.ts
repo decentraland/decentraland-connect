@@ -1,4 +1,4 @@
-import { ChainId } from '@dcl/schemas'
+import { ChainId } from '@dcl/schemas/dist/dapps/chain-id'
 import { NetworkConnector as BaseNetworkConnector } from '@web3-react/network-connector'
 
 export const RPC_URLS = Object.freeze({
