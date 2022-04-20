@@ -1,5 +1,3 @@
-
-
 import { ChainId } from '@dcl/schemas/dist/dapps/chain-id'
 import { ConnectorUpdate } from '@web3-react/types'
 import { AbstractConnector } from '../src/connectors/AbstractConnector'
