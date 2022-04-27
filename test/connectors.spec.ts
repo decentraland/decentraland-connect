@@ -98,14 +98,13 @@ describe('connectors', () => {
         const connector = new WalletConnectConnector()
         connector.walletConnectProvider = getSendableProvider(chainId)
 
+        const expectedChainIds = Object.keys(
+          configurationMethods.getRpcUrls()
+        ).map(key => Number(key))
+
         expect(connector.getQrCode()).to.eq(true)
         expect(connector.getPollingInterval()).to.eq(150000)
-        expect(connector.supportedChainIds).to.deep.eq([
-          ChainId.ETHEREUM_MAINNET,
-          ChainId.ETHEREUM_ROPSTEN,
-          ChainId.ETHEREUM_RINKEBY,
-          ChainId.ETHEREUM_KOVAN
-        ])
+        expect(connector.supportedChainIds).to.deep.eq(expectedChainIds)
 
         configurationStub.restore()
       })

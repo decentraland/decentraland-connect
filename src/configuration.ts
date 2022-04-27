@@ -16,19 +16,29 @@ const configuration = Object.freeze({
   },
 
   [ProviderType.WALLET_CONNECT]: {
-    urls: {
-      [ChainId.ETHEREUM_MAINNET]:
-        'https://mainnet.infura.io/v3/fa3357a65e2d4214ac735190646a3c53',
-      [ChainId.ETHEREUM_ROPSTEN]:
-        'https://ropsten.infura.io/v3/fa3357a65e2d4214ac735190646a3c53',
-      [ChainId.ETHEREUM_RINKEBY]:
-        'https://rinkeby.infura.io/v3/fa3357a65e2d4214ac735190646a3c53',
-      [ChainId.ETHEREUM_KOVAN]:
-        'https://kovan.infura.io/v3/fa3357a65e2d4214ac735190646a3c53'
-    }
+    urls: getRpcUrls()
   }
 })
 
 export function getConfiguration() {
   return configuration
+}
+
+export function getRpcUrls() {
+  return {
+    [ChainId.ETHEREUM_MAINNET]:
+      'https://mainnet.infura.io/v3/21ee2680fd58460ba96d2b3addd7c38c',
+    [ChainId.ETHEREUM_ROPSTEN]:
+      'https://ropsten.infura.io/v3/21ee2680fd58460ba96d2b3addd7c38c',
+    [ChainId.ETHEREUM_RINKEBY]:
+      'https://rinkeby.infura.io/v3/21ee2680fd58460ba96d2b3addd7c38c',
+    [ChainId.ETHEREUM_GOERLI]:
+      'https://goerli.infura.io/v3/21ee2680fd58460ba96d2b3addd7c38c',
+    [ChainId.ETHEREUM_KOVAN]:
+      'https://kovan.infura.io/v3/21ee2680fd58460ba96d2b3addd7c38c',
+    [ChainId.MATIC_MAINNET]:
+      'https://rpc-mainnet.maticvigil.com/v1/aad675783e3f73a13efbf6e95338d6de7fd5c9b9',
+    [ChainId.MATIC_MUMBAI]:
+      'https://rpc-mumbai.maticvigil.com/v1/aad675783e3f73a13efbf6e95338d6de7fd5c9b9'
+  }
 }
