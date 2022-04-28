@@ -99,7 +99,7 @@ describe('connectors', () => {
         connector.walletConnectProvider = getSendableProvider(chainId)
 
         const expectedChainIds = Object.keys(
-          configurationMethods.getRpcUrls()
+          configurationMethods.getRpcUrls(ProviderType.WALLET_CONNECT)
         ).map(key => Number(key))
 
         expect(connector.getQrCode()).to.eq(true)

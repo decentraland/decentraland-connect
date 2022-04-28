@@ -18,7 +18,7 @@ describe('#getConfiguration', () => {
         }
       },
       [ProviderType.WALLET_CONNECT]: {
-        urls: getRpcUrls()
+        urls: getRpcUrls(ProviderType.WALLET_CONNECT)
       }
     })
   })
