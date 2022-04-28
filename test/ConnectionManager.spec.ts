@@ -3,7 +3,7 @@ import chaiAsPromised from 'chai-as-promised'
 import sinon from 'sinon'
 import { ChainId } from '@dcl/schemas/dist/dapps/chain-id'
 import { ProviderType } from '@dcl/schemas/dist/dapps/provider-type'
-import { getConfiguration } from '../src/configuration'
+import { getConfiguration, getRpcUrls } from '../src/configuration'
 import { ConnectionManager, connection } from '../src/ConnectionManager'
 import {
   FortmaticConnector,
@@ -356,16 +356,15 @@ describe('ConnectionManager', () => {
 
       connector.walletConnectProvider = getSendableProvider(chainId)
 
+      const expectedChainIds = Object.keys(
+        getRpcUrls(ProviderType.WALLET_CONNECT)
+      ).map(key => Number(key))
+
       expect(connector).to.be.instanceOf(WalletConnectConnector)
-      expect(connector.supportedChainIds).to.deep.eq([
-        ChainId.ETHEREUM_MAINNET,
-        ChainId.ETHEREUM_ROPSTEN,
-        ChainId.ETHEREUM_RINKEBY,
-        ChainId.ETHEREUM_KOVAN
-      ])
+      expect(connector.supportedChainIds).to.deep.eq(expectedChainIds)
     })
 
-    it('should return an instance of WalletLinkConnector', () => {
+    it('should return an instance of WalletLinkConnector', async () => {
       const connector = connectionManager.buildConnector(
         ProviderType.WALLET_LINK,
         chainId

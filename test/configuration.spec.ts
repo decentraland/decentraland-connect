@@ -1,7 +1,7 @@
 import { ChainId } from '@dcl/schemas/dist/dapps/chain-id'
 import { ProviderType } from '@dcl/schemas/dist/dapps/provider-type'
 import { expect } from 'chai'
-import { getConfiguration } from '../src/configuration'
+import { getConfiguration, getRpcUrls } from '../src/configuration'
 
 describe('#getConfiguration', () => {
   it('should return the configuration using the environment', () => {
@@ -18,16 +18,7 @@ describe('#getConfiguration', () => {
         }
       },
       [ProviderType.WALLET_CONNECT]: {
-        urls: {
-          [ChainId.ETHEREUM_MAINNET]:
-            'https://mainnet.infura.io/v3/fa3357a65e2d4214ac735190646a3c53',
-          [ChainId.ETHEREUM_ROPSTEN]:
-            'https://ropsten.infura.io/v3/fa3357a65e2d4214ac735190646a3c53',
-          [ChainId.ETHEREUM_RINKEBY]:
-            'https://rinkeby.infura.io/v3/fa3357a65e2d4214ac735190646a3c53',
-          [ChainId.ETHEREUM_KOVAN]:
-            'https://kovan.infura.io/v3/fa3357a65e2d4214ac735190646a3c53'
-        }
+        urls: getRpcUrls(ProviderType.WALLET_CONNECT)
       }
     })
   })
