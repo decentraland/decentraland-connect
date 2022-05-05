@@ -23,3 +23,33 @@ describe('#getConfiguration', () => {
     })
   })
 })
+
+describe('#getRpcUrls', () => {
+  describe('when the provider type does not have a special treatment', () => {
+    it('should return the rpc configurations', () => {
+      expect(getRpcUrls(ProviderType.INJECTED)).to.deep.eq({
+        1: 'https://rpc.decentraland.org/mainnet',
+        3: 'https://rpc.decentraland.org/ropsten',
+        4: 'https://rpc.decentraland.org/rinkeby',
+        5: 'https://rpc.decentraland.org/goerli',
+        42: 'https://rpc.decentraland.org/kovan',
+        137: 'https://rpc.decentraland.org/polygon',
+        80001: 'https://rpc.decentraland.org/mumbai'
+      })
+    })
+  })
+
+  describe('when the provider type is wallet connect', () => {
+    it('should return the rpc configurations appending the project query string', () => {
+      expect(getRpcUrls(ProviderType.WALLET_CONNECT)).to.deep.eq({
+        1: 'https://rpc.decentraland.org/mainnet?project=walletconnect',
+        3: 'https://rpc.decentraland.org/ropsten?project=walletconnect',
+        4: 'https://rpc.decentraland.org/rinkeby?project=walletconnect',
+        5: 'https://rpc.decentraland.org/goerli?project=walletconnect',
+        42: 'https://rpc.decentraland.org/kovan?project=walletconnect',
+        137: 'https://rpc.decentraland.org/polygon?project=walletconnect',
+        80001: 'https://rpc.decentraland.org/mumbai?project=walletconnect'
+      })
+    })
+  })
+})
