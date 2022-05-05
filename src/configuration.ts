@@ -25,40 +25,30 @@ export function getConfiguration() {
 }
 
 export function getRpcUrls(providerType: ProviderType) {
+  const rpcUrls = {
+    [ChainId.ETHEREUM_MAINNET]: 'https://rpc.decentraland.org/mainnet',
+    [ChainId.ETHEREUM_ROPSTEN]: 'https://rpc.decentraland.org/ropsten',
+    [ChainId.ETHEREUM_RINKEBY]: 'https://rpc.decentraland.org/rinkeby',
+    [ChainId.ETHEREUM_GOERLI]: 'https://rpc.decentraland.org/goerli',
+    [ChainId.ETHEREUM_KOVAN]: 'https://rpc.decentraland.org/kovan',
+    [ChainId.MATIC_MAINNET]: 'https://rpc.decentraland.org/polygon',
+    [ChainId.MATIC_MUMBAI]: 'https://rpc.decentraland.org/mumbai'
+  }
+
+  let project = ''
   switch (providerType) {
     case ProviderType.WALLET_CONNECT:
-      return {
-        [ChainId.ETHEREUM_MAINNET]:
-          'https://mainnet.infura.io/v3/fa3357a65e2d4214ac735190646a3c53',
-        [ChainId.ETHEREUM_ROPSTEN]:
-          'https://ropsten.infura.io/v3/fa3357a65e2d4214ac735190646a3c53',
-        [ChainId.ETHEREUM_RINKEBY]:
-          'https://rinkeby.infura.io/v3/fa3357a65e2d4214ac735190646a3c53',
-        [ChainId.ETHEREUM_GOERLI]:
-          'https://goerli.infura.io/v3/fa3357a65e2d4214ac735190646a3c53',
-        [ChainId.ETHEREUM_KOVAN]:
-          'https://kovan.infura.io/v3/fa3357a65e2d4214ac735190646a3c53',
-        [ChainId.MATIC_MAINNET]:
-          'https://polygon-mainnet.infura.io/v3/fa3357a65e2d4214ac735190646a3c53',
-        [ChainId.MATIC_MUMBAI]:
-          'https://polygon-mumbai.infura.io/v3/fa3357a65e2d4214ac735190646a3c53'
-      }
+      project = 'walletconnect'
+      break
     default:
-      return {
-        [ChainId.ETHEREUM_MAINNET]:
-          'https://mainnet.infura.io/v3/21ee2680fd58460ba96d2b3addd7c38c',
-        [ChainId.ETHEREUM_ROPSTEN]:
-          'https://ropsten.infura.io/v3/21ee2680fd58460ba96d2b3addd7c38c',
-        [ChainId.ETHEREUM_RINKEBY]:
-          'https://rinkeby.infura.io/v3/21ee2680fd58460ba96d2b3addd7c38c',
-        [ChainId.ETHEREUM_GOERLI]:
-          'https://goerli.infura.io/v3/21ee2680fd58460ba96d2b3addd7c38c',
-        [ChainId.ETHEREUM_KOVAN]:
-          'https://kovan.infura.io/v3/21ee2680fd58460ba96d2b3addd7c38c',
-        [ChainId.MATIC_MAINNET]:
-          'https://rpc-mainnet.maticvigil.com/v1/aad675783e3f73a13efbf6e95338d6de7fd5c9b9',
-        [ChainId.MATIC_MUMBAI]:
-          'https://rpc-mumbai.maticvigil.com/v1/aad675783e3f73a13efbf6e95338d6de7fd5c9b9'
-      }
+      break
   }
+
+  if (project) {
+    for (const chainId in rpcUrls) {
+      rpcUrls[chainId] += `?project=${project}`
+    }
+  }
+
+  return rpcUrls
 }
