@@ -52,4 +52,18 @@ describe('#getRpcUrls', () => {
       })
     })
   })
+
+  describe('when the provider type is wallet link', () => {
+    it('should return the rpc configurations appending the project query string', () => {
+      expect(getRpcUrls(ProviderType.WALLET_LINK)).to.deep.eq({
+        1: 'https://rpc.decentraland.org/mainnet?project=walletlink',
+        3: 'https://rpc.decentraland.org/ropsten?project=walletlink',
+        4: 'https://rpc.decentraland.org/rinkeby?project=walletlink',
+        5: 'https://rpc.decentraland.org/goerli?project=walletlink',
+        42: 'https://rpc.decentraland.org/kovan?project=walletlink',
+        137: 'https://rpc.decentraland.org/polygon?project=walletlink',
+        80001: 'https://rpc.decentraland.org/mumbai?project=walletlink'
+      })
+    })
+  })
 })

@@ -36,9 +36,13 @@ export function getRpcUrls(providerType: ProviderType) {
   }
 
   let project = ''
+
   switch (providerType) {
     case ProviderType.WALLET_CONNECT:
       project = 'walletconnect'
+      break
+    case ProviderType.WALLET_LINK:
+      project = 'walletlink'
       break
     default:
       break
