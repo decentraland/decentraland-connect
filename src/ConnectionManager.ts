@@ -53,7 +53,30 @@ export class ConnectionManager {
       )
     }
 
-    return this.connect(connectionData.providerType, connectionData.chainId)
+    const response = await this.connect(
+      connectionData.providerType,
+      connectionData.chainId
+    )
+
+    // If the provider type is injected, the chainId could have changed since previous connection and still connect successfuly.
+    // We need to check if the chainId has changed, and update the connectionData if so.
+    if (response.providerType === ProviderType.INJECTED) {
+      const currentChainIdHex = (await response.provider.request({
+        method: 'eth_chainId'
+      })) as string
+      const currentChainId = currentChainIdHex
+        ? (parseInt(currentChainIdHex, 16) as ChainId)
+        : null
+      if (currentChainId && connectionData.chainId !== currentChainId) {
+        this.setConnectionData(connectionData.providerType, currentChainId)
+        return {
+          ...response,
+          chainId: this.getConnectionData()!.chainId
+        }
+      }
+    }
+
+    return response
   }
 
   getAvailableProviders(): ProviderType[] {

@@ -2,13 +2,25 @@ import { ChainId } from '@dcl/schemas/dist/dapps/chain-id'
 import { ConnectorUpdate } from '@web3-react/types'
 import { AbstractConnector } from '../src/connectors/AbstractConnector'
 import { Storage } from '../src/storage'
+import { Request } from '../src/types'
 
 export class StubConnector extends AbstractConnector {
   public account: string | null = null
 
+  // stub property
+  private chainId: ChainId = ChainId.ETHEREUM_MAINNET
+
   async activate(): Promise<ConnectorUpdate> {
     return {
       provider: {
+        request: async ({ method }: Request.Arguments) => {
+          switch (method) {
+            case 'eth_chainId':
+              return this.chainId
+            default:
+              return
+          }
+        },
         send: () => {
           // no-op
         }
@@ -22,7 +34,12 @@ export class StubConnector extends AbstractConnector {
   }
 
   async getChainId(): Promise<number | string> {
-    return ChainId.ETHEREUM_MAINNET
+    return this.chainId
+  }
+
+  // stub method
+  setChainId(chainId: ChainId) {
+    this.chainId = chainId
   }
 
   async getAccount(): Promise<null | string> {
