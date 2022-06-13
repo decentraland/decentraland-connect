@@ -167,6 +167,30 @@ describe('ConnectionManager', () => {
         })
       )
     })
+
+    it('should update the connection data if the providerType is "injected" and the chainId of the provider changed since the last connection', async () => {
+      const stubConnector = new StubConnector()
+
+      const getConnectorStub = sinon
+        .stub(connectionManager, 'buildConnector')
+        .returns(stubConnector)
+
+      // connect to the default network (mainnet)
+      await connectionManager.connect(ProviderType.INJECTED)
+
+      // mock change in the chainId
+      stubConnector.setChainId(ChainId.ETHEREUM_ROPSTEN)
+
+      const result = await connectionManager.tryPreviousConnection()
+
+      expect(
+        getConnectorStub.firstCall.calledWith(ProviderType.INJECTED)
+      ).to.eq(true)
+      expect(result.chainId).to.eq(ChainId.ETHEREUM_ROPSTEN)
+      expect(connectionManager.getConnectionData()!.chainId).to.eq(
+        ChainId.ETHEREUM_ROPSTEN
+      )
+    })
   })
 
   describe('#getConnectionData', () => {
