@@ -69,14 +69,13 @@ export class ConnectionManager {
         : null
       if (currentChainId && connectionData.chainId !== currentChainId) {
         this.setConnectionData(connectionData.providerType, currentChainId)
-        return {
-          ...response,
-          chainId: this.getConnectionData()!.chainId
-        }
       }
     }
 
-    return response
+    return {
+      ...response,
+      chainId: this.getConnectionData()!.chainId
+    }
   }
 
   getAvailableProviders(): ProviderType[] {
