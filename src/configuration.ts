@@ -15,8 +15,17 @@ const configuration = Object.freeze({
     }
   },
 
+  [ProviderType.NETWORK]: {
+    urls: getRpcUrls(ProviderType.NETWORK)
+  },
+
   [ProviderType.WALLET_CONNECT]: {
     urls: getRpcUrls(ProviderType.WALLET_CONNECT)
+  },
+
+  [ProviderType.WALLET_LINK]: {
+    appName: 'Decentraland',
+    urls: getRpcUrls(ProviderType.WALLET_LINK)
   }
 })
 
