@@ -14,7 +14,7 @@
     "commitmsg": "validate-commit-msg"
   },
   "dependencies": {
-    "@dcl/schemas": "^3.9.0",
+    "@dcl/schemas": "^6.4.2",
     "@types/node": "^10.1.2",
     "@walletconnect/web3-provider": "^1.6.5",
     "@web3-react/fortmatic-connector": "^6.1.6",
