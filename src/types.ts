@@ -3,6 +3,7 @@ import { ProviderType } from '@dcl/schemas/dist/dapps/provider-type'
 import { AbstractConnector } from '@web3-react/abstract-connector'
 import { EventEmitter } from 'events'
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Request {
   export type Method = string
 
@@ -25,23 +26,13 @@ export interface Provider extends EventEmitter {
   request(reqArgs: Request.Arguments): Promise<unknown>
   send(method: Request.Method, params?: Request.Params): Promise<unknown>
   send(method: Request.Arguments, params?: Request.Callback): Promise<void>
-  send(
-    method: Request.Method | Request.Arguments,
-    params?: Request.Params | Request.Callback
-  ): Promise<unknown>
+  send(method: Request.Method | Request.Arguments, params?: Request.Params | Request.Callback): Promise<unknown>
   sendAsync(method: Request.Arguments, params?: Request.Callback): Promise<void>
 }
 
 export type LegacyProvider = Pick<
   Provider,
-  | 'send'
-  | 'sendAsync'
-  | 'on'
-  | 'emit'
-  | 'removeListener'
-  | 'isDapper'
-  | 'isFortmatic'
-  | 'isMetamask'
+  'send' | 'sendAsync' | 'on' | 'emit' | 'removeListener' | 'isDapper' | 'isFortmatic' | 'isMetamask'
 >
 
 export type ConnectionData = {

@@ -1,1 +1,1 @@
-type Global = NodeJS.Global & { window: Window }
+// type Global = NodeJS.Global & { window: Window }

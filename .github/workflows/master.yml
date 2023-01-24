@@ -13,21 +13,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@main
-      - name: Use Node.js 16.x
+      - name: Use Node.js 18.x
         uses: actions/setup-node@v1
         with:
-          node-version: 16.x
+          node-version: 18.x
       - name: install
         run: npm ci --legacy-peer-deps
       - name: build
         run: npm run build
-      #- name: print diff if failed
-      #  if: ${{ failure() }}
-      #  run: cp dist/temp/decentraland-ecs-utils.api.md report/decentraland-ecs-utils.api.md && git diff
       - name: Publish
         uses: menduz/oddish-action@master
         with:
-          #cwd: ./dist
           access: public # 'public' to deploy @scoped/packages
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
