@@ -7,8 +7,7 @@ import { getConfiguration } from '../configuration'
 
 export const URI_AVAILABLE = 'URI_AVAILABLE'
 
-export interface WalletConnectConnectorArguments
-  extends IWalletConnectProviderOptions {
+export interface WalletConnectConnectorArguments extends IWalletConnectProviderOptions {
   supportedChainIds?: number[]
 }
 
@@ -20,15 +19,12 @@ export class UserRejectedRequestError extends Error {
   }
 }
 
-function getSupportedChains({
-  supportedChainIds,
-  rpc
-}: WalletConnectConnectorArguments): number[] | undefined {
+function getSupportedChains({ supportedChainIds, rpc }: WalletConnectConnectorArguments): number[] | undefined {
   if (supportedChainIds) {
     return supportedChainIds
   }
 
-  return rpc ? Object.keys(rpc).map(k => Number(k)) : undefined
+  return rpc ? Object.keys(rpc).map((k) => Number(k)) : undefined
 }
 
 export class BaseWalletConnectConnector extends AbstractConnector {
@@ -49,9 +45,7 @@ export class BaseWalletConnectConnector extends AbstractConnector {
 
   public async activate(): Promise<ConnectorUpdate> {
     if (!this.walletConnectProvider) {
-      const WalletConnectProvider = await import(
-        '@walletconnect/web3-provider'
-      ).then(m => m?.default ?? m)
+      const WalletConnectProvider = await import('@walletconnect/web3-provider').then((m) => m?.default ?? m)
       this.walletConnectProvider = new WalletConnectProvider(this.config)
     }
 
@@ -91,26 +85,15 @@ export class BaseWalletConnectConnector extends AbstractConnector {
   }
 
   public async getAccount(): Promise<null | string> {
-    return this.walletConnectProvider
-      .send('eth_accounts')
-      .then((accounts: string[]): string => accounts[0])
+    return this.walletConnectProvider.send('eth_accounts').then((accounts: string[]): string => accounts[0])
   }
 
   public deactivate() {
     if (this.walletConnectProvider) {
       this.walletConnectProvider.stop()
-      this.walletConnectProvider.removeListener(
-        'disconnect',
-        this.handleDisconnect
-      )
-      this.walletConnectProvider.removeListener(
-        'chainChanged',
-        this.handleChainChanged
-      )
-      this.walletConnectProvider.removeListener(
-        'accountsChanged',
-        this.handleAccountsChanged
-      )
+      this.walletConnectProvider.removeListener('disconnect', this.handleDisconnect)
+      this.walletConnectProvider.removeListener('chainChanged', this.handleChainChanged)
+      this.walletConnectProvider.removeListener('accountsChanged', this.handleAccountsChanged)
     }
   }
 
@@ -131,14 +114,8 @@ export class BaseWalletConnectConnector extends AbstractConnector {
     // we have to do this because of a @walletconnect/web3-provider bug
     if (this.walletConnectProvider) {
       this.walletConnectProvider.stop()
-      this.walletConnectProvider.removeListener(
-        'chainChanged',
-        this.handleChainChanged
-      )
-      this.walletConnectProvider.removeListener(
-        'accountsChanged',
-        this.handleAccountsChanged
-      )
+      this.walletConnectProvider.removeListener('chainChanged', this.handleChainChanged)
+      this.walletConnectProvider.removeListener('accountsChanged', this.handleAccountsChanged)
       this.walletConnectProvider = undefined
     }
 
