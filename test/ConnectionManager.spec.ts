@@ -316,6 +316,7 @@ describe('ConnectionManager', () => {
   describe('#getAvailableProviders', () => {
     it('should return an array with the provider types', () => {
       expect(connectionManager.getAvailableProviders()).to.deep.eq([
+        ProviderType.METAMASK_MOBILE,
         ProviderType.FORTMATIC,
         ProviderType.WALLET_CONNECT,
         ProviderType.WALLET_LINK

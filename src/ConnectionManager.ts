@@ -86,6 +86,8 @@ export class ConnectionManager {
     ]
     if (typeof window !== 'undefined' && window.ethereum !== undefined) {
       available.unshift(ProviderType.INJECTED)
+    } else {
+      available.unshift(ProviderType.METAMASK_MOBILE)
     }
     return available
   }
