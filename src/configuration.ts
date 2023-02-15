@@ -20,7 +20,33 @@ const configuration = Object.freeze({
   },
 
   [ProviderType.WALLET_CONNECT]: {
-    urls: getRpcUrls(ProviderType.WALLET_CONNECT)
+    urls: getRpcUrls(ProviderType.WALLET_CONNECT),
+    v2: {
+      mainnet: {
+        projectId: 'aec7809a4218b2e441f5ce84b1cb3b4b',
+        chains: [ChainId.ETHEREUM_MAINNET, ChainId.MATIC_MAINNET],
+        rpcMap: (() => {
+          const urls = getRpcUrls(ProviderType.WALLET_CONNECT)
+
+          return {
+            [ChainId.ETHEREUM_MAINNET]: urls[ChainId.ETHEREUM_MAINNET],
+            [ChainId.MATIC_MAINNET]: urls[ChainId.MATIC_MAINNET]
+          }
+        })()
+      },
+      testnet: {
+        projectId: 'aec7809a4218b2e441f5ce84b1cb3b4b',
+        chains: [ChainId.ETHEREUM_GOERLI, ChainId.MATIC_MUMBAI],
+        rpcMap: (() => {
+          const urls = getRpcUrls(ProviderType.WALLET_CONNECT)
+
+          return {
+            [ChainId.ETHEREUM_GOERLI]: urls[ChainId.ETHEREUM_GOERLI],
+            [ChainId.MATIC_MUMBAI]: urls[ChainId.MATIC_MUMBAI]
+          }
+        })()
+      }
+    }
   },
 
   [ProviderType.WALLET_LINK]: {

@@ -5,9 +5,10 @@ import {
   AbstractConnector,
   InjectedConnector,
   FortmaticConnector,
-  WalletConnectConnector,
+  WalletConnectConnectorV2,
   NetworkConnector,
-  WalletLinkConnector
+  WalletLinkConnector,
+  WalletConnectConnector
 } from './connectors'
 import { LocalStorage, Storage } from './storage'
 import {
@@ -112,16 +113,22 @@ export class ConnectionManager {
 
   async createProvider(
     providerType: ProviderType,
-    chainId: ChainId = ChainId.ETHEREUM_MAINNET
+    chainId: ChainId = ChainId.ETHEREUM_MAINNET,
+    opts?: {
+      isWCV2?: boolean
+    }
   ): Promise<Provider> {
-    const connector = this.buildConnector(providerType, chainId)
+    const connector = this.buildConnector(providerType, chainId, opts)
     const provider = await connector.getProvider()
     return ProviderAdapter.adapt(provider)
   }
 
   buildConnector(
     providerType: ProviderType,
-    chainId: ChainId
+    chainId: ChainId,
+    opts?: {
+      isWCV2?: boolean
+    }
   ): AbstractConnector {
     switch (providerType) {
       case ProviderType.INJECTED:
@@ -129,6 +136,24 @@ export class ConnectionManager {
       case ProviderType.FORTMATIC:
         return new FortmaticConnector(chainId)
       case ProviderType.WALLET_CONNECT:
+        if (opts?.isWCV2) {
+          const { mainnet, testnet } = getConfiguration().wallet_connect.v2
+
+          const config = (() => {
+            if (mainnet.chains.includes(chainId)) {
+              return mainnet
+            }
+
+            if (testnet.chains.includes(chainId)) {
+              return testnet
+            }
+
+            throw new Error(`Unsupported Chain: ${chainId}`)
+          })()
+
+          return new WalletConnectConnectorV2(config)
+        }
+
         return new WalletConnectConnector()
       case ProviderType.WALLET_LINK:
         return new WalletLinkConnector(chainId)
