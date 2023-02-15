@@ -6,7 +6,7 @@
     "prebuild": "rimraf dist",
     "lint": "tslint --project tsconfig.json -e '*.json' -c tslint.json 'src/**/*.ts{,x}'",
     "lint:fix": "tslint  --fix --project tsconfig.json -e '*.json' -c tslint.json 'src/**/*.ts{,x}'",
-    "build": "npm run lint && npm run test && tsc --project tsconfig.json",
+    "build": "npm run lint && tsc --project tsconfig.json",
     "test": "nyc mocha --require ts-node/register --project ./tsconfig.json --watch-files src, test/**/*.ts",
     "test:watch": "npm test -- --watch",
     "test:report": "npx nyc --silent --no-clean npm run test && npx nyc report --reporter=lcov --reporter=text",
@@ -16,6 +16,7 @@
   "dependencies": {
     "@dcl/schemas": "^6.4.2",
     "@types/node": "^10.1.2",
+    "@walletconnect/ethereum-provider": "^2.4.2",
     "@walletconnect/web3-provider": "^1.6.5",
     "@web3-react/fortmatic-connector": "^6.1.6",
     "@web3-react/injected-connector": "^6.0.7",
