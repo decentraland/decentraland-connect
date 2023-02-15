@@ -20,32 +20,33 @@ const configuration = Object.freeze({
   },
 
   [ProviderType.WALLET_CONNECT]: {
-    urls: getRpcUrls(ProviderType.WALLET_CONNECT),
-    v2: {
-      mainnet: {
-        projectId: 'aec7809a4218b2e441f5ce84b1cb3b4b',
-        chains: [ChainId.ETHEREUM_MAINNET, ChainId.MATIC_MAINNET],
-        rpcMap: (() => {
-          const urls = getRpcUrls(ProviderType.WALLET_CONNECT)
+    urls: getRpcUrls(ProviderType.WALLET_CONNECT)
+  },
 
-          return {
-            [ChainId.ETHEREUM_MAINNET]: urls[ChainId.ETHEREUM_MAINNET],
-            [ChainId.MATIC_MAINNET]: urls[ChainId.MATIC_MAINNET]
-          }
-        })()
-      },
-      testnet: {
-        projectId: 'aec7809a4218b2e441f5ce84b1cb3b4b',
-        chains: [ChainId.ETHEREUM_GOERLI, ChainId.MATIC_MUMBAI],
-        rpcMap: (() => {
-          const urls = getRpcUrls(ProviderType.WALLET_CONNECT)
+  [ProviderType.WALLET_CONNECT_V2]: {
+    mainnet: {
+      projectId: 'aec7809a4218b2e441f5ce84b1cb3b4b',
+      chains: [ChainId.ETHEREUM_MAINNET, ChainId.MATIC_MAINNET],
+      rpcMap: (() => {
+        const urls = getRpcUrls(ProviderType.WALLET_CONNECT_V2)
 
-          return {
-            [ChainId.ETHEREUM_GOERLI]: urls[ChainId.ETHEREUM_GOERLI],
-            [ChainId.MATIC_MUMBAI]: urls[ChainId.MATIC_MUMBAI]
-          }
-        })()
-      }
+        return {
+          [ChainId.ETHEREUM_MAINNET]: urls[ChainId.ETHEREUM_MAINNET],
+          [ChainId.MATIC_MAINNET]: urls[ChainId.MATIC_MAINNET]
+        }
+      })()
+    },
+    testnet: {
+      projectId: 'aec7809a4218b2e441f5ce84b1cb3b4b',
+      chains: [ChainId.ETHEREUM_GOERLI, ChainId.MATIC_MUMBAI],
+      rpcMap: (() => {
+        const urls = getRpcUrls(ProviderType.WALLET_CONNECT_V2)
+
+        return {
+          [ChainId.ETHEREUM_GOERLI]: urls[ChainId.ETHEREUM_GOERLI],
+          [ChainId.MATIC_MUMBAI]: urls[ChainId.MATIC_MUMBAI]
+        }
+      })()
     }
   },
 
@@ -57,6 +58,22 @@ const configuration = Object.freeze({
 
 export function getConfiguration() {
   return configuration
+}
+
+export function getWalletConnectV2ConfigFromChainId(chainId: ChainId) {
+  const { mainnet, testnet } = getConfiguration()[
+    ProviderType.WALLET_CONNECT_V2
+  ]
+
+  if (mainnet.chains.includes(chainId)) {
+    return mainnet
+  }
+
+  if (testnet.chains.includes(chainId)) {
+    return testnet
+  }
+
+  throw new Error(`Unsupported Chain: ${chainId}`)
 }
 
 export function getRpcUrls(providerType: ProviderType) {
@@ -75,6 +92,9 @@ export function getRpcUrls(providerType: ProviderType) {
   switch (providerType) {
     case ProviderType.WALLET_CONNECT:
       project = 'walletconnect'
+      break
+    case ProviderType.WALLET_CONNECT_V2:
+      project = 'walletconnect-v2'
       break
     case ProviderType.WALLET_LINK:
       project = 'walletlink'

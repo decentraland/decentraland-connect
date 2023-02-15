@@ -5,7 +5,7 @@ import {
   AbstractConnector,
   InjectedConnector,
   FortmaticConnector,
-  WalletConnectConnectorV2,
+  WalletConnectV2Connector,
   NetworkConnector,
   WalletLinkConnector,
   WalletConnectConnector
@@ -17,7 +17,10 @@ import {
   Provider,
   ClosableConnector
 } from './types'
-import { getConfiguration } from './configuration'
+import {
+  getConfiguration,
+  getWalletConnectV2ConfigFromChainId
+} from './configuration'
 import { ProviderAdapter } from './ProviderAdapter'
 import './declarations'
 
@@ -113,22 +116,16 @@ export class ConnectionManager {
 
   async createProvider(
     providerType: ProviderType,
-    chainId: ChainId = ChainId.ETHEREUM_MAINNET,
-    opts?: {
-      isWCV2?: boolean
-    }
+    chainId: ChainId = ChainId.ETHEREUM_MAINNET
   ): Promise<Provider> {
-    const connector = this.buildConnector(providerType, chainId, opts)
+    const connector = this.buildConnector(providerType, chainId)
     const provider = await connector.getProvider()
     return ProviderAdapter.adapt(provider)
   }
 
   buildConnector(
     providerType: ProviderType,
-    chainId: ChainId,
-    opts?: {
-      isWCV2?: boolean
-    }
+    chainId: ChainId
   ): AbstractConnector {
     switch (providerType) {
       case ProviderType.INJECTED:
@@ -136,25 +133,10 @@ export class ConnectionManager {
       case ProviderType.FORTMATIC:
         return new FortmaticConnector(chainId)
       case ProviderType.WALLET_CONNECT:
-        if (opts?.isWCV2) {
-          const { mainnet, testnet } = getConfiguration().wallet_connect.v2
-
-          const config = (() => {
-            if (mainnet.chains.includes(chainId)) {
-              return mainnet
-            }
-
-            if (testnet.chains.includes(chainId)) {
-              return testnet
-            }
-
-            throw new Error(`Unsupported Chain: ${chainId}`)
-          })()
-
-          return new WalletConnectConnectorV2(config)
-        }
-
         return new WalletConnectConnector()
+      case ProviderType.WALLET_CONNECT_V2:
+        const config = getWalletConnectV2ConfigFromChainId(chainId)
+        return new WalletConnectV2Connector(config)
       case ProviderType.WALLET_LINK:
         return new WalletLinkConnector(chainId)
       case ProviderType.NETWORK:
