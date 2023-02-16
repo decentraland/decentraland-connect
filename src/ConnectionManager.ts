@@ -90,6 +90,9 @@ export class ConnectionManager {
     ]
     if (typeof window !== 'undefined' && window.ethereum !== undefined) {
       available.unshift(ProviderType.INJECTED)
+    } else {
+      // we're asuming if there's no window, it's mobile
+      available.unshift(ProviderType.METAMASK_MOBILE)
     }
     return available
   }
