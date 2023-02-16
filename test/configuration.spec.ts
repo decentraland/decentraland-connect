@@ -37,6 +37,27 @@ describe('#getConfiguration', () => {
           '80001': 'https://rpc.decentraland.org/mumbai?project=walletconnect'
         }
       },
+      wallet_connect_v2: {
+        mainnet: {
+          chains: [1, 137],
+          projectId: 'aec7809a4218b2e441f5ce84b1cb3b4b',
+          rpcMap: {
+            '1':
+              'https://rpc.decentraland.org/mainnet?project=walletconnect-v2',
+            '137':
+              'https://rpc.decentraland.org/polygon?project=walletconnect-v2'
+          }
+        },
+        testnet: {
+          chains: [5, 80001],
+          projectId: 'aec7809a4218b2e441f5ce84b1cb3b4b',
+          rpcMap: {
+            '5': 'https://rpc.decentraland.org/goerli?project=walletconnect-v2',
+            '80001':
+              'https://rpc.decentraland.org/mumbai?project=walletconnect-v2'
+          }
+        }
+      },
       wallet_link: {
         appName: 'Decentraland',
         urls: {
