@@ -28,7 +28,7 @@ const configuration = Object.freeze({
     // In our case, the user can navigate the different dapps (except explorer) while connected to Ethereum or Polygon.
     // Depending if the app is being used on prod or dev, the configuration will be different.
     mainnet: {
-      // It can be found on the wallet connect dashboard https://cloud.walletconnect.com/app.
+      // The projectId can be found on the wallet connect dashboard https://cloud.walletconnect.com/app.
       // As we are not hosting our oun relayer, we need to use the one provided by wallet connect.
       // This one requires a project to be created first.
       // The projectId allows, among other things, preventing usage from untrusted domains.
