@@ -25,7 +25,7 @@ const configuration = Object.freeze({
 
   [ProviderType.WALLET_CONNECT_V2]: {
     mainnet: {
-      projectId: 'aec7809a4218b2e441f5ce84b1cb3b4b',
+      projectId: '61570c542c2d66c659492e5b24a41522',
       chains: [ChainId.ETHEREUM_MAINNET, ChainId.MATIC_MAINNET],
       rpcMap: (() => {
         const urls = getRpcUrls(ProviderType.WALLET_CONNECT_V2)
@@ -37,7 +37,7 @@ const configuration = Object.freeze({
       })()
     },
     testnet: {
-      projectId: 'aec7809a4218b2e441f5ce84b1cb3b4b',
+      projectId: '61570c542c2d66c659492e5b24a41522',
       chains: [ChainId.ETHEREUM_GOERLI, ChainId.MATIC_MUMBAI],
       rpcMap: (() => {
         const urls = getRpcUrls(ProviderType.WALLET_CONNECT_V2)

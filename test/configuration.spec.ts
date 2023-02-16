@@ -40,7 +40,7 @@ describe('#getConfiguration', () => {
       wallet_connect_v2: {
         mainnet: {
           chains: [1, 137],
-          projectId: 'aec7809a4218b2e441f5ce84b1cb3b4b',
+          projectId: '61570c542c2d66c659492e5b24a41522',
           rpcMap: {
             '1':
               'https://rpc.decentraland.org/mainnet?project=walletconnect-v2',
@@ -50,7 +50,7 @@ describe('#getConfiguration', () => {
         },
         testnet: {
           chains: [5, 80001],
-          projectId: 'aec7809a4218b2e441f5ce84b1cb3b4b',
+          projectId: '61570c542c2d66c659492e5b24a41522',
           rpcMap: {
             '5': 'https://rpc.decentraland.org/goerli?project=walletconnect-v2',
             '80001':
