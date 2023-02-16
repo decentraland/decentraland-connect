@@ -24,7 +24,14 @@ const configuration = Object.freeze({
   },
 
   [ProviderType.WALLET_CONNECT_V2]: {
+    // Wallet Connect V2 supports various chains simultaneously.
+    // In our case, the user can navigate the different dapps (except explorer) while connected to Ethereum or Polygon.
+    // Depending if the app is being used on prod or dev, the configuration will be different.
     mainnet: {
+      // It can be found on the wallet connect dashboard https://cloud.walletconnect.com/app.
+      // As we are not hosting our oun relayer, we need to use the one provided by wallet connect.
+      // This one requires a project to be created first.
+      // The projectId allows, among other things, preventing usage from untrusted domains.
       projectId: '61570c542c2d66c659492e5b24a41522',
       chains: [ChainId.ETHEREUM_MAINNET, ChainId.MATIC_MAINNET],
       rpcMap: (() => {
@@ -60,6 +67,11 @@ export function getConfiguration() {
   return configuration
 }
 
+/**
+ * Returns the list of chains that will be supported depending on the chainId provided.
+ * @param chainId The chain id.
+ * @returns A list of chains.
+ */
 export function getWalletConnectV2ConfigFromChainId(chainId: ChainId) {
   const { mainnet, testnet } = getConfiguration()[
     ProviderType.WALLET_CONNECT_V2
