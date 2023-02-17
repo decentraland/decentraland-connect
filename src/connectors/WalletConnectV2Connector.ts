@@ -22,10 +22,12 @@ export class WalletConnectV2Connector extends AbstractConnector {
       )
 
       WalletConnectV2Connector.provider.on('disconnect', this.handleDisconnect)
+
       WalletConnectV2Connector.provider.on(
         'chainChanged',
         this.handleChainChanged
       )
+
       WalletConnectV2Connector.provider.on(
         'accountsChanged',
         this.handleAccountsChanged
@@ -76,7 +78,7 @@ export class WalletConnectV2Connector extends AbstractConnector {
       throw new Error('Provider not found')
     }
 
-    return WalletConnectV2Connector.provider.accounts[0]
+    return WalletConnectV2Connector.provider.accounts[0] ?? null
   }
 
   deactivate = async (): Promise<void> => {
@@ -93,10 +95,12 @@ export class WalletConnectV2Connector extends AbstractConnector {
         'disconnect',
         this.handleDisconnect
       )
+
       WalletConnectV2Connector.provider.removeListener(
         'chainChanged',
         this.handleChainChanged
       )
+
       WalletConnectV2Connector.provider.removeListener(
         'accountsChanged',
         this.handleAccountsChanged
