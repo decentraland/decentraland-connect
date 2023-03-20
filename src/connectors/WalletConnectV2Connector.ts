@@ -1,6 +1,5 @@
 import { ConnectorUpdate } from '@web3-react/types'
 import EthereumProvider from '@walletconnect/ethereum-provider'
-import { ChainId } from '@dcl/schemas'
 import { AbstractConnector } from './AbstractConnector'
 
 export type WalletConnectV2ConnectorConfig = Parameters<
@@ -112,7 +111,7 @@ export class WalletConnectV2Connector extends AbstractConnector {
     }
   }
 
-  private handleChainChanged = (chainId: ChainId) => {
+  private handleChainChanged = (chainId: string) => {
     this.emitUpdate({
       chainId
     })
