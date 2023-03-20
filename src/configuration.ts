@@ -11,7 +11,8 @@ const configuration = Object.freeze({
       [ChainId.ETHEREUM_MAINNET]: 'pk_live_F8E24DF8DD5BCBC5',
       [ChainId.ETHEREUM_ROPSTEN]: 'pk_test_5B728BEFE5C10911',
       [ChainId.ETHEREUM_RINKEBY]: 'pk_test_5B728BEFE5C10911',
-      [ChainId.ETHEREUM_KOVAN]: 'pk_test_5B728BEFE5C10911'
+      [ChainId.ETHEREUM_KOVAN]: 'pk_test_5B728BEFE5C10911',
+      [ChainId.ETHEREUM_GOERLI]: 'pk_test_5B728BEFE5C10911'
     }
   },
 
