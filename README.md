@@ -287,3 +287,4 @@ npm run test:report
 # Copyright
 
 This repository is protected with a standard Apache 2 license. See the terms and conditions in the [LICENSE](https://github.com/decentraland/decentraland-connect/blob/master/LICENSE) file.
+
