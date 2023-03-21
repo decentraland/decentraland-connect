@@ -1,13 +1,13 @@
 import { ConnectorUpdate } from '@web3-react/types'
 import { AbstractConnector } from '@web3-react/abstract-connector'
 import { ChainId, ProviderType } from '@dcl/schemas'
-import { getConfiguration } from 'src/configuration'
+import { getConfiguration } from '../configuration'
 
 export class FortmaticConnector extends AbstractConnector {
   private readonly apiKey: string
   private readonly chainId: number
   private readonly rpcUrl: string
-  public fortmatic: any
+  private fortmatic: any
 
   constructor(chainId: ChainId) {
     const fortmaticConfiguration = getConfiguration()[ProviderType.FORTMATIC]
@@ -46,6 +46,10 @@ export class FortmaticConnector extends AbstractConnector {
     }
   }
 
+  public getApiKey(): string {
+    return this.apiKey
+  }
+
   public async getProvider(): Promise<any> {
     return this.fortmatic.getProvider()
   }
@@ -62,7 +66,7 @@ export class FortmaticConnector extends AbstractConnector {
   }
 
   public deactivate() {
-    this.close()
+    return this.close()
   }
 
   public async close() {

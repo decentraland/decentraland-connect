@@ -14,6 +14,15 @@ describe('#getConfiguration', () => {
           '4': 'pk_test_5B728BEFE5C10911',
           '5': 'pk_test_5B728BEFE5C10911',
           '42': 'pk_test_5B728BEFE5C10911'
+        },
+        urls: {
+          '1': 'https://rpc.decentraland.org/mainnet?project=fortmatic',
+          '3': 'https://rpc.decentraland.org/ropsten?project=fortmatic',
+          '4': 'https://rpc.decentraland.org/rinkeby?project=fortmatic',
+          '5': 'https://rpc.decentraland.org/goerli?project=fortmatic',
+          '42': 'https://rpc.decentraland.org/kovan?project=fortmatic',
+          '137': 'https://rpc.decentraland.org/polygon?project=fortmatic',
+          '80001': 'https://rpc.decentraland.org/mumbai?project=fortmatic'
         }
       },
       network: {

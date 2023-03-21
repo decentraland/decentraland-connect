@@ -14,7 +14,7 @@ const configuration = Object.freeze({
       [ChainId.ETHEREUM_KOVAN]: 'pk_test_5B728BEFE5C10911',
       [ChainId.ETHEREUM_GOERLI]: 'pk_test_5B728BEFE5C10911'
     },
-    urls: getRpcUrls(ProviderType.NETWORK)
+    urls: getRpcUrls(ProviderType.FORTMATIC)
   },
 
   [ProviderType.NETWORK]: {
