@@ -12,6 +12,7 @@ describe('#getConfiguration', () => {
           '1': 'pk_live_F8E24DF8DD5BCBC5',
           '3': 'pk_test_5B728BEFE5C10911',
           '4': 'pk_test_5B728BEFE5C10911',
+          '5': 'pk_test_5B728BEFE5C10911',
           '42': 'pk_test_5B728BEFE5C10911'
         }
       },

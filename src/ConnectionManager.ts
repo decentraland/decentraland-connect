@@ -8,18 +8,18 @@ import {
   WalletConnectV2Connector,
   NetworkConnector,
   WalletLinkConnector,
-  WalletConnectConnector
+  WalletConnectConnector,
 } from './connectors'
 import { LocalStorage, Storage } from './storage'
 import {
   ConnectionData,
   ConnectionResponse,
   Provider,
-  ClosableConnector
+  ClosableConnector,
 } from './types'
 import {
   getConfiguration,
-  getWalletConnectV2ConfigFromChainId
+  getWalletConnectV2ConfigFromChainId,
 } from './configuration'
 import { ProviderAdapter } from './ProviderAdapter'
 import './declarations'
@@ -36,16 +36,14 @@ export class ConnectionManager {
     this.setConnectionData(providerType, chainId)
     this.connector = this.buildConnector(providerType, chainId)
 
-    const {
-      provider,
-      account
-    }: ConnectorUpdate = await this.connector.activate()
+    const { provider, account }: ConnectorUpdate =
+      await this.connector.activate()
 
     return {
       provider: ProviderAdapter.adapt(provider),
       providerType,
       account: account || '',
-      chainId
+      chainId,
     }
   }
 
@@ -66,7 +64,7 @@ export class ConnectionManager {
     // We need to check if the chainId has changed, and update the connectionData if so.
     if (response.providerType === ProviderType.INJECTED) {
       const currentChainIdHex = (await response.provider.request({
-        method: 'eth_chainId'
+        method: 'eth_chainId',
       })) as string
       const currentChainId = currentChainIdHex
         ? (parseInt(currentChainIdHex, 16) as ChainId)
@@ -78,7 +76,7 @@ export class ConnectionManager {
 
     return {
       ...response,
-      chainId: this.getConnectionData()!.chainId
+      chainId: this.getConnectionData()!.chainId,
     }
   }
 
@@ -86,7 +84,7 @@ export class ConnectionManager {
     const available = [
       ProviderType.FORTMATIC,
       ProviderType.WALLET_CONNECT,
-      ProviderType.WALLET_LINK
+      ProviderType.WALLET_LINK,
     ]
     if (typeof window !== 'undefined' && window.ethereum !== undefined) {
       available.unshift(ProviderType.INJECTED)
@@ -136,7 +134,7 @@ export class ConnectionManager {
       case ProviderType.FORTMATIC:
         return new FortmaticConnector(chainId)
       case ProviderType.WALLET_CONNECT:
-        return new WalletConnectConnector()
+        return new WalletConnectConnector(chainId)
       case ProviderType.WALLET_CONNECT_V2:
         const config = getWalletConnectV2ConfigFromChainId(chainId)
         return new WalletConnectV2Connector(config)
@@ -159,7 +157,7 @@ export class ConnectionManager {
     const { storageKey } = getConfiguration()
     const connectionData = JSON.stringify({
       providerType,
-      chainId
+      chainId,
     } as ConnectionData)
     this.storage.set(storageKey, connectionData)
   }

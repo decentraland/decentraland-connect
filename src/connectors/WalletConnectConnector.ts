@@ -1,3 +1,4 @@
+import { ChainId } from '@dcl/schemas/dist/dapps/chain-id'
 import { ProviderType } from '@dcl/schemas/dist/dapps/provider-type'
 import { ConnectorUpdate } from '@web3-react/types'
 import { AbstractConnector } from '@web3-react/abstract-connector'
@@ -10,6 +11,7 @@ export const URI_AVAILABLE = 'URI_AVAILABLE'
 export interface WalletConnectConnectorArguments
   extends IWalletConnectProviderOptions {
   supportedChainIds?: number[]
+  defaultChainId?: number
 }
 
 export class UserRejectedRequestError extends Error {
@@ -52,7 +54,10 @@ export class BaseWalletConnectConnector extends AbstractConnector {
       const WalletConnectProvider = await import(
         '@walletconnect/web3-provider'
       ).then(m => m?.default ?? m)
-      this.walletConnectProvider = new WalletConnectProvider(this.config)
+      this.walletConnectProvider = new WalletConnectProvider({
+        ...this.config,
+        chainId: this.config.defaultChainId || ChainId.ETHEREUM_MAINNET
+      })
     }
 
     let account = ''
@@ -153,12 +158,13 @@ export class WalletConnectConnector extends BaseWalletConnectConnector {
     pollingInterval: number
   }
 
-  constructor() {
+  constructor(defaultChainId: ChainId = ChainId.ETHEREUM_MAINNET) {
     const { urls } = getConfiguration()[ProviderType.WALLET_CONNECT]
     const params = {
       rpc: urls,
       qrcode: true,
-      pollingInterval: 150000
+      pollingInterval: 150000,
+      defaultChainId
     }
 
     super(params)
