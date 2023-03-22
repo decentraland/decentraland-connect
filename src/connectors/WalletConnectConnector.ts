@@ -53,8 +53,13 @@ export class BaseWalletConnectConnector extends AbstractConnector {
       const WalletConnectProvider = await import(
         '@walletconnect/web3-provider'
       ).then(m => m?.default ?? m)
-      const chainId = this.config.supportedChainIds && this.config.supportedChainIds[0] || ChainId.ETHEREUM_MAINNET
-      this.walletConnectProvider = new WalletConnectProvider({ ...this.config, chainId })
+      const chainId =
+        (this.config.supportedChainIds && this.config.supportedChainIds[0]) ||
+        ChainId.ETHEREUM_MAINNET
+      this.walletConnectProvider = new WalletConnectProvider({
+        ...this.config,
+        chainId
+      })
     }
 
     let account = ''

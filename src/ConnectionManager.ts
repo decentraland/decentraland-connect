@@ -23,7 +23,7 @@ import './declarations'
 export class ConnectionManager {
   connector?: AbstractConnector
 
-  constructor(public storage: Storage) { }
+  constructor(public storage: Storage) {}
 
   async connect(
     providerType: ProviderType,
