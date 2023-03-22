@@ -11,6 +11,7 @@ export const URI_AVAILABLE = 'URI_AVAILABLE'
 export interface WalletConnectConnectorArguments
   extends IWalletConnectProviderOptions {
   supportedChainIds?: number[]
+  defaultChainId?: number
 }
 
 export class UserRejectedRequestError extends Error {
@@ -53,12 +54,9 @@ export class BaseWalletConnectConnector extends AbstractConnector {
       const WalletConnectProvider = await import(
         '@walletconnect/web3-provider'
       ).then(m => m?.default ?? m)
-      const chainId =
-        (this.config.supportedChainIds && this.config.supportedChainIds[0]) ||
-        ChainId.ETHEREUM_MAINNET
       this.walletConnectProvider = new WalletConnectProvider({
         ...this.config,
-        chainId
+        chainId: this.config.defaultChainId || ChainId.ETHEREUM_MAINNET
       })
     }
 
@@ -160,13 +158,13 @@ export class WalletConnectConnector extends BaseWalletConnectConnector {
     pollingInterval: number
   }
 
-  constructor(chainId: ChainId = ChainId.ETHEREUM_MAINNET) {
+  constructor(defaultChainId: ChainId = ChainId.ETHEREUM_MAINNET) {
     const { urls } = getConfiguration()[ProviderType.WALLET_CONNECT]
     const params = {
       rpc: urls,
       qrcode: true,
       pollingInterval: 150000,
-      supportedChainIds: [chainId]
+      defaultChainId
     }
 
     super(params)
