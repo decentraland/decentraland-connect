@@ -132,7 +132,7 @@ export class ConnectionManager {
       case ProviderType.FORTMATIC:
         return new FortmaticConnector(chainId)
       case ProviderType.WALLET_CONNECT:
-        return new WalletConnectConnector()
+        return new WalletConnectConnector(chainId)
       case ProviderType.WALLET_LINK:
         return new WalletLinkConnector(chainId)
       case ProviderType.NETWORK:
