@@ -14,7 +14,7 @@
     "commitmsg": "validate-commit-msg"
   },
   "dependencies": {
-    "@dcl/schemas": "^6.9.0",
+    "@dcl/schemas": "^6.13.4",
     "@types/node": "^10.1.2",
     "@walletconnect/ethereum-provider": "^2.5.2",
     "@walletconnect/web3-provider": "^1.6.5",
