@@ -7,7 +7,8 @@ import {
   FortmaticConnector,
   WalletConnectConnector,
   NetworkConnector,
-  WalletLinkConnector
+  WalletLinkConnector,
+  WalletConnectV2Connector
 } from './connectors'
 import { LocalStorage, Storage } from './storage'
 import {
@@ -137,6 +138,8 @@ export class ConnectionManager {
         return new WalletLinkConnector(chainId)
       case ProviderType.NETWORK:
         return new NetworkConnector(chainId)
+      case ProviderType.WALLET_CONNECT_V2:
+        return new WalletConnectV2Connector()
       default:
         throw new Error(`Invalid provider ${providerType}`)
     }
