@@ -26,18 +26,74 @@ export class WalletConnectV2Connector extends AbstractConnector {
   }
 
   getProvider = async (): Promise<any> => {
-    throw new Error('Method not implemented.')
+    return this.provider
   }
 
   getChainId = async (): Promise<string | number> => {
-    throw new Error('Method not implemented.')
+    if (!this.provider) {
+      throw new Error('Provider not set.')
+    }
+
+    return this.provider.request({ method: 'eth_chainId' })
   }
 
   getAccount = async (): Promise<string | null> => {
-    throw new Error('Method not implemented.')
+    if (!this.provider) {
+      throw new Error('Provider not set.')
+    }
+
+    return this.provider
+      .request<string[]>({ method: 'eth_accounts' })
+      .then(accounts => accounts[0])
   }
 
-  deactivate = (): void => {
-    throw new Error('Method not implemented.')
+  deactivate = async (): Promise<void> => {
+    if (this.provider) {
+      await this.provider.disconnect()
+
+      this.provider.removeListener(
+        'disconnect',
+        this.handleDisconnect
+      )
+      this.provider.removeListener(
+        'chainChanged',
+        this.handleChainChanged
+      )
+
+      this.provider.removeListener(
+        'accountsChanged',
+        this.handleAccountsChanged
+      )
+    }
+  }
+
+  private handleChainChanged = (chainId: number | string): void => {
+    this.emitUpdate({ chainId })
+  }
+
+  private handleAccountsChanged = (accounts: string[]): void => {
+    this.emitUpdate({ account: accounts[0] })
+  }
+
+  private handleDisconnect = async (): Promise<void> => {
+    this.emitDeactivate()
+    // we have to do this because of a @walletconnect/web3-provider bug
+    if (this.provider) {
+      await this.provider.disconnect()
+
+      this.provider.removeListener(
+        'chainChanged',
+        this.handleChainChanged
+      )
+
+      this.provider.removeListener(
+        'accountsChanged',
+        this.handleAccountsChanged
+      )
+
+      this.provider = undefined
+    }
+
+    this.emitDeactivate()
   }
 }
