@@ -49,6 +49,20 @@ describe('#getConfiguration', () => {
           '137': 'https://rpc.decentraland.org/polygon?project=walletlink',
           '80001': 'https://rpc.decentraland.org/mumbai?project=walletlink'
         }
+      },
+      wallet_connect_v2: {
+        projectId: '61570c542c2d66c659492e5b24a41522',
+        urls: {
+          '1': 'https://rpc.decentraland.org/mainnet?project=walletconnect_v2',
+          '3': 'https://rpc.decentraland.org/ropsten?project=walletconnect_v2',
+          '4': 'https://rpc.decentraland.org/rinkeby?project=walletconnect_v2',
+          '5': 'https://rpc.decentraland.org/goerli?project=walletconnect_v2',
+          '42': 'https://rpc.decentraland.org/kovan?project=walletconnect_v2',
+          '137':
+            'https://rpc.decentraland.org/polygon?project=walletconnect_v2',
+          '80001':
+            'https://rpc.decentraland.org/mumbai?project=walletconnect_v2'
+        }
       }
     })
   })
