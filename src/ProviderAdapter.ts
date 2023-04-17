@@ -51,7 +51,21 @@ export class ProviderAdapter {
 
   sendAsync = async (args: Arguments, callback: Callback) => {
     return this.hasSendAsync()
-      ? this.provider.sendAsync(args, callback)
+      ? this.provider.sendAsync(args, (err, value) => {
+          let cbValue = value
+
+          // Providers like WallerConnectV2 return the result plainly instead of wrapped in the jsonrpc response object.
+          // On these cases, we need to just pick the result and wrap in order to normalize responses between providers.
+          if (value && !value.result) {
+            cbValue = {
+              id: value.id || '',
+              jsonrpc: value.jsonrpc || '2.0',
+              result: value
+            }
+          }
+
+          callback(err, cbValue)
+        })
       : this.send(args, callback)
   }
 
