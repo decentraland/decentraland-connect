@@ -139,7 +139,7 @@ export class ConnectionManager {
       case ProviderType.NETWORK:
         return new NetworkConnector(chainId)
       case ProviderType.WALLET_CONNECT_V2:
-        return new WalletConnectV2Connector()
+        return new WalletConnectV2Connector(chainId)
       default:
         throw new Error(`Invalid provider ${providerType}`)
     }

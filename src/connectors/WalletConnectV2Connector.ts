@@ -1,19 +1,27 @@
 import { ConnectorUpdate } from '@web3-react/types'
 // tslint:disable-next-line
 import type WalletConnectProvider from '@walletconnect/ethereum-provider'
+import { ChainId, ProviderType } from '@dcl/schemas'
+import { getConfiguration } from '../configuration'
 import { AbstractConnector } from './AbstractConnector'
-import { ChainId } from '@dcl/schemas'
 
 export class WalletConnectV2Connector extends AbstractConnector {
   provider?: WalletConnectProvider
 
+  constructor(private defaultChainId: ChainId = ChainId.ETHEREUM_MAINNET) {
+    super({ supportedChainIds: [defaultChainId] })
+  }
+
   activate = async (): Promise<ConnectorUpdate<string | number>> => {
     const walletConnectProvider = await import('@walletconnect/ethereum-provider')
 
+    const config = getConfiguration()[ProviderType.WALLET_CONNECT_V2]
+
     this.provider = await walletConnectProvider.default.init({
-      chains: [ChainId.ETHEREUM_MAINNET],
-      projectId: '61570c542c2d66c659492e5b24a41522',
-      showQrModal: true
+      chains: [this.defaultChainId],
+      projectId: config.projectId,
+      showQrModal: true,
+      rpcMap: config.urls
     })
 
     const accounts = await this.provider.enable()

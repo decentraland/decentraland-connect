@@ -27,6 +27,11 @@ const configuration = Object.freeze({
   [ProviderType.WALLET_LINK]: {
     appName: 'Decentraland',
     urls: getRpcUrls(ProviderType.WALLET_LINK)
+  },
+
+  [ProviderType.WALLET_CONNECT_V2]: {
+    projectId: '61570c542c2d66c659492e5b24a41522',
+    urls: getRpcUrls(ProviderType.WALLET_CONNECT_V2)
   }
 })
 
@@ -50,6 +55,9 @@ export function getRpcUrls(providerType: ProviderType) {
   switch (providerType) {
     case ProviderType.WALLET_CONNECT:
       project = 'walletconnect'
+      break
+    case ProviderType.WALLET_CONNECT_V2:
+      project = 'walletconnect_v2'
       break
     case ProviderType.WALLET_LINK:
       project = 'walletlink'
