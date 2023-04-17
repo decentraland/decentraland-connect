@@ -58,7 +58,7 @@ export class ProviderAdapter {
           // On these cases, we need to just pick the result and wrap in order to normalize responses between providers.
           if (value && !value.result) {
             cbValue = {
-              id: value.id || '',
+              id: value.id || ++this.id,
               jsonrpc: value.jsonrpc || '2.0',
               result: value
             }
