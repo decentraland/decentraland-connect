@@ -20,8 +20,8 @@ export class WalletConnectV2Connector extends AbstractConnector {
     this.provider = await walletConnectProvider.default.init({
       chains: [this.defaultChainId],
       projectId: config.projectId,
-      showQrModal: true
-      // rpcMap: config.urls
+      showQrModal: true,
+      rpcMap: config.urls
     })
 
     const accounts = await this.provider.enable()
