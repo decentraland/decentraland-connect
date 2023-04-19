@@ -20,8 +20,9 @@ export class WalletConnectV2Connector extends AbstractConnector {
     this.provider = await walletConnectProvider.default.init({
       chains: [this.defaultChainId],
       projectId: config.projectId,
-      showQrModal: true,
-      rpcMap: config.urls
+      showQrModal: true
+      // TODO: Resolve https://github.com/decentraland/decentraland-connect/issues/51 before uncommenting the rpcMap.
+      // rpcMap: config.urls
     })
 
     const accounts = await this.provider.enable()
