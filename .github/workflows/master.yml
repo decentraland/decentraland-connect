@@ -29,5 +29,7 @@ jobs:
         with:
           #cwd: ./dist
           access: public # 'public' to deploy @scoped/packages
+          ## Sign the deployment
+          provenance: true
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
