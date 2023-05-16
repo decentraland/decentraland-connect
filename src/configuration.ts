@@ -49,15 +49,14 @@ export function getRpcUrls(providerType: ProviderType) {
   let project = ''
 
   switch (providerType) {
-    case ProviderType.FORTMATIC:
-      project = 'fortmatic'
-      break
     case ProviderType.WALLET_CONNECT:
       project = 'walletconnect'
       break
     case ProviderType.WALLET_LINK:
       project = 'walletlink'
       break
+    case ProviderType.FORTMATIC:
+      project = 'fortmatic'
     default:
       break
   }
