@@ -57,6 +57,7 @@ export function getRpcUrls(providerType: ProviderType) {
       break
     case ProviderType.FORTMATIC:
       project = 'fortmatic'
+      break
     default:
       break
   }
