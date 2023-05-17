@@ -65,9 +65,8 @@ export class FortmaticConnector extends AbstractConnector {
       .then((accounts: string[]): string => accounts[0])
   }
 
-  public deactivate() {
-    return this.close()
-  }
+  // tslint:disable-next-line
+  public deactivate() {}
 
   public async close() {
     await this.fortmatic.user.logout()
