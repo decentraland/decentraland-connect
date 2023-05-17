@@ -13,7 +13,8 @@ const configuration = Object.freeze({
       [ChainId.ETHEREUM_RINKEBY]: 'pk_test_5B728BEFE5C10911',
       [ChainId.ETHEREUM_KOVAN]: 'pk_test_5B728BEFE5C10911',
       [ChainId.ETHEREUM_GOERLI]: 'pk_test_5B728BEFE5C10911'
-    }
+    },
+    urls: getRpcUrls(ProviderType.FORTMATIC)
   },
 
   [ProviderType.NETWORK]: {
@@ -53,6 +54,9 @@ export function getRpcUrls(providerType: ProviderType) {
       break
     case ProviderType.WALLET_LINK:
       project = 'walletlink'
+      break
+    case ProviderType.FORTMATIC:
+      project = 'fortmatic'
       break
     default:
       break
