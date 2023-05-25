@@ -7,7 +7,8 @@ import {
   FortmaticConnector,
   WalletConnectConnector,
   NetworkConnector,
-  WalletLinkConnector
+  WalletLinkConnector,
+  WalletConnectV2Connector
 } from './connectors'
 import { LocalStorage, Storage } from './storage'
 import {
@@ -31,6 +32,8 @@ export class ConnectionManager {
   ): Promise<ConnectionResponse> {
     this.setConnectionData(providerType, chainId)
     this.connector = this.buildConnector(providerType, chainId)
+
+    this.connector.on('Web3ReactDeactivate', this.handleWeb3ReactDeactivate)
 
     const {
       provider,
@@ -137,6 +140,8 @@ export class ConnectionManager {
         return new WalletLinkConnector(chainId)
       case ProviderType.NETWORK:
         return new NetworkConnector(chainId)
+      case ProviderType.WALLET_CONNECT_V2:
+        return new WalletConnectV2Connector(chainId, this.storage)
       default:
         throw new Error(`Invalid provider ${providerType}`)
     }
@@ -159,6 +164,14 @@ export class ConnectionManager {
 
   private isClosableConnector() {
     return this.connector && typeof this.connector['close'] !== 'undefined'
+  }
+
+  private handleWeb3ReactDeactivate = () => {
+    if (this.connector) {
+      this.connector.off('Web3ReactDeactivate', this.handleWeb3ReactDeactivate)
+    }
+
+    this.disconnect().catch(console.error)
   }
 }
 

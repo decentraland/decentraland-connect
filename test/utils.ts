@@ -71,6 +71,10 @@ export class StubStorage extends Storage {
   remove(key: string) {
     delete this.cache[key]
   }
+
+  removeRegExp(_regexp: RegExp): void {
+    // TODO: Implement
+  }
 }
 
 export function getSendableProvider(chainId?: ChainId) {

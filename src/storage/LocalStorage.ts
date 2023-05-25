@@ -13,4 +13,14 @@ export class LocalStorage extends Storage {
   remove(key: string): void {
     window.localStorage.removeItem(key)
   }
+
+  removeRegExp(regexp: RegExp): void {
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const key = localStorage.key(i)
+
+      if (key && regexp.test(key)) {
+        localStorage.removeItem(key)
+      }
+    }
+  }
 }
