@@ -31,6 +31,7 @@ export class ConnectionManager {
     chainId: ChainId = ChainId.ETHEREUM_MAINNET
   ): Promise<ConnectionResponse> {
     this.setConnectionData(providerType, chainId)
+
     this.connector = this.buildConnector(providerType, chainId)
 
     this.connector.on('Web3ReactDeactivate', this.handleWeb3ReactDeactivate)
