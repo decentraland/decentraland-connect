@@ -169,7 +169,10 @@ export class ConnectionManager {
 
   private handleWeb3ReactDeactivate = () => {
     if (this.connector) {
-      this.connector.off('Web3ReactDeactivate', this.handleWeb3ReactDeactivate)
+      this.connector.removeListener(
+        'Web3ReactDeactivate',
+        this.handleWeb3ReactDeactivate
+      )
     }
 
     this.disconnect().catch(console.error)
