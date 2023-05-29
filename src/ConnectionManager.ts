@@ -160,6 +160,7 @@ export class ConnectionManager {
   private clearConnectionData = () => {
     const { storageKey } = getConfiguration()
     this.storage.remove(storageKey)
+    WalletConnectConnector.clearStorage(this.storage)
     WalletConnectV2Connector.clearStorage(this.storage)
   }
 

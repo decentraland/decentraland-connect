@@ -3,7 +3,7 @@ import { ProviderType } from '@dcl/schemas/dist/dapps/provider-type'
 import { ConnectorUpdate } from '@web3-react/types'
 import { AbstractConnector } from '@web3-react/abstract-connector'
 import { IWalletConnectProviderOptions } from '@walletconnect/types'
-
+import { Storage } from 'src/storage'
 import { getConfiguration } from '../configuration'
 
 export const URI_AVAILABLE = 'URI_AVAILABLE'
@@ -169,6 +169,10 @@ export class WalletConnectConnector extends BaseWalletConnectConnector {
 
     super(params)
     this.params = params
+  }
+
+  static clearStorage = (storage: Storage) => {
+    storage.removeRegExp(new RegExp('\\bwalletconnect\\b'))
   }
 
   public async getRpc(): Promise<string> {
