@@ -21,6 +21,7 @@ import { getConfiguration } from './configuration'
 import { ProviderAdapter } from './ProviderAdapter'
 import './declarations'
 
+// Event name used by web3-react to notify when the connector is deactivated.
 const DEACTIVATE_EVENT_NAME = 'Web3ReactDeactivate'
 
 export class ConnectionManager {
@@ -160,6 +161,7 @@ export class ConnectionManager {
   private clearConnectionData = () => {
     const { storageKey } = getConfiguration()
     this.storage.remove(storageKey)
+    // Clear any remaining storage from connectors that pollute the local storage with data.
     WalletConnectConnector.clearStorage(this.storage)
     WalletConnectV2Connector.clearStorage(this.storage)
   }
@@ -185,6 +187,7 @@ export class ConnectionManager {
       )
     }
 
+    // We need to disconnect the connector here when the user disconnects manually from the wallet to clear the storage.
     this.disconnect().catch(console.error)
   }
 }
