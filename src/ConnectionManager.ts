@@ -21,6 +21,8 @@ import { getConfiguration } from './configuration'
 import { ProviderAdapter } from './ProviderAdapter'
 import './declarations'
 
+const DEACTIVATE_EVENT_NAME = 'Web3ReactDeactivate'
+
 export class ConnectionManager {
   connector?: AbstractConnector
 
@@ -30,16 +32,16 @@ export class ConnectionManager {
     providerType: ProviderType,
     chainId: ChainId = ChainId.ETHEREUM_MAINNET
   ): Promise<ConnectionResponse> {
-    this.setConnectionData(providerType, chainId)
-
     this.connector = this.buildConnector(providerType, chainId)
 
-    this.connector.on('Web3ReactDeactivate', this.handleWeb3ReactDeactivate)
+    this.connector.on(DEACTIVATE_EVENT_NAME, this.handleWeb3ReactDeactivate)
 
     const {
       provider,
       account
     }: ConnectorUpdate = await this.connector.activate()
+
+    this.setConnectionData(providerType, chainId)
 
     return {
       provider: ProviderAdapter.adapt(provider),
@@ -104,10 +106,11 @@ export class ConnectionManager {
       if (this.isClosableConnector()) {
         await (this.connector as ClosableConnector).close()
       }
-      const { storageKey } = getConfiguration()
-      this.storage.remove(storageKey)
-      this.connector = undefined
     }
+
+    this.clearConnectionData()
+
+    this.connector = undefined
   }
 
   async getProvider(): Promise<Provider> {
@@ -142,7 +145,7 @@ export class ConnectionManager {
       case ProviderType.NETWORK:
         return new NetworkConnector(chainId)
       case ProviderType.WALLET_CONNECT_V2:
-        return new WalletConnectV2Connector(chainId, this.storage)
+        return new WalletConnectV2Connector(chainId)
       default:
         throw new Error(`Invalid provider ${providerType}`)
     }
@@ -152,6 +155,12 @@ export class ConnectionManager {
     const { storageKey } = getConfiguration()
     const connectionData = this.storage.get(storageKey)
     return connectionData ? JSON.parse(connectionData) : undefined
+  }
+
+  private clearConnectionData = () => {
+    const { storageKey } = getConfiguration()
+    this.storage.remove(storageKey)
+    WalletConnectV2Connector.clearStorage(this.storage)
   }
 
   private setConnectionData(providerType: ProviderType, chainId: ChainId) {
@@ -170,7 +179,7 @@ export class ConnectionManager {
   private handleWeb3ReactDeactivate = () => {
     if (this.connector) {
       this.connector.removeListener(
-        'Web3ReactDeactivate',
+        DEACTIVATE_EVENT_NAME,
         this.handleWeb3ReactDeactivate
       )
     }

@@ -16,17 +16,17 @@ function getSupportedChainIds(chainId: ChainId) {
   }
 }
 
-function removeWalletConnectV2FromStorage(storage: Storage) {
-  storage.removeRegExp(new RegExp('^wc@2:'))
-}
-
 export class WalletConnectV2Connector extends AbstractConnector {
   provider?: typeof EthereumProvider.prototype
 
-  constructor(private desiredChainId: ChainId, private storage: Storage) {
+  constructor(private desiredChainId: ChainId) {
     super({
       supportedChainIds: getSupportedChainIds(desiredChainId)
     })
+  }
+
+  static clearStorage = (storage: Storage) => {
+    storage.removeRegExp(new RegExp('^wc@2:'))
   }
 
   activate = async (): Promise<ConnectorUpdate<string | number>> => {
@@ -82,10 +82,8 @@ export class WalletConnectV2Connector extends AbstractConnector {
 
   deactivate = (): void => {
     if (!this.provider) {
-      throw new Error('Provider is undefined')
+      return
     }
-
-    removeWalletConnectV2FromStorage(this.storage)
 
     this.emitDeactivate()
 
