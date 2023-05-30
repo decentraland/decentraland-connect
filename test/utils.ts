@@ -73,7 +73,7 @@ export class StubStorage extends Storage {
   }
 
   removeRegExp(_regexp: RegExp): void {
-    // TODO: Implement
+    // Unused
   }
 }
 
