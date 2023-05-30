@@ -31,15 +31,21 @@ export class WalletConnectV2Connector extends AbstractConnector {
 
   activate = async (): Promise<ConnectorUpdate<string | number>> => {
     this.provider = await EthereumProvider.init({
+      // Decentraland's Wallet Connect PUBLIC project id.
       projectId: '61570c542c2d66c659492e5b24a41522',
+      // The chains used by Decentraland's dApps.
       chains: getSupportedChainIds(this.desiredChainId),
       showQrModal: true,
       qrModalOptions: {
         themeVariables: {
+          // Display the WC modal over other Decentraland UI's modals.
+          // Won't be visible without this.
           '--w3m-z-index': '3000'
         }
       },
+      // Methods expected for the connecting wallet to provide in order to function with Decentraland's dApps.
       methods: ['eth_signTypedData_v4', 'personal_sign', 'eth_sendTransaction'],
+      // Events expected for the connecting wallet to emit.
       events: ['accountsChanged', 'chainChanged', 'disconnect']
     })
 
