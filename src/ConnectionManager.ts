@@ -161,7 +161,8 @@ export class ConnectionManager {
   private clearConnectionData = () => {
     const { storageKey } = getConfiguration()
     this.storage.remove(storageKey)
-    // Clear any remaining storage from connectors that pollute the local storage with data.
+    // Clear any data that might have been stored by the different connectors.
+    // Clearing them even if they were not the ones used is not an issue as it is a cheap operation.
     WalletConnectConnector.clearStorage(this.storage)
     WalletConnectV2Connector.clearStorage(this.storage)
   }
