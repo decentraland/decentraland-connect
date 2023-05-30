@@ -188,7 +188,9 @@ export class ConnectionManager {
       )
     }
 
-    // We need to disconnect the connector here when the user disconnects manually from the wallet to clear the storage.
+    // Whenever the user manually disconnects the account from their wallet, the event will be
+    // intercepted by this handler, calling the disconnect method.
+    // Necessary to sanitize the state and prevent the continuation of a dead connection.
     this.disconnect().catch(console.error)
   }
 }
