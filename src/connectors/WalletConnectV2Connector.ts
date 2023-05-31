@@ -1,8 +1,8 @@
 import { ConnectorUpdate } from '@web3-react/types'
 import { AbstractConnector } from './AbstractConnector'
 import { ChainId } from '@dcl/schemas'
-import { EthereumProvider } from '@walletconnect/ethereum-provider'
-import { ProviderAccounts } from '@walletconnect/ethereum-provider/dist/types/types'
+// tslint:disable-next-line
+import type EthereumProvider from '@walletconnect/ethereum-provider'
 import { Storage } from 'src/storage'
 
 function getSupportedChainIds(chainId: ChainId) {
@@ -30,33 +30,37 @@ export class WalletConnectV2Connector extends AbstractConnector {
   }
 
   activate = async (): Promise<ConnectorUpdate<string | number>> => {
-    this.provider = await EthereumProvider.init({
-      // Decentraland's Wallet Connect PUBLIC project id.
-      projectId: '61570c542c2d66c659492e5b24a41522',
-      // The chains used by Decentraland's dApps.
-      chains: getSupportedChainIds(this.desiredChainId),
-      showQrModal: true,
-      qrModalOptions: {
-        themeVariables: {
-          // Display the WC modal over other Decentraland UI's modals.
-          // Won't be visible without this.
-          '--w3m-z-index': '3000'
-        }
-      },
-      // Methods expected for the connecting wallet to provide in order to function with Decentraland's dApps.
-      methods: ['eth_signTypedData_v4', 'personal_sign', 'eth_sendTransaction'],
-      // Events expected for the connecting wallet to emit.
-      events: ['accountsChanged', 'chainChanged', 'disconnect']
-    })
+    const provider = await (import('@walletconnect/ethereum-provider').then(module =>
+      module.default.init({
+        // Decentraland's Wallet Connect PUBLIC project id.
+        projectId: '61570c542c2d66c659492e5b24a41522',
+        // The chains used by Decentraland's dApps.
+        chains: getSupportedChainIds(this.desiredChainId),
+        showQrModal: true,
+        qrModalOptions: {
+          themeVariables: {
+            // Display the WC modal over other Decentraland UI's modals.
+            // Won't be visible without this.
+            '--w3m-z-index': '3000'
+          }
+        },
+        // Methods expected for the connecting wallet to provide in order to function with Decentraland's dApps.
+        methods: ['eth_signTypedData_v4', 'personal_sign', 'eth_sendTransaction'],
+        // Events expected for the connecting wallet to emit.
+        events: ['accountsChanged', 'chainChanged', 'disconnect']
+      })
+    ))
 
-    const accounts = await this.provider.enable()
+    const accounts = await provider.enable()
 
-    this.provider.on('accountsChanged', this.handleAccountsChanged)
-    this.provider.on('chainChanged', this.handleChainChanged)
-    this.provider.on('disconnect', this.handleDisconnect)
+    provider.on('accountsChanged', this.handleAccountsChanged)
+    provider.on('chainChanged', this.handleChainChanged)
+    provider.on('disconnect', this.handleDisconnect)
+
+    this.provider = provider
 
     return {
-      chainId: this.provider.chainId,
+      chainId: provider.chainId,
       account: accounts[0],
       provider: this.provider
     }
@@ -100,7 +104,7 @@ export class WalletConnectV2Connector extends AbstractConnector {
       .disconnect()
   }
 
-  handleAccountsChanged = (accounts: ProviderAccounts): void => {
+  handleAccountsChanged = (accounts: string[]): void => {
     this.emitUpdate({ account: accounts[0] })
   }
 
