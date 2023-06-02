@@ -5,23 +5,20 @@ import { ChainId } from '@dcl/schemas'
 import type EthereumProvider from '@walletconnect/ethereum-provider'
 import { Storage } from 'src/storage'
 
-function getSupportedChainIds(chainId: ChainId) {
-  switch (chainId) {
-    case ChainId.ETHEREUM_MAINNET:
-      return [ChainId.ETHEREUM_MAINNET, ChainId.MATIC_MAINNET]
-    case ChainId.ETHEREUM_GOERLI:
-      return [ChainId.ETHEREUM_GOERLI, ChainId.MATIC_MUMBAI]
-    default:
-      throw new Error(`Unsupported chainId ${chainId}`)
-  }
-}
-
 export class WalletConnectV2Connector extends AbstractConnector {
   provider?: typeof EthereumProvider.prototype
 
   constructor(private desiredChainId: ChainId) {
     super({
-      supportedChainIds: getSupportedChainIds(desiredChainId)
+      supportedChainIds: ((): number[] => {
+        const {
+          chains,
+          optionalChains
+        } = WalletConnectV2Connector.getChainsDependingOnDesiredChain(
+          desiredChainId
+        )
+        return [...chains, ...optionalChains]
+      })()
     })
   }
 
@@ -29,27 +26,58 @@ export class WalletConnectV2Connector extends AbstractConnector {
     storage.removeRegExp(new RegExp('^wc@2:'))
   }
 
+  private static getChainsDependingOnDesiredChain = (desiredChainId: ChainId) => {
+    switch (desiredChainId) {
+      case ChainId.ETHEREUM_MAINNET:
+        return {
+          chains: [desiredChainId],
+          optionalChains: [ChainId.MATIC_MAINNET]
+        }
+      case ChainId.ETHEREUM_GOERLI:
+        return {
+          chains: [desiredChainId],
+          optionalChains: [ChainId.MATIC_MUMBAI]
+        }
+      default:
+        throw new Error(`Unsupported chainId ${desiredChainId}`)
+    }
+  }
+
   activate = async (): Promise<ConnectorUpdate<string | number>> => {
-    const provider = await (import('@walletconnect/ethereum-provider').then(module =>
-      module.default.init({
-        // Decentraland's Wallet Connect PUBLIC project id.
-        projectId: '61570c542c2d66c659492e5b24a41522',
-        // The chains used by Decentraland's dApps.
-        chains: getSupportedChainIds(this.desiredChainId),
-        showQrModal: true,
-        qrModalOptions: {
-          themeVariables: {
-            // Display the WC modal over other Decentraland UI's modals.
-            // Won't be visible without this.
-            '--w3m-z-index': '3000'
-          }
-        },
-        // Methods expected for the connecting wallet to provide in order to function with Decentraland's dApps.
-        methods: ['eth_signTypedData_v4', 'personal_sign', 'eth_sendTransaction'],
-        // Events expected for the connecting wallet to emit.
-        events: ['accountsChanged', 'chainChanged', 'disconnect']
-      })
-    ))
+    const provider = await import('@walletconnect/ethereum-provider').then(
+      module => {
+        const {
+          chains,
+          optionalChains
+        } = WalletConnectV2Connector.getChainsDependingOnDesiredChain(
+          this.desiredChainId
+        )
+
+        return module.default.init({
+          // Decentraland's Wallet Connect PUBLIC project id.
+          projectId: '61570c542c2d66c659492e5b24a41522',
+          // The chains used by Decentraland's dApps.
+          chains,
+          optionalChains,
+          showQrModal: true,
+          qrModalOptions: {
+            themeVariables: {
+              // Display the WC modal over other Decentraland UI's modals.
+              // Won't be visible without this.
+              '--w3m-z-index': '3000'
+            }
+          },
+          // Methods expected for the connecting wallet to provide in order to function with Decentraland's dApps.
+          methods: [
+            'eth_sendTransaction',
+            'personal_sign',
+            'eth_signTypedData_v4'
+          ],
+          // Events expected for the connecting wallet to emit.
+          events: ['accountsChanged', 'chainChanged', 'disconnect']
+        })
+      }
+    )
 
     const accounts = await provider.enable()
 
