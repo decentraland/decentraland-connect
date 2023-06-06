@@ -14,6 +14,11 @@ type Callback = Request.Callback
  */
 export class ProviderAdapter {
   id: number = 0
+
+  /**
+   * @param providerType Should be an indicator of the connector that provided the provider.
+   * It is only useful to distinguish Wallet Connect V2 requests as their responses have to be handled differently.
+   */
   constructor(
     public provider: LegacyProvider | Provider,
     public providerType?: ProviderType
@@ -59,7 +64,9 @@ export class ProviderAdapter {
       })
 
       if (
+        // Wallet Connect V2 responses are unwrapped. We have to wrap them again to normalize the result between providers.
         this.providerType === ProviderType.WALLET_CONNECT_V2 &&
+        // The method to obtain the chainId does not have to be wrapped.
         method !== 'eth_chainId'
       ) {
         return { id: 0, jsonrpc: '2.0', result: value }
@@ -76,7 +83,9 @@ export class ProviderAdapter {
       return this.provider.sendAsync(args, (err, value) => {
         if (
           !err &&
+          // Wallet Connect V2 responses are unwrapped. We have to wrap them again to normalize the result between providers.
           this.providerType === ProviderType.WALLET_CONNECT_V2 &&
+          // The method to obtain the chainId does not have to be wrapped.
           args.method !== 'eth_chainId'
         ) {
           callback(err, { id: 0, jsonrpc: '2.0', result: value })
