@@ -45,7 +45,7 @@ export class ConnectionManager {
     this.setConnectionData(providerType, chainId)
 
     return {
-      provider: ProviderAdapter.adapt(provider),
+      provider: ProviderAdapter.adapt(provider, providerType),
       providerType,
       account: account || '',
       chainId
@@ -127,7 +127,7 @@ export class ConnectionManager {
   ): Promise<Provider> {
     const connector = this.buildConnector(providerType, chainId)
     const provider = await connector.getProvider()
-    return ProviderAdapter.adapt(provider)
+    return ProviderAdapter.adapt(provider, providerType)
   }
 
   buildConnector(

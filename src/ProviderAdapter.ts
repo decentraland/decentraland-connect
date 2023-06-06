@@ -1,3 +1,4 @@
+import { ProviderType } from '@dcl/schemas'
 import { LegacyProvider, Provider, Request } from './types'
 
 // Shorthands
@@ -13,10 +14,17 @@ type Callback = Request.Callback
  */
 export class ProviderAdapter {
   id: number = 0
-  constructor(public provider: LegacyProvider | Provider) {}
+  constructor(
+    public provider: LegacyProvider | Provider,
+    public providerType?: ProviderType
+  ) {}
 
-  static adapt(provider: LegacyProvider | Provider) {
-    const providerAdapter = new ProviderAdapter(provider)
+  static adapt(
+    provider: LegacyProvider | Provider,
+    providerType?: ProviderType
+  ) {
+    const providerAdapter = new ProviderAdapter(provider, providerType)
+
     return {
       ...provider,
       on: providerAdapter.on,
@@ -44,15 +52,41 @@ export class ProviderAdapter {
   }
 
   request = async ({ method, params }: Arguments) => {
-    return this.isModernProvider()
-      ? (this.provider as Provider).request({ method, params })
-      : this.send(method, params)
+    if (this.isModernProvider()) {
+      const value = await (this.provider as Provider).request({
+        method,
+        params
+      })
+
+      if (
+        this.providerType === ProviderType.WALLET_CONNECT_V2 &&
+        method !== 'eth_chainId'
+      ) {
+        return { id: 0, jsonrpc: '2.0', result: value }
+      }
+
+      return value
+    }
+
+    return this.send(method, params)
   }
 
   sendAsync = async (args: Arguments, callback: Callback) => {
-    return this.hasSendAsync()
-      ? this.provider.sendAsync(args, callback)
-      : this.send(args, callback)
+    if (this.hasSendAsync()) {
+      return this.provider.sendAsync(args, (err, value) => {
+        if (
+          !err &&
+          this.providerType === ProviderType.WALLET_CONNECT_V2 &&
+          args.method !== 'eth_chainId'
+        ) {
+          callback(err, { id: 0, jsonrpc: '2.0', result: value })
+        } else {
+          callback(err, value)
+        }
+      })
+    }
+
+    return this.send(args, callback)
   }
 
   send(method: Method, params?: Params): Promise<unknown>
