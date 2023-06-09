@@ -1,4 +1,3 @@
-import { ProviderType } from '@dcl/schemas'
 import { LegacyProvider, Provider, Request } from './types'
 
 // Shorthands
@@ -19,16 +18,10 @@ export class ProviderAdapter {
    * @param providerType Should be an indicator of the connector that provided the provider.
    * It is only useful to distinguish Wallet Connect V2 requests as their responses have to be handled differently.
    */
-  constructor(
-    public provider: LegacyProvider | Provider,
-    public providerType?: ProviderType
-  ) {}
+  constructor(public provider: LegacyProvider | Provider) {}
 
-  static adapt(
-    provider: LegacyProvider | Provider,
-    providerType?: ProviderType
-  ) {
-    const providerAdapter = new ProviderAdapter(provider, providerType)
+  static adapt(provider: LegacyProvider | Provider) {
+    const providerAdapter = new ProviderAdapter(provider)
 
     return {
       ...provider,
@@ -58,19 +51,10 @@ export class ProviderAdapter {
 
   request = async ({ method, params }: Arguments) => {
     if (this.isModernProvider()) {
-      const value = await (this.provider as Provider).request({
+      const value: any = await (this.provider as Provider).request({
         method,
         params
       })
-
-      if (
-        // Wallet Connect V2 responses are unwrapped. We have to wrap them again to normalize the result between providers.
-        this.providerType === ProviderType.WALLET_CONNECT_V2 &&
-        // The method to obtain the chainId does not have to be wrapped.
-        method !== 'eth_chainId'
-      ) {
-        return { id: 0, jsonrpc: '2.0', result: value }
-      }
 
       return value
     }
@@ -81,13 +65,9 @@ export class ProviderAdapter {
   sendAsync = async (args: Arguments, callback: Callback) => {
     if (this.hasSendAsync()) {
       return this.provider.sendAsync(args, (err, value) => {
-        if (
-          !err &&
-          // Wallet Connect V2 responses are unwrapped. We have to wrap them again to normalize the result between providers.
-          this.providerType === ProviderType.WALLET_CONNECT_V2 &&
-          // The method to obtain the chainId does not have to be wrapped.
-          args.method !== 'eth_chainId'
-        ) {
+        // Some providers like Wallet Connect V2 do not wrap the sendAsync response in the standardized JSON-RPC format.
+        // It needs to be wrapped for compatibility with other connectors.
+        if (value && !value.hasOwnProperty('result')) {
           callback(err, { id: 0, jsonrpc: '2.0', result: value })
         } else {
           callback(err, value)
