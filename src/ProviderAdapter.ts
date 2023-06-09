@@ -51,12 +51,10 @@ export class ProviderAdapter {
 
   request = async ({ method, params }: Arguments) => {
     if (this.isModernProvider()) {
-      const value: any = await (this.provider as Provider).request({
+      return (this.provider as Provider).request({
         method,
         params
       })
-
-      return value
     }
 
     return this.send(method, params)
