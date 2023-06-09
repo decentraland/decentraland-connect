@@ -42,6 +42,8 @@ export class WalletConnectV2Connector extends AbstractConnector {
           chains,
           optionalChains,
           showQrModal: true,
+          // Decentraland's RPCs don't support the `test` method used for the ping.
+          disableProviderPing: true,
           qrModalOptions: {
             themeVariables: {
               // Display the WC modal over other Decentraland UI's modals.
