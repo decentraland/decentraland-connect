@@ -28,6 +28,21 @@ const configuration = Object.freeze({
   [ProviderType.WALLET_LINK]: {
     appName: 'Decentraland',
     urls: getRpcUrls(ProviderType.WALLET_LINK)
+  },
+
+  [ProviderType.WALLET_CONNECT_V2]: {
+    projectId: '61570c542c2d66c659492e5b24a41522',
+    urls: getRpcUrls(ProviderType.WALLET_CONNECT_V2),
+    chains: {
+      [ChainId.ETHEREUM_MAINNET]: {
+        chains: [ChainId.ETHEREUM_MAINNET],
+        optionalChains: [ChainId.MATIC_MAINNET]
+      },
+      [ChainId.ETHEREUM_GOERLI]: {
+        chains: [ChainId.ETHEREUM_GOERLI],
+        optionalChains: [ChainId.MATIC_MUMBAI]
+      }
+    }
   }
 })
 
@@ -57,6 +72,9 @@ export function getRpcUrls(providerType: ProviderType) {
       break
     case ProviderType.FORTMATIC:
       project = 'fortmatic'
+      break
+    case ProviderType.WALLET_CONNECT_V2:
+      project = 'walletconnect-v2'
       break
     default:
       break
