@@ -1,11 +1,14 @@
 import { ConnectorUpdate } from '@web3-react/types'
 import { AbstractConnector } from './AbstractConnector'
-import { ChainId } from '@dcl/schemas'
+import { ChainId, ProviderType } from '@dcl/schemas'
 // tslint:disable-next-line
 import type EthereumProvider from '@walletconnect/ethereum-provider'
-import { Storage } from 'src/storage'
+import { Storage } from '../storage'
+import { getConfiguration } from '../configuration'
 
 export class WalletConnectV2Connector extends AbstractConnector {
+  private static readonly configuration = getConfiguration()[ProviderType.WALLET_CONNECT_V2]
+
   provider?: typeof EthereumProvider.prototype
 
   constructor(private desiredChainId: ChainId) {
@@ -14,9 +17,8 @@ export class WalletConnectV2Connector extends AbstractConnector {
         const {
           chains,
           optionalChains
-        } = WalletConnectV2Connector.getChainsDependingOnDesiredChain(
-          desiredChainId
-        )
+        } = WalletConnectV2Connector.configuration.chains[desiredChainId]
+
         return [...chains, ...optionalChains]
       })()
     })
@@ -26,37 +28,17 @@ export class WalletConnectV2Connector extends AbstractConnector {
     storage.removeRegExp(new RegExp('^wc@2:'))
   }
 
-  private static getChainsDependingOnDesiredChain = (desiredChainId: ChainId) => {
-    switch (desiredChainId) {
-      case ChainId.ETHEREUM_MAINNET:
-        return {
-          chains: [desiredChainId],
-          optionalChains: [ChainId.MATIC_MAINNET]
-        }
-      case ChainId.ETHEREUM_GOERLI:
-        return {
-          chains: [desiredChainId],
-          optionalChains: [ChainId.MATIC_MUMBAI]
-        }
-      default:
-        throw new Error(`Unsupported chainId ${desiredChainId}`)
-    }
-  }
-
   activate = async (): Promise<ConnectorUpdate<string | number>> => {
     const provider = await import('@walletconnect/ethereum-provider').then(
       module => {
         const {
           chains,
           optionalChains
-        } = WalletConnectV2Connector.getChainsDependingOnDesiredChain(
-          this.desiredChainId
-        )
+        } = WalletConnectV2Connector.configuration.chains[this.desiredChainId]
 
         return module.default.init({
-          // Decentraland's Wallet Connect PUBLIC project id.
-          projectId: '61570c542c2d66c659492e5b24a41522',
-          // The chains used by Decentraland's dApps.
+          projectId: WalletConnectV2Connector.configuration.projectId,
+          rpcMap: WalletConnectV2Connector.configuration.urls,
           chains,
           optionalChains,
           showQrModal: true,
