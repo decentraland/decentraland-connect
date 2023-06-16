@@ -121,6 +121,19 @@ export class ConnectionManager {
     return this.connector.getProvider()
   }
 
+  /**
+   * Obtain the name of the underlying wallet providing the connection.
+   * Will only return a value if the provider is a WalletConnectV2Connector that has an ongoing session.
+   * TODO: Enhance it to return the name of the wallet for other providers as well if possible.
+   */
+  getWalletName = (): string | undefined => {
+    if (this.connector instanceof WalletConnectV2Connector) {
+      return this.connector.getWalletName()
+    }
+
+    return undefined
+  }
+
   async createProvider(
     providerType: ProviderType,
     chainId: ChainId = ChainId.ETHEREUM_MAINNET
