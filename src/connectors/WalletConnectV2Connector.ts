@@ -127,6 +127,10 @@ export class WalletConnectV2Connector extends AbstractConnector {
     return this.provider.accounts[0]
   }
 
+  getWalletName = (): string | undefined => {
+    return this.provider?.session?.peer.metadata.name
+  }
+
   deactivate = (): void => {
     if (!this.provider) {
       return
