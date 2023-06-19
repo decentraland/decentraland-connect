@@ -6,33 +6,6 @@ import type EthereumProvider from '@walletconnect/ethereum-provider'
 import { Storage } from '../storage'
 import { getConfiguration } from '../configuration'
 
-// These is the default configuration that can be found on the ethereum-provider repository:
-// https://github.com/WalletConnect/walletconnect-monorepo/blob/v2.0/providers/ethereum-provider/src/constants/rpc.ts
-// Required stuff will break connection if the wallet doesn't support it.
-// Optional stuff will allow connection if the wallet does not support it.
-// Having many optional stuff will make it more flexible for new clients to avoid issues because if a method is not
-// declared as required nor optional, it would not work even if the wallet supports it.
-export const REQUIRED_METHODS = ['eth_sendTransaction', 'personal_sign']
-export const OPTIONAL_METHODS = [
-  'eth_accounts',
-  'eth_requestAccounts',
-  'eth_sendRawTransaction',
-  'eth_sign',
-  'eth_signTransaction',
-  'eth_signTypedData',
-  'eth_signTypedData_v3',
-  'eth_signTypedData_v4',
-  'wallet_switchEthereumChain',
-  'wallet_addEthereumChain',
-  'wallet_getPermissions',
-  'wallet_requestPermissions',
-  'wallet_registerOnboarding',
-  'wallet_watchAsset',
-  'wallet_scanQRCode'
-]
-export const REQUIRED_EVENTS = ['chainChanged', 'accountsChanged']
-export const OPTIONAL_EVENTS = ['message', 'disconnect', 'connect']
-
 export class WalletConnectV2Connector extends AbstractConnector {
   private static readonly configuration = getConfiguration()[
     ProviderType.WALLET_CONNECT_V2
@@ -80,10 +53,20 @@ export class WalletConnectV2Connector extends AbstractConnector {
               '--w3m-z-index': '3000'
             }
           },
-          methods: REQUIRED_METHODS,
-          optionalMethods: OPTIONAL_METHODS,
-          events: REQUIRED_EVENTS,
-          optionalEvents: OPTIONAL_EVENTS
+          // Methods and events based on what is used on the decentraland dapps and the ethereum-provider lib found at:
+          // https://github.com/WalletConnect/walletconnect-monorepo/blob/v2.0/providers/ethereum-provider/src/constants/rpc.ts
+          // If the wallet doesn't support non optional methods, it will not allow the connection.
+          methods: ['eth_sendTransaction', 'personal_sign'],
+          optionalMethods: [
+            'eth_accounts',
+            'eth_requestAccounts',
+            'eth_sign',
+            'eth_signTypedData_v4',
+            'wallet_switchEthereumChain',
+            'wallet_addEthereumChain'
+          ],
+          events: ['chainChanged', 'accountsChanged'],
+          optionalEvents: ['disconnect']
         })
       }
     )
