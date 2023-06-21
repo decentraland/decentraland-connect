@@ -82,7 +82,7 @@ export class WalletConnectV2Connector extends AbstractConnector {
     return {
       chainId: provider.chainId,
       account: accounts[0],
-      provider: this.provider
+      provider
     }
   }
 
