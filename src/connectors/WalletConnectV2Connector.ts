@@ -50,7 +50,7 @@ export class WalletConnectV2Connector extends AbstractConnector {
             themeVariables: {
               // Display the WC modal over other Decentraland UI's modals.
               // Won't be visible without this.
-              '--w3m-z-index': '3000'
+              '--wcm-z-index': '3000'
             }
           },
           // Methods and events based on what is used on the decentraland dapps and the ethereum-provider lib found at:
