@@ -12,7 +12,8 @@ const configuration = Object.freeze({
       [ChainId.ETHEREUM_ROPSTEN]: 'pk_test_5B728BEFE5C10911',
       [ChainId.ETHEREUM_RINKEBY]: 'pk_test_5B728BEFE5C10911',
       [ChainId.ETHEREUM_KOVAN]: 'pk_test_5B728BEFE5C10911',
-      [ChainId.ETHEREUM_GOERLI]: 'pk_test_5B728BEFE5C10911'
+      [ChainId.ETHEREUM_GOERLI]: 'pk_test_5B728BEFE5C10911',
+      [ChainId.ETHEREUM_SEPOLIA]: 'pk_test_5B728BEFE5C10911'
     },
     urls: getRpcUrls(ProviderType.FORTMATIC)
   },
@@ -38,8 +39,8 @@ const configuration = Object.freeze({
         chains: [ChainId.ETHEREUM_MAINNET],
         optionalChains: [ChainId.MATIC_MAINNET]
       },
-      [ChainId.ETHEREUM_GOERLI]: {
-        chains: [ChainId.ETHEREUM_GOERLI],
+      [ChainId.ETHEREUM_SEPOLIA]: {
+        chains: [ChainId.ETHEREUM_SEPOLIA],
         optionalChains: [ChainId.MATIC_MUMBAI]
       }
     }
@@ -53,6 +54,7 @@ export function getConfiguration() {
 export function getRpcUrls(providerType: ProviderType) {
   const rpcUrls = {
     [ChainId.ETHEREUM_MAINNET]: 'https://rpc.decentraland.org/mainnet',
+    [ChainId.ETHEREUM_SEPOLIA]: 'https://rpc.decentraland.org/sepolia',
     [ChainId.ETHEREUM_ROPSTEN]: 'https://rpc.decentraland.org/ropsten',
     [ChainId.ETHEREUM_RINKEBY]: 'https://rpc.decentraland.org/rinkeby',
     [ChainId.ETHEREUM_GOERLI]: 'https://rpc.decentraland.org/goerli',
