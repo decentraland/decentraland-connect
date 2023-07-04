@@ -39,6 +39,10 @@ const configuration = Object.freeze({
         chains: [ChainId.ETHEREUM_MAINNET],
         optionalChains: [ChainId.MATIC_MAINNET]
       },
+      [ChainId.ETHEREUM_GOERLI]: {
+        chains: [ChainId.ETHEREUM_GOERLI],
+        optionalChains: [ChainId.MATIC_MUMBAI]
+      },
       [ChainId.ETHEREUM_SEPOLIA]: {
         chains: [ChainId.ETHEREUM_SEPOLIA],
         optionalChains: [ChainId.MATIC_MUMBAI]
