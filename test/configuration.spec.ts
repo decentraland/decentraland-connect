@@ -58,6 +58,10 @@ describe('#getConfiguration', () => {
             chains: [1],
             optionalChains: [137]
           },
+          '5': {
+            chains: [5],
+            optionalChains: [80001]
+          },
           '11155111': {
             chains: [11155111],
             optionalChains: [80001]
