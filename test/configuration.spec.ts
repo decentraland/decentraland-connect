@@ -13,7 +13,8 @@ describe('#getConfiguration', () => {
           '3': 'pk_test_5B728BEFE5C10911',
           '4': 'pk_test_5B728BEFE5C10911',
           '5': 'pk_test_5B728BEFE5C10911',
-          '42': 'pk_test_5B728BEFE5C10911'
+          '42': 'pk_test_5B728BEFE5C10911',
+          '11155111': 'pk_test_5B728BEFE5C10911'
         },
         urls: {
           '1': 'https://rpc.decentraland.org/mainnet?project=fortmatic',
@@ -21,8 +22,9 @@ describe('#getConfiguration', () => {
           '4': 'https://rpc.decentraland.org/rinkeby?project=fortmatic',
           '5': 'https://rpc.decentraland.org/goerli?project=fortmatic',
           '42': 'https://rpc.decentraland.org/kovan?project=fortmatic',
+          '11155111': 'https://rpc.decentraland.org/sepolia?project=fortmatic',
           '137': 'https://rpc.decentraland.org/polygon?project=fortmatic',
-          '80001': 'https://rpc.decentraland.org/mumbai?project=fortmatic'
+          '80001': 'https://rpc.decentraland.org/mumbai?project=fortmatic',
         }
       },
       network: {
@@ -32,6 +34,7 @@ describe('#getConfiguration', () => {
           '4': 'https://rpc.decentraland.org/rinkeby',
           '5': 'https://rpc.decentraland.org/goerli',
           '42': 'https://rpc.decentraland.org/kovan',
+          '11155111': 'https://rpc.decentraland.org/sepolia',
           '137': 'https://rpc.decentraland.org/polygon',
           '80001': 'https://rpc.decentraland.org/mumbai'
         }
@@ -42,6 +45,7 @@ describe('#getConfiguration', () => {
           '3': 'https://rpc.decentraland.org/ropsten?project=walletconnect',
           '4': 'https://rpc.decentraland.org/rinkeby?project=walletconnect',
           '5': 'https://rpc.decentraland.org/goerli?project=walletconnect',
+          '11155111': 'https://rpc.decentraland.org/sepolia?project=walletconnect',
           '42': 'https://rpc.decentraland.org/kovan?project=walletconnect',
           '137': 'https://rpc.decentraland.org/polygon?project=walletconnect',
           '80001': 'https://rpc.decentraland.org/mumbai?project=walletconnect'
@@ -57,6 +61,10 @@ describe('#getConfiguration', () => {
           '5': {
             chains: [5],
             optionalChains: [80001]
+          },
+          '11155111': {
+            chains: [11155111],
+            optionalChains: [80001]
           }
         },
         urls: {
@@ -65,6 +73,7 @@ describe('#getConfiguration', () => {
           '4': 'https://rpc.decentraland.org/rinkeby?project=walletconnect-v2',
           '5': 'https://rpc.decentraland.org/goerli?project=walletconnect-v2',
           '42': 'https://rpc.decentraland.org/kovan?project=walletconnect-v2',
+          '11155111': 'https://rpc.decentraland.org/sepolia?project=walletconnect-v2',
           '137':
             'https://rpc.decentraland.org/polygon?project=walletconnect-v2',
           '80001':
@@ -79,6 +88,7 @@ describe('#getConfiguration', () => {
           '4': 'https://rpc.decentraland.org/rinkeby?project=walletlink',
           '5': 'https://rpc.decentraland.org/goerli?project=walletlink',
           '42': 'https://rpc.decentraland.org/kovan?project=walletlink',
+          '11155111': 'https://rpc.decentraland.org/sepolia?project=walletlink',
           '137': 'https://rpc.decentraland.org/polygon?project=walletlink',
           '80001': 'https://rpc.decentraland.org/mumbai?project=walletlink'
         }
@@ -96,6 +106,7 @@ describe('#getRpcUrls', () => {
         4: 'https://rpc.decentraland.org/rinkeby',
         5: 'https://rpc.decentraland.org/goerli',
         42: 'https://rpc.decentraland.org/kovan',
+        11155111: 'https://rpc.decentraland.org/sepolia',
         137: 'https://rpc.decentraland.org/polygon',
         80001: 'https://rpc.decentraland.org/mumbai'
       })
@@ -110,6 +121,7 @@ describe('#getRpcUrls', () => {
         4: 'https://rpc.decentraland.org/rinkeby?project=walletconnect',
         5: 'https://rpc.decentraland.org/goerli?project=walletconnect',
         42: 'https://rpc.decentraland.org/kovan?project=walletconnect',
+        11155111: 'https://rpc.decentraland.org/sepolia?project=walletconnect',
         137: 'https://rpc.decentraland.org/polygon?project=walletconnect',
         80001: 'https://rpc.decentraland.org/mumbai?project=walletconnect'
       })
@@ -124,6 +136,7 @@ describe('#getRpcUrls', () => {
         4: 'https://rpc.decentraland.org/rinkeby?project=walletlink',
         5: 'https://rpc.decentraland.org/goerli?project=walletlink',
         42: 'https://rpc.decentraland.org/kovan?project=walletlink',
+        11155111: 'https://rpc.decentraland.org/sepolia?project=walletlink',
         137: 'https://rpc.decentraland.org/polygon?project=walletlink',
         80001: 'https://rpc.decentraland.org/mumbai?project=walletlink'
       })
