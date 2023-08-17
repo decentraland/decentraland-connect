@@ -1,7 +1,6 @@
 {
   "name": "decentraland-connect",
   "version": "0.0.0-development",
-  "type": "module",
   "main": "dist",
   "scripts": {
     "prebuild": "rimraf dist",
@@ -17,9 +16,9 @@
   "dependencies": {
     "@dcl/schemas": "^7.5.0",
     "@types/node": "^10.1.2",
-    "@walletconnect/ethereum-provider": "^2.8.4",
-    "@walletconnect/modal": "^2.5.5",
-    "@walletconnect/web3-provider": "^1.6.5",
+    "@walletconnect/ethereum-provider": "^2.9.2",
+    "@walletconnect/modal": "^2.6.1",
+    "@walletconnect/web3-provider": "^1.8.0",
     "@web3-react/fortmatic-connector": "^6.1.6",
     "@web3-react/injected-connector": "^6.0.7",
     "@web3-react/network-connector": "^6.1.3",
