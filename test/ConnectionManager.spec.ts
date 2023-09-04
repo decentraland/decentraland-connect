@@ -3,12 +3,11 @@ import chaiAsPromised from 'chai-as-promised'
 import sinon from 'sinon'
 import { ChainId } from '@dcl/schemas/dist/dapps/chain-id'
 import { ProviderType } from '@dcl/schemas/dist/dapps/provider-type'
-import { getConfiguration, getRpcUrls } from '../src/configuration'
+import { getConfiguration } from '../src/configuration'
 import { ConnectionManager, connection } from '../src/ConnectionManager'
 import {
   FortmaticConnector,
   InjectedConnector,
-  WalletConnectConnector,
   WalletLinkConnector
 } from '../src/connectors'
 import { LocalStorage } from '../src/storage'
@@ -371,22 +370,6 @@ describe('ConnectionManager', () => {
 
       expect(connector).to.be.instanceOf(InjectedConnector)
       return expect(connector.getChainId()).to.eventually.eq(chainId)
-    })
-
-    it('should return an instance of WalletConnectConnector supporting all chain ids', () => {
-      const connector = connectionManager.buildConnector(
-        ProviderType.WALLET_CONNECT,
-        chainId
-      ) as WalletConnectConnector
-
-      connector.walletConnectProvider = getSendableProvider(chainId)
-
-      const expectedChainIds = Object.keys(
-        getRpcUrls(ProviderType.WALLET_CONNECT)
-      ).map(key => Number(key))
-
-      expect(connector).to.be.instanceOf(WalletConnectConnector)
-      expect(connector.supportedChainIds).to.deep.eq(expectedChainIds)
     })
 
     it('should return an instance of WalletLinkConnector', async () => {

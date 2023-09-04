@@ -22,10 +22,6 @@ const configuration = Object.freeze({
     urls: getRpcUrls(ProviderType.NETWORK)
   },
 
-  [ProviderType.WALLET_CONNECT]: {
-    urls: getRpcUrls(ProviderType.WALLET_CONNECT)
-  },
-
   [ProviderType.WALLET_LINK]: {
     appName: 'Decentraland',
     urls: getRpcUrls(ProviderType.WALLET_LINK)
@@ -70,9 +66,6 @@ export function getRpcUrls(providerType: ProviderType) {
   let project = ''
 
   switch (providerType) {
-    case ProviderType.WALLET_CONNECT:
-      project = 'walletconnect'
-      break
     case ProviderType.WALLET_LINK:
       project = 'walletlink'
       break

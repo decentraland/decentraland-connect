@@ -5,7 +5,6 @@ import {
   AbstractConnector,
   InjectedConnector,
   FortmaticConnector,
-  WalletConnectConnector,
   NetworkConnector,
   WalletLinkConnector,
   WalletConnectV2Connector
@@ -152,8 +151,6 @@ export class ConnectionManager {
         return new InjectedConnector(chainId)
       case ProviderType.FORTMATIC:
         return new FortmaticConnector(chainId)
-      case ProviderType.WALLET_CONNECT:
-        return new WalletConnectConnector(chainId)
       case ProviderType.WALLET_LINK:
         return new WalletLinkConnector(chainId)
       case ProviderType.NETWORK:
@@ -176,7 +173,6 @@ export class ConnectionManager {
     this.storage.remove(storageKey)
     // Clear any data that might have been stored by the different connectors.
     // Clearing them even if they were not the ones used is not an issue as it is a cheap operation.
-    WalletConnectConnector.clearStorage(this.storage)
     WalletConnectV2Connector.clearStorage(this.storage)
   }
 
