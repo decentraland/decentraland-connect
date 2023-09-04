@@ -6,7 +6,6 @@ import {
   InjectedConnector,
   FortmaticConnector,
   NetworkConnector,
-  WalletConnectConnector,
   WalletLinkConnector
 } from '../src/connectors'
 import * as configurationMethods from '../src/configuration'
@@ -71,42 +70,6 @@ describe('connectors', () => {
         const connector = new NetworkConnector(chainId)
 
         return expect(connector.getChainId()).to.eventually.eq(chainId)
-      })
-    })
-  })
-
-  describe('WalletConnectConnector', () => {
-    describe('#constructor', () => {
-      it('should call super with the correct configuration', async () => {
-        const chainId = ChainId.ETHEREUM_KOVAN
-        const url = 'some-weird-url'
-
-        const mockConfiguration = {
-          ...configuration,
-          [ProviderType.WALLET_CONNECT]: {
-            ...configuration[ProviderType.WALLET_CONNECT],
-            urls: {
-              ...configuration[ProviderType.WALLET_CONNECT].urls,
-              [chainId]: url
-            }
-          }
-        }
-        const configurationStub = sinon
-          .stub(configurationMethods, 'getConfiguration')
-          .returns(mockConfiguration)
-
-        const connector = new WalletConnectConnector()
-        connector.walletConnectProvider = getSendableProvider(chainId)
-
-        const expectedChainIds = Object.keys(
-          configurationMethods.getRpcUrls(ProviderType.WALLET_CONNECT)
-        ).map(key => Number(key))
-
-        expect(connector.getQrCode()).to.eq(true)
-        expect(connector.getPollingInterval()).to.eq(150000)
-        expect(connector.supportedChainIds).to.deep.eq(expectedChainIds)
-
-        configurationStub.restore()
       })
     })
   })
