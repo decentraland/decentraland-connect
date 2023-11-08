@@ -25,7 +25,7 @@ export class MagicConnector extends AbstractConnector {
       return {
         provider: null,
         account: null,
-        chainId: this.chainId,
+        chainId: this.chainId
       }
     }
     const provider = await this.getProvider()
