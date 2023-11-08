@@ -22,7 +22,7 @@ export class MagicConnector extends AbstractConnector {
     this.magic = await this.buildMagicInstance(this.chainId)
     const isLoggedIn = await this.magic.user.isLoggedIn()
     if (!isLoggedIn) {
-      throw new Error("Magic: user isn't logged in")
+      throw new Error('Magic: user isn\'t logged in')
     }
     const provider = await this.getProvider()
     const accounts: string[] = (await provider.request({ method: 'eth_accounts' }))
