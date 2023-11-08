@@ -22,11 +22,7 @@ export class MagicConnector extends AbstractConnector {
     this.magic = await this.buildMagicInstance(this.chainId)
     const isLoggedIn = await this.magic.user.isLoggedIn()
     if (!isLoggedIn) {
-      return {
-        provider: null,
-        account: null,
-        chainId: this.chainId
-      }
+      throw new Error("Magic: user isn't logged in")
     }
     const provider = await this.getProvider()
     const accounts: string[] = (await provider.request({ method: 'eth_accounts' }))
@@ -92,7 +88,6 @@ export class MagicConnector extends AbstractConnector {
       throw new Error('Magic: instance was not initialized')
     }
 
-    // This does not accept a promise ?
     this.magic.user.logout()
   }
 
