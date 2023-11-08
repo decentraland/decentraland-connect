@@ -1,5 +1,6 @@
-import { ProviderType } from '@dcl/schemas/dist/dapps/provider-type'
+import { ChainId } from '@dcl/schemas'
 import { expect } from 'chai'
+import { ProviderType } from '@dcl/schemas/dist/dapps/provider-type'
 import { getConfiguration, getRpcUrls } from '../src/configuration'
 
 describe('#getConfiguration', () => {
@@ -81,6 +82,26 @@ describe('#getConfiguration', () => {
           '137': 'https://rpc.decentraland.org/polygon?project=walletlink',
           '80001': 'https://rpc.decentraland.org/mumbai?project=walletlink'
         }
+      },
+      magic: {
+        apiKey: 'pk_live_212568025B158355',
+        urls: {
+          '1': 'https://rpc.decentraland.org/mainnet?project=magic',
+          '3': 'https://rpc.decentraland.org/ropsten?project=magic',
+          '4': 'https://rpc.decentraland.org/rinkeby?project=magic',
+          '5': 'https://rpc.decentraland.org/goerli?project=magic',
+          '42': 'https://rpc.decentraland.org/kovan?project=magic',
+          '137': 'https://rpc.decentraland.org/polygon?project=magic',
+          '80001': 'https://rpc.decentraland.org/mumbai?project=magic',
+          '11155111': 'https://rpc.decentraland.org/sepolia?project=magic'
+        },
+        chains: [
+          ChainId.ETHEREUM_MAINNET,
+          ChainId.ETHEREUM_GOERLI,
+          ChainId.ETHEREUM_SEPOLIA,
+          ChainId.MATIC_MAINNET,
+          ChainId.MATIC_MUMBAI
+        ]
       }
     })
   })
