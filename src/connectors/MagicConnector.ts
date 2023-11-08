@@ -41,7 +41,7 @@ export class MagicConnector extends AbstractConnector {
     }
 
     const provider = await this.magic.wallet.getProvider()
-    return new Proxy(provider.request, {
+    return { ...provider, request: new Proxy(provider.request, {
       apply: async (target, _thisArg, argumentsList) => {
         // Magic doesn't support the "wallet_switchEthereumChain" method, we need to re-instantiate the Magic instance
         if (argumentsList[0]?.method === 'wallet_switchEthereumChain') {
@@ -63,9 +63,9 @@ export class MagicConnector extends AbstractConnector {
             }
           }
         }
-        return target(argumentsList[0])
+        return target.bind(provider)(...argumentsList)
       }
-    })
+    })}
   }
 
   getChainId = async (): Promise<number | string> => {
