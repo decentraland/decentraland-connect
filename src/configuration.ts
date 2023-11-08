@@ -44,6 +44,17 @@ const configuration = Object.freeze({
         optionalChains: [ChainId.MATIC_MUMBAI]
       }
     }
+  },
+  [ProviderType.MAGIC]: {
+    apiKey: 'pk_live_212568025B158355',
+    urls: getRpcUrls(ProviderType.MAGIC),
+    chains: [
+      ChainId.ETHEREUM_MAINNET,
+      ChainId.ETHEREUM_GOERLI,
+      ChainId.ETHEREUM_SEPOLIA,
+      ChainId.MATIC_MAINNET,
+      ChainId.MATIC_MUMBAI
+    ]
   }
 })
 
@@ -71,6 +82,9 @@ export function getRpcUrls(providerType: ProviderType) {
       break
     case ProviderType.FORTMATIC:
       project = 'fortmatic'
+      break
+    case ProviderType.MAGIC:
+      project = 'magic'
       break
     case ProviderType.WALLET_CONNECT_V2:
       project = 'walletconnect-v2'

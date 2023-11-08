@@ -7,6 +7,7 @@ import {
   FortmaticConnector,
   NetworkConnector,
   WalletLinkConnector,
+  MagicConnector,
   WalletConnectV2Connector
 } from './connectors'
 import { LocalStorage, Storage } from './storage'
@@ -64,7 +65,7 @@ export class ConnectionManager {
       connectionData.chainId
     )
 
-    // If the provider type is injected, the chainId could have changed since previous connection and still connect successfuly.
+    // If the provider type is injected, the chainId could have changed since previous connection and still connect successfully.
     // We need to check if the chainId has changed, and update the connectionData if so.
     if (response.providerType === ProviderType.INJECTED) {
       const currentChainIdHex = (await response.provider.request({
@@ -93,7 +94,7 @@ export class ConnectionManager {
     if (typeof window !== 'undefined' && window.ethereum !== undefined) {
       available.unshift(ProviderType.INJECTED)
     } else {
-      // we're asuming if there's no window, it's mobile
+      // we're assuming if there's no window, it's mobile
       available.unshift(ProviderType.METAMASK_MOBILE)
     }
     return available
@@ -151,6 +152,8 @@ export class ConnectionManager {
         return new InjectedConnector(chainId)
       case ProviderType.FORTMATIC:
         return new FortmaticConnector(chainId)
+      case ProviderType.MAGIC:
+        return new MagicConnector(chainId)
       case ProviderType.WALLET_LINK:
         return new WalletLinkConnector(chainId)
       case ProviderType.NETWORK:
