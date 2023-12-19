@@ -1,6 +1,6 @@
 import { ChainId } from '@dcl/schemas/dist/dapps/chain-id'
 import { ProviderType } from '@dcl/schemas/dist/dapps/provider-type'
-import { ConnectorUpdate } from '@web3-react/types'
+import { ConnectorEvent, ConnectorUpdate } from '@web3-react/types'
 import {
   AbstractConnector,
   InjectedConnector,
@@ -21,9 +21,6 @@ import { getConfiguration } from './configuration'
 import { ProviderAdapter } from './ProviderAdapter'
 import './declarations'
 
-// Event name used by web3-react to notify when the connector is deactivated.
-const DEACTIVATE_EVENT_NAME = 'Web3ReactDeactivate'
-
 export class ConnectionManager {
   connector?: AbstractConnector
 
@@ -35,7 +32,14 @@ export class ConnectionManager {
   ): Promise<ConnectionResponse> {
     this.connector = this.buildConnector(providerType, chainId)
 
-    this.connector.on(DEACTIVATE_EVENT_NAME, this.handleWeb3ReactDeactivate)
+    this.connector.on(ConnectorEvent.Deactivate, this.handleWeb3ReactDeactivate)
+    if (providerType === ProviderType.MAGIC) {
+      this.connector.on(ConnectorEvent.Update, ({ chainId }) => {
+        if (chainId) {
+          this.setConnectionData(providerType, chainId)
+        }
+      })
+    }
 
     const {
       provider,
@@ -195,9 +199,10 @@ export class ConnectionManager {
   private handleWeb3ReactDeactivate = () => {
     if (this.connector) {
       this.connector.removeListener(
-        DEACTIVATE_EVENT_NAME,
+        ConnectorEvent.Deactivate,
         this.handleWeb3ReactDeactivate
       )
+      this.connector.removeAllListeners(ConnectorEvent.Update)
     }
 
     // Whenever the user manually disconnects the account from their wallet, the event will be
