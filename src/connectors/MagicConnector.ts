@@ -55,6 +55,7 @@ export class MagicConnector extends AbstractConnector {
             }
 
             this.magic = await this.buildMagicInstance(chainId)
+            this.emitUpdate({ chainId })
             return null
           } catch (error) {
             return {
@@ -89,6 +90,7 @@ export class MagicConnector extends AbstractConnector {
     }
 
     this.magic.user.logout()
+    this.emitDeactivate()
   }
 
   private buildMagicInstance = async (chainId: ChainId): Promise<InstanceWithExtensions<SDKBase, OAuthExtension[]>> => {
