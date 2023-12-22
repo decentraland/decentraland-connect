@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@dcl/schemas": "^9.8.0",
-    "@magic-ext/oauth": "^15.4.1",
+    "@magic-ext/oauth": "^15.5.0",
     "@walletconnect/ethereum-provider": "^2.9.2",
     "@walletconnect/modal": "^2.6.1",
     "@web3-react/fortmatic-connector": "^6.1.6",
