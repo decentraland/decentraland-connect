@@ -53,18 +53,12 @@ export class AuthServerProvider {
       'noopener,noreferrer'
     )
 
-    await new Promise()
-
     const result = await new Promise(resolve => {
       const onMessage = (msg: any) => {
-        console.log(msg)
-
-        if (msg.type === 'outcome' && msg.requestId === requestId) {
+        if (msg.requestId === requestResponse.requestId) {
           socket.off('message', onMessage)
-          if (
-            payload.method === 'personal_sign' &&
-            payload.params.length === 1
-          ) {
+
+          if (msg.method === 'dcl_personal_sign') {
             resolve({
               signer: msg.sender,
               signature: msg.result
@@ -79,8 +73,6 @@ export class AuthServerProvider {
     })
 
     socket.disconnect()
-
-    console.log(result)
 
     return result
   }
