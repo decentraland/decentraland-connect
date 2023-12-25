@@ -8,7 +8,8 @@ import {
   NetworkConnector,
   WalletLinkConnector,
   MagicConnector,
-  WalletConnectV2Connector
+  WalletConnectV2Connector,
+  AuthServerConnector
 } from './connectors'
 import { LocalStorage, Storage } from './storage'
 import {
@@ -33,6 +34,7 @@ export class ConnectionManager {
     this.connector = this.buildConnector(providerType, chainId)
 
     this.connector.on(ConnectorEvent.Deactivate, this.handleWeb3ReactDeactivate)
+
     if (providerType === ProviderType.MAGIC) {
       this.connector.on(ConnectorEvent.Update, ({ chainId }) => {
         if (chainId) {
@@ -164,6 +166,8 @@ export class ConnectionManager {
         return new NetworkConnector(chainId)
       case ProviderType.WALLET_CONNECT_V2:
         return new WalletConnectV2Connector(chainId)
+      case ProviderType.AUTH_SERVER:
+        return new AuthServerConnector()
       default:
         throw new Error(`Invalid provider ${providerType}`)
     }
