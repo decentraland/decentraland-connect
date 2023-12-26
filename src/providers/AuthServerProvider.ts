@@ -21,26 +21,35 @@ export class AuthServerProvider {
     this.account = account
   }
 
-  request = (payload: { method: string; params: string[] }) => {
-    return this.sendAsync(payload)
-  }
-
-  sendAsync = async ({
-    method,
-    params
-  }: {
+  request = async (payload: {
     method: string
     params: string[]
   }): Promise<any> => {
-    const socket = io('http://localhost:8080')
+    if (payload.method === 'eth_chainId') {
+      return this.chainId
+    }
+
+    if (payload.method === 'net_version') {
+      return this.chainId
+    }
+
+    if (payload.method === 'eth_accounts') {
+      if (!this.account) {
+        return []
+      } else {
+        return [this.account]
+      }
+    }
+
+    const socket = io('https://auth-api.decentraland.zone')
 
     await new Promise<void>(resolve => {
       socket.on('connect', resolve)
     })
 
     const requestResponse = await socket.emitWithAck('request', {
-      method,
-      params
+      method: payload.method,
+      params: payload.params
     })
 
     if (requestResponse.error) {
@@ -48,7 +57,7 @@ export class AuthServerProvider {
     }
 
     window.open(
-      `http://127.0.0.1:5173/auth/requests/${requestResponse.requestId}`,
+      `https://decentraland.zone/auth/requests/${requestResponse.requestId}`,
       '_blank',
       'noopener,noreferrer'
     )
@@ -58,7 +67,7 @@ export class AuthServerProvider {
         if (msg.requestId === requestResponse.requestId) {
           socket.off('message', onMessage)
 
-          if (msg.method === 'dcl_personal_sign') {
+          if (payload.method === 'dcl_personal_sign') {
             resolve({
               signer: msg.sender,
               signature: msg.result
@@ -69,11 +78,26 @@ export class AuthServerProvider {
         }
       }
 
-      socket.on('message', onMessage)
+      socket.on('outcome', onMessage)
     })
 
     socket.disconnect()
 
     return result
+  }
+
+  sendAsync = async (
+    payload: {
+      method: string
+      params: string[]
+    },
+    callback: (err: number | null, value: any) => void
+  ): Promise<void> => {
+    try {
+      const result = await this.request(payload)
+      callback(null, result)
+    } catch (e) {
+      callback(999, (e as Error).message)
+    }
   }
 }

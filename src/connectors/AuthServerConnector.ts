@@ -61,7 +61,7 @@ export class AuthServerConnector extends AbstractConnector {
     }: {
       signer: string
       signature: string
-    } = await this.provider.sendAsync({
+    } = await this.provider.request({
       method: 'dcl_personal_sign',
       params: [ephemeralMessage]
     })
