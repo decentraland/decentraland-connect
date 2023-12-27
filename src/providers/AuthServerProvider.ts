@@ -1,9 +1,10 @@
-import { ChainId } from '@dcl/schemas'
+import { ChainId, ProviderType } from '@dcl/schemas'
 import { ethers } from 'ethers'
 import { Socket, io } from 'socket.io-client'
 import { Authenticator, AuthIdentity, AuthLinkType } from '@dcl/crypto'
 import * as sso from '@dcl/single-sign-on-client'
 import { AuthServerConnector } from '../connectors'
+import { getRpcUrls } from '../configuration'
 
 export class AuthServerProvider {
   private static authServerUrl: string = ''
@@ -207,6 +208,14 @@ export class AuthServerProvider {
       } else {
         return [this.account]
       }
+    }
+
+    if (payload.method === 'eth_call') {
+      const provider = new ethers.JsonRpcProvider(
+        getRpcUrls(ProviderType.AUTH_SERVER)[this.chainId]
+      )
+
+      return provider.send(payload.method, payload.params)
     }
 
     const socket = await AuthServerProvider.getSocket()

@@ -89,6 +89,9 @@ export function getRpcUrls(providerType: ProviderType) {
     case ProviderType.WALLET_CONNECT_V2:
       project = 'walletconnect-v2'
       break
+    case ProviderType.AUTH_SERVER:
+      project = 'auth-server'
+      break
     default:
       break
   }
