@@ -78,7 +78,10 @@ export class AuthServerProvider {
     const {
       sender: signer,
       result: signature
-    } = await AuthServerProvider.awaitResultWithTimeout(socket, requestResponse)
+    } = await AuthServerProvider.awaitOutcomeWithTimeout(
+      socket,
+      requestResponse
+    )
 
     const identity: AuthIdentity = {
       expiration,
@@ -109,7 +112,10 @@ export class AuthServerProvider {
     localStorage.setItem(AuthServerConnector.PREVIOUS_ADDRESS_KEY, signer)
   }
 
-  private static awaitResultWithTimeout = async (
+  /**
+   * Waits for an outcome message but times out if the expiration defined in the provided request is reached.
+   */
+  private static awaitOutcomeWithTimeout = async (
     socket: Socket,
     requestResponse: any
   ) => {
@@ -137,6 +143,9 @@ export class AuthServerProvider {
     return result
   }
 
+  /**
+   * Opens the browser on the auth dapp requests page for the given request id.
+   */
   private static openAuthDapp = (requestResponse: any) => {
     window.open(
       `${AuthServerProvider.authDappUrl}/requests/${requestResponse.requestId}`,
@@ -145,6 +154,9 @@ export class AuthServerProvider {
     )
   }
 
+  /**
+   * Creates a socket connection and waits for it to be connected before returning it.
+   */
   private static getSocket = async () => {
     const socket = io(AuthServerProvider.authServerUrl)
 
@@ -160,6 +172,9 @@ export class AuthServerProvider {
     return socket
   }
 
+  /**
+   * Emits an event to create a request with a given payload and waits for the response.
+   */
   private static createRequest = async (socket: Socket, payload: any) => {
     const response = await socket.emitWithAck('request', {
       method: payload.method,
@@ -194,15 +209,11 @@ export class AuthServerProvider {
     method: string
     params: string[]
   }): Promise<any> => {
-    if (payload.method === 'eth_chainId') {
+    if (['eth_chainId', 'net_version'].includes(payload.method)) {
       return this.chainId
     }
 
-    if (payload.method === 'net_version') {
-      return this.chainId
-    }
-
-    if (payload.method === 'eth_accounts') {
+    if (['eth_accounts'].includes(payload.method)) {
       if (!this.account) {
         return []
       } else {
@@ -210,7 +221,19 @@ export class AuthServerProvider {
       }
     }
 
-    if (payload.method === 'eth_call') {
+    /**
+     * These ethereum calls don't require the user's wallet given that no new transaction or signature is being created.
+     * Because of this, we can use a regular provider to make the call, without the need of opening the auth dapp.
+     */
+    if (
+      [
+        'eth_call',
+        'eth_getBalance',
+        'eth_getCode',
+        'eth_getTransactionCount',
+        'eth_getStorageAt'
+      ].includes(payload.method)
+    ) {
       const provider = new ethers.JsonRpcProvider(
         getRpcUrls(ProviderType.AUTH_SERVER)[this.chainId]
       )
@@ -225,14 +248,9 @@ export class AuthServerProvider {
       params: payload.params
     })
 
-    if (requestResponse.error) {
-      socket.disconnect()
-      throw new Error(requestResponse.error)
-    }
-
     AuthServerProvider.openAuthDapp(requestResponse)
 
-    return AuthServerProvider.awaitResultWithTimeout(socket, requestResponse)
+    return AuthServerProvider.awaitOutcomeWithTimeout(socket, requestResponse)
   }
 
   sendAsync = async (
