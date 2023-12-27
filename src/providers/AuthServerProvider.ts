@@ -209,7 +209,7 @@ export class AuthServerProvider {
   }
 
   setAccount = (account: string) => {
-    this.account = account
+    this.account = account.toLowerCase()
   }
 
   request = async (payload: {
@@ -220,7 +220,7 @@ export class AuthServerProvider {
       return this.chainId
     }
 
-    if (['eth_accounts'].includes(payload.method)) {
+    if (['eth_accounts', 'eth_requestAccounts'].includes(payload.method)) {
       if (!this.account) {
         return []
       } else {
