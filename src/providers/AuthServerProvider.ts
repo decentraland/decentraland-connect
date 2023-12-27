@@ -32,11 +32,7 @@ export class AuthServerProvider {
    * The returned data should be passed back to the `finishSignIn` method.
    */
   static initSignIn = async () => {
-    const socket = io(AuthServerProvider.authServerUrl)
-
-    await new Promise<void>(resolve => {
-      socket.on('connect', resolve)
-    })
+    const socket = await AuthServerProvider.getSocket()
 
     const ephemeralAccount = ethers.Wallet.createRandom()
     const expiration = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days in the future.
@@ -45,15 +41,10 @@ export class AuthServerProvider {
       expiration
     )
 
-    const requestResponse = await socket.emitWithAck('request', {
+    const requestResponse = await AuthServerProvider.createRequest(socket, {
       method: 'dcl_personal_sign',
       params: [ephemeralMessage]
     })
-
-    if (requestResponse.error) {
-      socket.disconnect()
-      throw new Error(requestResponse.error)
-    }
 
     return {
       socket,
@@ -145,12 +136,41 @@ export class AuthServerProvider {
     return result
   }
 
-  private static openAuthDapp = async (requestResponse: any) => {
+  private static openAuthDapp = (requestResponse: any) => {
     window.open(
       `${AuthServerProvider.authDappUrl}/requests/${requestResponse.requestId}`,
       '_blank',
       'noopener,noreferrer'
     )
+  }
+
+  private static getSocket = async () => {
+    const socket = io(AuthServerProvider.authServerUrl)
+
+    await new Promise<void>(resolve => {
+      const onConnect = () => {
+        socket.off('connect', onConnect)
+        resolve()
+      }
+
+      socket.on('connect', onConnect)
+    })
+
+    return socket
+  }
+
+  private static createRequest = async (socket: Socket, payload: any) => {
+    const response = await socket.emitWithAck('request', {
+      method: payload.method,
+      params: payload.params
+    })
+
+    if (response.error) {
+      socket.disconnect()
+      throw new Error(response.error)
+    }
+
+    return response
   }
 
   getChainId = () => {
@@ -189,13 +209,9 @@ export class AuthServerProvider {
       }
     }
 
-    const socket = io(AuthServerProvider.authServerUrl)
+    const socket = await AuthServerProvider.getSocket()
 
-    await new Promise<void>(resolve => {
-      socket.on('connect', resolve)
-    })
-
-    const requestResponse = await socket.emitWithAck('request', {
+    const requestResponse = await AuthServerProvider.createRequest(socket, {
       method: payload.method,
       params: payload.params
     })
