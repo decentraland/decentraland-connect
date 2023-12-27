@@ -9,6 +9,7 @@ import { getRpcUrls } from '../configuration'
 export class AuthServerProvider {
   private static authServerUrl: string = ''
   private static authDappUrl: string = ''
+  private static identityExpirationInMillis: number = 30 * 24 * 60 * 60 * 1000 // 30 days in the future.
 
   private chainId = ChainId.ETHEREUM_MAINNET
   private account?: string
@@ -27,6 +28,10 @@ export class AuthServerProvider {
     AuthServerProvider.authDappUrl = url
   }
 
+  static setIdentityExpiration(millis: number) {
+    AuthServerProvider.identityExpirationInMillis = millis
+  }
+
   /**
    * Initializes the first part of the sign in process.
    * It returns data such as the request expiration as well as the verification code which can be used on the frontend.
@@ -36,7 +41,9 @@ export class AuthServerProvider {
     const socket = await AuthServerProvider.getSocket()
 
     const ephemeralAccount = ethers.Wallet.createRandom()
-    const expiration = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days in the future.
+    const expiration = new Date(
+      Date.now() + AuthServerProvider.identityExpirationInMillis
+    )
     const ephemeralMessage = Authenticator.getEphemeralMessage(
       ephemeralAccount.address,
       expiration
