@@ -5,12 +5,11 @@ import * as sso from '@dcl/single-sign-on-client'
 import { getConfiguration } from '../configuration'
 import { ConnectionData } from '../types'
 import { ChainId } from '@dcl/schemas'
-import { ethers } from 'ethers'
-import { AuthIdentity, AuthLinkType, Authenticator } from '@dcl/crypto'
-
-const previousAddressKey = 'auth-server-connector-previous-address'
 
 export class AuthServerConnector extends AbstractConnector {
+  static readonly PREVIOUS_ADDRESS_KEY =
+    'auth-server-connector-previous-address'
+
   private provider: AuthServerProvider
 
   constructor() {
@@ -19,7 +18,9 @@ export class AuthServerConnector extends AbstractConnector {
   }
 
   activate = async (): Promise<ConnectorUpdate<string | number>> => {
-    const previousAddress = localStorage.getItem(previousAddressKey)
+    const previousAddress = localStorage.getItem(
+      AuthServerConnector.PREVIOUS_ADDRESS_KEY
+    )
 
     if (previousAddress) {
       const identity = sso.localStorageGetIdentity(previousAddress)
@@ -48,60 +49,7 @@ export class AuthServerConnector extends AbstractConnector {
       }
     }
 
-    const { address, privateKey, publicKey } = ethers.Wallet.createRandom()
-    const expiration = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days in the future.
-    const ephemeralMessage = Authenticator.getEphemeralMessage(
-      address,
-      expiration
-    )
-
-    const {
-      signer,
-      signature
-    }: {
-      signer: string
-      signature: string
-    } = await this.provider.request({
-      method: 'dcl_personal_sign',
-      params: [ephemeralMessage]
-    })
-
-    const identity: AuthIdentity = {
-      expiration,
-      ephemeralIdentity: {
-        address,
-        privateKey,
-        publicKey
-      },
-      authChain: [
-        {
-          type: AuthLinkType.SIGNER,
-          payload: signer,
-          signature: ''
-        },
-        {
-          type:
-            signature.length === 132
-              ? AuthLinkType.ECDSA_PERSONAL_EPHEMERAL
-              : AuthLinkType.ECDSA_EIP_1654_EPHEMERAL,
-          payload: ephemeralMessage,
-          signature: signature
-        }
-      ]
-    }
-
-    this.provider.setAccount(signer)
-    this.provider.setChainId(ChainId.ETHEREUM_MAINNET)
-
-    sso.localStorageStoreIdentity(signer, identity)
-
-    localStorage.setItem(previousAddressKey, signer.toLowerCase())
-
-    return {
-      provider: this.provider,
-      chainId: this.provider.getChainId(),
-      account: this.provider.getAccount()
-    }
+    throw new Error('Cannot activate the Auth Server Connector')
   }
 
   getProvider = async (): Promise<any> => {
@@ -117,6 +65,6 @@ export class AuthServerConnector extends AbstractConnector {
   }
 
   deactivate(): void {
-    localStorage.removeItem(previousAddressKey)
+    localStorage.removeItem(AuthServerConnector.PREVIOUS_ADDRESS_KEY)
   }
 }
