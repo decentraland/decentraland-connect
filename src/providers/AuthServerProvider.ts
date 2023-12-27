@@ -104,10 +104,7 @@ export class AuthServerProvider {
           signature: ''
         },
         {
-          type:
-            signature.length === 132
-              ? AuthLinkType.ECDSA_PERSONAL_EPHEMERAL
-              : AuthLinkType.ECDSA_EIP_1654_EPHEMERAL,
+          type: AuthLinkType.ECDSA_PERSONAL_EPHEMERAL,
           payload: ephemeralMessage,
           signature: signature
         }
