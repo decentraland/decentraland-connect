@@ -3,16 +3,15 @@ import { ethers } from 'ethers'
 import { Socket, io } from 'socket.io-client'
 import { Authenticator, AuthIdentity, AuthLinkType } from '@dcl/crypto'
 import * as sso from '@dcl/single-sign-on-client'
-import { AuthServerConnector } from '../connectors'
 import { getRpcUrls } from '../configuration'
+
+const STORAGE_KEY_ADDRESS = 'auth-server-provider-address'
+const STORAGE_KEY_CHAIN_ID = 'auth-server-provider-chain-id'
 
 export class AuthServerProvider {
   private static authServerUrl: string = ''
   private static authDappUrl: string = ''
   private static identityExpirationInMillis: number = 30 * 24 * 60 * 60 * 1000 // 30 days in the future.
-
-  private chainId = ChainId.ETHEREUM_MAINNET
-  private account?: string
 
   /**
    * Set the url of the auth server to be consumed by this provider.
@@ -28,6 +27,9 @@ export class AuthServerProvider {
     AuthServerProvider.authDappUrl = url
   }
 
+  /**
+   * Set the time it will take for the identity created on 'finishSignIn' to expire.
+   */
   static setIdentityExpiration(millis: number) {
     AuthServerProvider.identityExpirationInMillis = millis
   }
@@ -111,9 +113,8 @@ export class AuthServerProvider {
       ]
     }
 
+    localStorage.setItem(STORAGE_KEY_ADDRESS, signer.toLowerCase())
     sso.localStorageStoreIdentity(signer, identity)
-
-    localStorage.setItem(AuthServerConnector.PREVIOUS_ADDRESS_KEY, signer)
   }
 
   /**
@@ -194,19 +195,27 @@ export class AuthServerProvider {
   }
 
   getChainId = () => {
-    return this.chainId
-  }
+    const chainId = localStorage.getItem(STORAGE_KEY_CHAIN_ID)
 
-  setChainId = (chainId: ChainId) => {
-    this.chainId = chainId
+    if (!chainId) {
+      return ChainId.ETHEREUM_MAINNET
+    }
+
+    return Number(chainId) as ChainId
   }
 
   getAccount = () => {
-    return this.account
+    return localStorage.getItem(STORAGE_KEY_ADDRESS)
   }
 
-  setAccount = (account: string) => {
-    this.account = account.toLowerCase()
+  getIdentity = () => {
+    const account = this.getAccount()
+
+    if (!account) {
+      return null
+    }
+
+    return sso.localStorageGetIdentity(account)
   }
 
   request = async (payload: {
@@ -214,14 +223,16 @@ export class AuthServerProvider {
     params: string[]
   }): Promise<any> => {
     if (['eth_chainId', 'net_version'].includes(payload.method)) {
-      return this.chainId
+      return this.getChainId()
     }
 
     if (['eth_accounts', 'eth_requestAccounts'].includes(payload.method)) {
-      if (!this.account) {
+      const account = this.getAccount()
+
+      if (!account) {
         return []
       } else {
-        return [this.account]
+        return [account]
       }
     }
 
@@ -239,7 +250,7 @@ export class AuthServerProvider {
       ].includes(payload.method)
     ) {
       const provider = new ethers.JsonRpcProvider(
-        getRpcUrls(ProviderType.AUTH_SERVER)[this.chainId]
+        getRpcUrls(ProviderType.AUTH_SERVER)[this.getChainId()]
       )
 
       return provider.send(payload.method, payload.params)
@@ -270,5 +281,16 @@ export class AuthServerProvider {
     } catch (e) {
       callback(999, (e as Error).message)
     }
+  }
+
+  deactivate = () => {
+    const account = this.getAccount()
+
+    if (account) {
+      sso.localStorageClearIdentity(account)
+    }
+
+    localStorage.removeItem(STORAGE_KEY_ADDRESS)
+    localStorage.removeItem(STORAGE_KEY_CHAIN_ID)
   }
 }
