@@ -1,4 +1,4 @@
-import { ChainId, ProviderType } from '@dcl/schemas'
+import { AuthChain, ChainId, ProviderType } from '@dcl/schemas'
 import { ethers } from 'ethers'
 import { Socket, io } from 'socket.io-client'
 import { Authenticator, AuthIdentity, AuthLinkType } from '@dcl/crypto'
@@ -183,7 +183,8 @@ export class AuthServerProvider {
   private static createRequest = async (socket: Socket, payload: any) => {
     const response = await socket.emitWithAck('request', {
       method: payload.method,
-      params: payload.params
+      params: payload.params,
+      authChain: payload.authChain
     })
 
     if (response.error) {
@@ -258,9 +259,12 @@ export class AuthServerProvider {
 
     const socket = await AuthServerProvider.getSocket()
 
+    const identity = this.getIdentity()
+
     const requestResponse = await AuthServerProvider.createRequest(socket, {
       method: payload.method,
-      params: payload.params
+      params: payload.params,
+      authChain: identity?.authChain
     })
 
     AuthServerProvider.openAuthDapp(requestResponse)
