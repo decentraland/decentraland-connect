@@ -65,6 +65,13 @@ export class AuthServerConnector extends AbstractConnector {
   }
 
   deactivate(): void {
-    localStorage.removeItem(AuthServerConnector.PREVIOUS_ADDRESS_KEY)
+    const previousAddress = localStorage.getItem(
+      AuthServerConnector.PREVIOUS_ADDRESS_KEY
+    )
+
+    if (previousAddress) {
+      localStorage.removeItem(AuthServerConnector.PREVIOUS_ADDRESS_KEY)
+      sso.localStorageClearIdentity(previousAddress)
+    }
   }
 }
