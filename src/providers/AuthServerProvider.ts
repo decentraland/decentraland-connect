@@ -1,4 +1,4 @@
-import { AuthChain, ChainId, ProviderType } from '@dcl/schemas'
+import { ChainId, ProviderType } from '@dcl/schemas'
 import { ethers } from 'ethers'
 import { Socket, io } from 'socket.io-client'
 import { Authenticator, AuthIdentity, AuthLinkType } from '@dcl/crypto'
