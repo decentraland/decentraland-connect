@@ -141,11 +141,11 @@ export class AuthServerProvider {
       socket.on('outcome', onMessage)
     })
 
-    const result = await Promise.race([timeoutPromise, resultPromise])
-
-    socket.disconnect()
-
-    return result
+    try {
+      return await Promise.race([timeoutPromise, resultPromise])
+    } finally {
+      socket.disconnect()
+    }
   }
 
   /**
