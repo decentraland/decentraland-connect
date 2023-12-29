@@ -1,12 +1,22 @@
 import { ChainId, ProviderType } from '@dcl/schemas'
 import { ethers } from 'ethers'
 import { Socket, io } from 'socket.io-client'
-import { Authenticator, AuthIdentity, AuthLinkType } from '@dcl/crypto'
+import {
+  Authenticator,
+  AuthIdentity,
+  AuthLinkType,
+  AuthChain
+} from '@dcl/crypto'
 import * as sso from '@dcl/single-sign-on-client'
 import { getRpcUrls } from '../configuration'
 
 const STORAGE_KEY_ADDRESS = 'auth-server-provider-address'
 const STORAGE_KEY_CHAIN_ID = 'auth-server-provider-chain-id'
+
+type Payload = {
+  method: string
+  params: any[]
+}
 
 export class AuthServerProvider {
   private static authServerUrl: string = ''
@@ -180,7 +190,11 @@ export class AuthServerProvider {
   /**
    * Emits an event to create a request with a given payload and waits for the response.
    */
-  private static createRequest = async (socket: Socket, payload: any) => {
+  private static createRequest = async (
+    socket: Socket,
+    payload: Payload & { authChain?: AuthChain }
+  ) => {
+    // TODO: Also send the chain id for requests that are not dcl_personal_sign once supported on the auth server.
     const response = await socket.emitWithAck('request', {
       method: payload.method,
       params: payload.params,
@@ -219,15 +233,23 @@ export class AuthServerProvider {
     return sso.localStorageGetIdentity(account)
   }
 
-  request = async (payload: {
-    method: string
-    params: string[]
-  }): Promise<any> => {
-    if (['eth_chainId', 'net_version'].includes(payload.method)) {
+  request = async ({ method, params }: Payload): Promise<any> => {
+    // The chain id is a virtual concept in this provider.
+    // Changing it will only affect the rpc used for eth_calls and other non-transactional calls.
+    // It will also affect the result value of the eth_chainId and net_version calls.
+    if (method === 'wallet_switchEthereumChain') {
+      const chainId = parseInt(params[0].chainId, 16).toString()
+
+      localStorage.setItem(STORAGE_KEY_CHAIN_ID, chainId)
+
+      return undefined
+    }
+
+    if (['eth_chainId', 'net_version'].includes(method)) {
       return this.getChainId()
     }
 
-    if (['eth_accounts', 'eth_requestAccounts'].includes(payload.method)) {
+    if (['eth_accounts', 'eth_requestAccounts'].includes(method)) {
       const account = this.getAccount()
 
       if (!account) {
@@ -248,13 +270,13 @@ export class AuthServerProvider {
         'eth_getCode',
         'eth_getTransactionCount',
         'eth_getStorageAt'
-      ].includes(payload.method)
+      ].includes(method)
     ) {
       const provider = new ethers.JsonRpcProvider(
         getRpcUrls(ProviderType.AUTH_SERVER)[this.getChainId()]
       )
 
-      return provider.send(payload.method, payload.params)
+      return provider.send(method, params)
     }
 
     const socket = await AuthServerProvider.getSocket()
@@ -262,8 +284,8 @@ export class AuthServerProvider {
     const identity = this.getIdentity()
 
     const requestResponse = await AuthServerProvider.createRequest(socket, {
-      method: payload.method,
-      params: payload.params,
+      method,
+      params,
       authChain: identity?.authChain
     })
 
@@ -278,10 +300,7 @@ export class AuthServerProvider {
   }
 
   sendAsync = async (
-    payload: {
-      method: string
-      params: string[]
-    },
+    payload: Payload,
     callback: (err: number | null, value: any) => void
   ): Promise<void> => {
     try {
