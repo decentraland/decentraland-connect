@@ -102,7 +102,7 @@ export class AuthServerProvider {
       authChain: [
         {
           type: AuthLinkType.SIGNER,
-          payload: signer,
+          payload: signer.toLowerCase(),
           signature: ''
         },
         {
@@ -269,7 +269,12 @@ export class AuthServerProvider {
 
     AuthServerProvider.openAuthDapp(requestResponse)
 
-    return AuthServerProvider.awaitOutcomeWithTimeout(socket, requestResponse)
+    const { result } = await AuthServerProvider.awaitOutcomeWithTimeout(
+      socket,
+      requestResponse
+    )
+
+    return result
   }
 
   sendAsync = async (
