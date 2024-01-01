@@ -20,7 +20,7 @@ export class AuthServerConnector extends AbstractConnector {
     return {
       provider: this.provider,
       chainId: this.provider.getChainId(),
-      account: account
+      account
     }
   }
 
