@@ -11,16 +11,16 @@ export class AuthServerConnector extends AbstractConnector {
   }
 
   activate = async (): Promise<ConnectorUpdate<string | number>> => {
-    const identity = this.provider.getIdentity()
+    const account = this.provider.getAccount()
 
-    if (!identity) {
+    if (!account) {
       throw new Error('Cannot activate the Auth Server Connector')
     }
 
     return {
       provider: this.provider,
       chainId: this.provider.getChainId(),
-      account: this.provider.getAccount()
+      account
     }
   }
 
@@ -33,7 +33,7 @@ export class AuthServerConnector extends AbstractConnector {
   }
 
   getAccount = async (): Promise<string | null> => {
-    return this.provider.getAccount() ?? null
+    return this.provider.getAccount()
   }
 
   deactivate(): void {

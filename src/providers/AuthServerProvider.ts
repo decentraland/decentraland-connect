@@ -128,6 +128,27 @@ export class AuthServerProvider {
   }
 
   /**
+   * Get the persisted account from local storage.
+   */
+  static getAccount = () => {
+    return localStorage.getItem(STORAGE_KEY_ADDRESS)
+  }
+
+  /**
+   * Clears the identity and the rest of the persisted data created by this provider.
+   */
+  static deactivate = () => {
+    const account = AuthServerProvider.getAccount()
+
+    if (account) {
+      sso.localStorageClearIdentity(account)
+    }
+
+    localStorage.removeItem(STORAGE_KEY_ADDRESS)
+    localStorage.removeItem(STORAGE_KEY_CHAIN_ID)
+  }
+
+  /**
    * Waits for an outcome message but times out if the expiration defined in the provided request is reached.
    */
   private static awaitOutcomeWithTimeout = async (
@@ -220,17 +241,7 @@ export class AuthServerProvider {
   }
 
   getAccount = () => {
-    return localStorage.getItem(STORAGE_KEY_ADDRESS)
-  }
-
-  getIdentity = () => {
-    const account = this.getAccount()
-
-    if (!account) {
-      return null
-    }
-
-    return sso.localStorageGetIdentity(account)
+    return AuthServerProvider.getAccount()
   }
 
   request = async ({ method, params }: Payload): Promise<any> => {
@@ -312,13 +323,16 @@ export class AuthServerProvider {
   }
 
   deactivate = () => {
-    const account = this.getAccount()
+    AuthServerProvider.deactivate()
+  }
 
-    if (account) {
-      sso.localStorageClearIdentity(account)
+  private getIdentity = () => {
+    const account = AuthServerProvider.getAccount()
+
+    if (!account) {
+      return null
     }
 
-    localStorage.removeItem(STORAGE_KEY_ADDRESS)
-    localStorage.removeItem(STORAGE_KEY_CHAIN_ID)
+    return sso.localStorageGetIdentity(account)
   }
 }
