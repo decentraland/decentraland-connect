@@ -128,36 +128,10 @@ export class AuthServerProvider {
   }
 
   /**
-   * Get the persisted chain id from local storage.
-   */
-  static getChainId = () => {
-    const chainId = localStorage.getItem(STORAGE_KEY_CHAIN_ID)
-
-    if (!chainId) {
-      return ChainId.ETHEREUM_MAINNET
-    }
-
-    return Number(chainId) as ChainId
-  }
-
-  /**
    * Get the persisted account from local storage.
    */
   static getAccount = () => {
     return localStorage.getItem(STORAGE_KEY_ADDRESS)
-  }
-
-  /**
-   * Get the persisted identity from local storage.
-   */
-  static getIdentity = () => {
-    const account = AuthServerProvider.getAccount()
-
-    if (!account) {
-      return null
-    }
-
-    return sso.localStorageGetIdentity(account)
   }
 
   /**
@@ -257,15 +231,17 @@ export class AuthServerProvider {
   }
 
   getChainId = () => {
-    return AuthServerProvider.getChainId()
+    const chainId = localStorage.getItem(STORAGE_KEY_CHAIN_ID)
+
+    if (!chainId) {
+      return ChainId.ETHEREUM_MAINNET
+    }
+
+    return Number(chainId) as ChainId
   }
 
   getAccount = () => {
     return AuthServerProvider.getAccount()
-  }
-
-  getIdentity = () => {
-    return AuthServerProvider.getIdentity()
   }
 
   request = async ({ method, params }: Payload): Promise<any> => {
@@ -348,5 +324,15 @@ export class AuthServerProvider {
 
   deactivate = () => {
     AuthServerProvider.deactivate()
+  }
+
+  private getIdentity = () => {
+    const account = AuthServerProvider.getAccount()
+
+    if (!account) {
+      return null
+    }
+
+    return sso.localStorageGetIdentity(account)
   }
 }
