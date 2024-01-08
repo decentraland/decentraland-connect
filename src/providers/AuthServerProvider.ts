@@ -276,11 +276,20 @@ export class AuthServerProvider {
      */
     if (
       [
+        'eth_getTransactionReceipt',
+        'eth_estimateGas',
         'eth_call',
         'eth_getBalance',
-        'eth_getCode',
+        'eth_getStorageAt',
+        'eth_blockNumber',
+        'eth_gasPrice',
+        'eth_protocolVersion',
+        'net_version',
+        'web3_sha3',
+        'web3_clientVersion',
         'eth_getTransactionCount',
-        'eth_getStorageAt'
+        'eth_getBlockByNumber',
+        'eth_getCode'
       ].includes(method)
     ) {
       const provider = new ethers.JsonRpcProvider(
