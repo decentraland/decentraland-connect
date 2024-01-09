@@ -18,6 +18,31 @@ type Payload = {
   params: any[]
 }
 
+export type OutcomeError = {
+  code: number
+  message: string
+  data?: any
+}
+
+function isRPCError(outcome: unknown): outcome is OutcomeError {
+  return (
+    outcome !== undefined &&
+    outcome !== null &&
+    typeof outcome === 'object' &&
+    'message' in outcome &&
+    'code' in outcome
+  )
+}
+
+function isErrorWithMessage(error: unknown): error is Error {
+  return (
+    error !== undefined &&
+    error !== null &&
+    typeof error === 'object' &&
+    'message' in error
+  )
+}
+
 export class AuthServerProvider {
   private static authServerUrl: string = ''
   private static authDappUrl: string = ''
@@ -311,23 +336,47 @@ export class AuthServerProvider {
 
     AuthServerProvider.openAuthDapp(requestResponse)
 
-    const { result } = await AuthServerProvider.awaitOutcomeWithTimeout(
+    const outcome = await AuthServerProvider.awaitOutcomeWithTimeout(
       socket,
       requestResponse
     )
 
-    return result
+    if (outcome.error) {
+      throw outcome.error
+    }
+
+    return outcome.result
   }
 
   sendAsync = async (
     payload: Payload,
-    callback: (err: number | null, value: any) => void
+    callback: (
+      err: OutcomeError | null,
+      value: { error: OutcomeError; id: undefined; jsonrpc: '2.0' }
+    ) => void
   ): Promise<void> => {
     try {
       const result = await this.request(payload)
       callback(null, result)
     } catch (e) {
-      callback(999, (e as Error).message)
+      if (isRPCError(e)) {
+        callback(e, { error: e, id: undefined, jsonrpc: '2.0' })
+      } else {
+        callback(
+          {
+            code: 999,
+            message: isErrorWithMessage(e) ? e.message : 'Unknown error'
+          },
+          {
+            error: {
+              code: 0,
+              message: isErrorWithMessage(e) ? e.message : 'Unknown error'
+            },
+            id: undefined,
+            jsonrpc: '2.0'
+          }
+        )
+      }
     }
   }
 
