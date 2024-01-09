@@ -26,9 +26,9 @@ export type OutcomeError = {
 
 function isRPCError(outcome: unknown): outcome is OutcomeError {
   return (
+    typeof outcome === 'object' &&
     outcome !== undefined &&
     outcome !== null &&
-    typeof outcome === 'object' &&
     'message' in outcome &&
     'code' in outcome
   )
@@ -36,9 +36,9 @@ function isRPCError(outcome: unknown): outcome is OutcomeError {
 
 function isErrorWithMessage(error: unknown): error is Error {
   return (
+    typeof error === 'object' &&
     error !== undefined &&
     error !== null &&
-    typeof error === 'object' &&
     'message' in error
   )
 }
