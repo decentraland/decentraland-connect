@@ -1,12 +1,25 @@
 {
   "name": "decentraland-connect",
   "version": "0.0.0-development",
-  "main": "dist",
+  "main": "cjs/index.js",
+  "module": "esm/index.js",
+  "exports": {
+    ".": {
+      "import": "./esm/index.js",
+      "require": "./cjs/index.js"
+    }
+  },
+  "files": [
+    "esm",
+    "cjs"
+  ],
   "scripts": {
-    "prebuild": "rimraf dist",
     "lint": "tslint --project tsconfig.json -e '*.json' -c tslint.json 'src/**/*.ts{,x}'",
     "lint:fix": "tslint  --fix --project tsconfig.json -e '*.json' -c tslint.json 'src/**/*.ts{,x}'",
-    "build": "npm run lint && npm run test && tsc --project tsconfig.json",
+    "postbuild": "node scripts/postbuild.js",
+    "build:esm": "tsc --project tsconfig.esm.json",
+    "build:cjs": "tsc --project tsconfig.cjs.json",
+    "build": "npm run build:esm && npm run build:cjs",
     "test": "TS_NODE_PROJECT=tsconfig-tests.json nyc mocha --require ts-node/register --project ./tsconfig-tests.json --watch-files src, test/**/*.ts",
     "test:watch": "npm test -- --watch",
     "test:report": "npx nyc --silent --no-clean npm run test && npx nyc report --reporter=lcov --reporter=text",
@@ -25,7 +38,8 @@
     "@web3-react/walletlink-connector": "^6.2.13",
     "ethers": "^6.9.1",
     "magic-sdk": "^21.4.1",
-    "socket.io-client": "^4.7.2"
+    "socket.io-client": "^4.7.2",
+    "tslib": "^2.6.2"
   },
   "devDependencies": {
     "@types/chai": "^4.2.14",

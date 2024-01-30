@@ -1,10 +1,7 @@
 {
   "compilerOptions": {
     "baseUrl": ".",
-    "outDir": "dist",
-    "module": "CommonJS",
-    "target": "es2017",
-    "lib": ["es2017", "dom"],
+    "lib": ["es2020", "dom"],
     "strict": true,
     "sourceMap": true,
     "moduleResolution": "node",
@@ -15,6 +12,7 @@
     "strictNullChecks": true,
     "suppressImplicitAnyIndexErrors": true,
     "noUnusedParameters": true,
+    "importHelpers": true,
     "noUnusedLocals": true,
     "plugins": [{ "name": "tslint-language-service" }],
     "declaration": true,
@@ -25,6 +23,8 @@
   "exclude": [
     "node_modules",
     "dist",
+    "esm",
+    "cjs",
     "build",
     "test",
     "scripts",
