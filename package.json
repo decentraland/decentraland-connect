@@ -27,7 +27,7 @@
     "commitmsg": "validate-commit-msg"
   },
   "dependencies": {
-    "@dcl/schemas": "^9.8.0",
+    "@dcl/schemas": "^9.13.0",
     "@dcl/single-sign-on-client": "^0.1.0",
     "@magic-ext/oauth": "^15.5.0",
     "@walletconnect/ethereum-provider": "^2.9.2",

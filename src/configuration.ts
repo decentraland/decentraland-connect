@@ -33,7 +33,14 @@ const configuration = Object.freeze({
     chains: {
       [ChainId.ETHEREUM_MAINNET]: {
         chains: [ChainId.ETHEREUM_MAINNET],
-        optionalChains: [ChainId.MATIC_MAINNET]
+        optionalChains: [
+          ChainId.MATIC_MAINNET,
+          ChainId.ARBITRUM_MAINNET,
+          ChainId.OPTIMISM_MAINNET,
+          ChainId.AVALANCHE_MAINNET,
+          ChainId.BNB_MAINNET,
+          ChainId.FANTOM_MAINNET
+        ]
       },
       [ChainId.ETHEREUM_GOERLI]: {
         chains: [ChainId.ETHEREUM_GOERLI],
@@ -53,7 +60,10 @@ const configuration = Object.freeze({
       ChainId.ETHEREUM_GOERLI,
       ChainId.ETHEREUM_SEPOLIA,
       ChainId.MATIC_MAINNET,
-      ChainId.MATIC_MUMBAI
+      ChainId.MATIC_MUMBAI,
+      ChainId.ARBITRUM_MAINNET,
+      ChainId.AVALANCHE_MAINNET,
+      ChainId.BNB_MAINNET
     ]
   }
 })
@@ -71,7 +81,12 @@ export function getRpcUrls(providerType: ProviderType) {
     [ChainId.ETHEREUM_GOERLI]: 'https://rpc.decentraland.org/goerli',
     [ChainId.ETHEREUM_KOVAN]: 'https://rpc.decentraland.org/kovan',
     [ChainId.MATIC_MAINNET]: 'https://rpc.decentraland.org/polygon',
-    [ChainId.MATIC_MUMBAI]: 'https://rpc.decentraland.org/mumbai'
+    [ChainId.MATIC_MUMBAI]: 'https://rpc.decentraland.org/mumbai',
+    [ChainId.ARBITRUM_MAINNET]: 'https://rpc.decentraland.org/arbitrum',
+    [ChainId.OPTIMISM_MAINNET]: 'https://rpc.decentraland.org/optimism',
+    [ChainId.AVALANCHE_MAINNET]: 'https://rpc.decentraland.org/avalanche',
+    [ChainId.BNB_MAINNET]: 'https://rpc.decentraland.org/binance',
+    [ChainId.FANTOM_MAINNET]: 'https://rpc.decentraland.org/fantom'
   }
 
   let project = ''
