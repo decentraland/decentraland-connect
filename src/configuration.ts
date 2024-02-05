@@ -63,7 +63,8 @@ const configuration = Object.freeze({
       ChainId.MATIC_MUMBAI,
       ChainId.ARBITRUM_MAINNET,
       ChainId.AVALANCHE_MAINNET,
-      ChainId.BNB_MAINNET
+      ChainId.BNB_MAINNET,
+      ChainId.FANTOM_MAINNET
     ]
   }
 })
