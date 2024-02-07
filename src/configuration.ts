@@ -38,7 +38,7 @@ const configuration = Object.freeze({
           ChainId.ARBITRUM_MAINNET,
           ChainId.OPTIMISM_MAINNET,
           ChainId.AVALANCHE_MAINNET,
-          ChainId.BNB_MAINNET,
+          ChainId.BSC_MAINNET,
           ChainId.FANTOM_MAINNET
         ]
       },
@@ -63,7 +63,7 @@ const configuration = Object.freeze({
       ChainId.MATIC_MUMBAI,
       ChainId.ARBITRUM_MAINNET,
       ChainId.AVALANCHE_MAINNET,
-      ChainId.BNB_MAINNET,
+      ChainId.BSC_MAINNET,
       ChainId.FANTOM_MAINNET
     ]
   }
@@ -86,7 +86,7 @@ export function getRpcUrls(providerType: ProviderType) {
     [ChainId.ARBITRUM_MAINNET]: 'https://rpc.decentraland.org/arbitrum',
     [ChainId.OPTIMISM_MAINNET]: 'https://rpc.decentraland.org/optimism',
     [ChainId.AVALANCHE_MAINNET]: 'https://rpc.decentraland.org/avalanche',
-    [ChainId.BNB_MAINNET]: 'https://rpc.decentraland.org/binance',
+    [ChainId.BSC_MAINNET]: 'https://rpc.decentraland.org/binance',
     [ChainId.FANTOM_MAINNET]: 'https://rpc.decentraland.org/fantom'
   }
 
