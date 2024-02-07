@@ -61,6 +61,7 @@ const configuration = Object.freeze({
       ChainId.ETHEREUM_SEPOLIA,
       ChainId.MATIC_MAINNET,
       ChainId.MATIC_MUMBAI,
+      ChainId.OPTIMISM_MAINNET,
       ChainId.ARBITRUM_MAINNET,
       ChainId.AVALANCHE_MAINNET,
       ChainId.BSC_MAINNET,
