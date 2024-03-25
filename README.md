@@ -206,13 +206,14 @@ Different Ethereum chains
 
 ```typescript
 enum ChainId {
-  ETHEREUM_MAINNET = 1,
-  ETHEREUM_ROPSTEN = 3,
-  ETHEREUM_RINKEBY = 4,
-  ETHEREUM_GOERLI = 5,
-  ETHEREUM_KOVAN = 42,
-  MATIC_MUMBAI = 13881,
-  MATIC_MAINNET = 89
+  ETHEREUM_MAINNET = 0x1,
+  ETHEREUM_ROPSTEN = 0x3,
+  ETHEREUM_RINKEBY = 0x4,
+  ETHEREUM_GOERLI = 0x5,
+  ETHEREUM_KOVAN = 0x45,
+  MATIC_MUMBAI = 0x13881,
+  MATIC_AMOY = 0x13882,
+  MATIC_MAINNET = 0x89
 }
 ```
 
@@ -287,4 +288,3 @@ npm run test:report
 # Copyright
 
 This repository is protected with a standard Apache 2 license. See the terms and conditions in the [LICENSE](https://github.com/decentraland/decentraland-connect/blob/master/LICENSE) file.
-

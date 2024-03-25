@@ -30,6 +30,7 @@ describe('#getConfiguration', () => {
           '42161': 'https://rpc.decentraland.org/arbitrum?project=fortmatic',
           '43114': 'https://rpc.decentraland.org/avalanche?project=fortmatic',
           '80001': 'https://rpc.decentraland.org/mumbai?project=fortmatic',
+          '80002': 'https://rpc.decentraland.org/amoy?project=fortmatic',
           '11155111': 'https://rpc.decentraland.org/sepolia?project=fortmatic'
         }
       },
@@ -43,6 +44,7 @@ describe('#getConfiguration', () => {
           [ChainId.ETHEREUM_KOVAN]: 'https://rpc.decentraland.org/kovan',
           [ChainId.MATIC_MAINNET]: 'https://rpc.decentraland.org/polygon',
           [ChainId.MATIC_MUMBAI]: 'https://rpc.decentraland.org/mumbai',
+          [ChainId.MATIC_AMOY]: 'https://rpc.decentraland.org/amoy',
           [ChainId.ARBITRUM_MAINNET]: 'https://rpc.decentraland.org/arbitrum',
           [ChainId.OPTIMISM_MAINNET]: 'https://rpc.decentraland.org/optimism',
           [ChainId.AVALANCHE_MAINNET]: 'https://rpc.decentraland.org/avalanche',
@@ -54,7 +56,7 @@ describe('#getConfiguration', () => {
         projectId: '61570c542c2d66c659492e5b24a41522',
         chains: {
           '1': {
-            chains: [1],
+            chains: [ChainId.ETHEREUM_MAINNET],
             optionalChains: [
               ChainId.MATIC_MAINNET,
               ChainId.ARBITRUM_MAINNET,
@@ -65,12 +67,12 @@ describe('#getConfiguration', () => {
             ]
           },
           '5': {
-            chains: [5],
-            optionalChains: [80001]
+            chains: [ChainId.ETHEREUM_GOERLI],
+            optionalChains: [ChainId.MATIC_MUMBAI, ChainId.MATIC_AMOY]
           },
           '11155111': {
-            chains: [11155111],
-            optionalChains: [80001]
+            chains: [ChainId.ETHEREUM_SEPOLIA],
+            optionalChains: [ChainId.MATIC_MUMBAI, ChainId.MATIC_AMOY]
           }
         },
         urls: {
@@ -92,7 +94,8 @@ describe('#getConfiguration', () => {
           '43114':
             'https://rpc.decentraland.org/avalanche?project=walletconnect-v2',
           '80001':
-            'https://rpc.decentraland.org/mumbai?project=walletconnect-v2'
+            'https://rpc.decentraland.org/mumbai?project=walletconnect-v2',
+          '80002': 'https://rpc.decentraland.org/amoy?project=walletconnect-v2'
         }
       },
       wallet_link: {
@@ -110,6 +113,7 @@ describe('#getConfiguration', () => {
           '42161': 'https://rpc.decentraland.org/arbitrum?project=walletlink',
           '43114': 'https://rpc.decentraland.org/avalanche?project=walletlink',
           '80001': 'https://rpc.decentraland.org/mumbai?project=walletlink',
+          '80002': 'https://rpc.decentraland.org/amoy?project=walletlink',
           '11155111': 'https://rpc.decentraland.org/sepolia?project=walletlink'
         }
       },
@@ -128,6 +132,7 @@ describe('#getConfiguration', () => {
           '42161': 'https://rpc.decentraland.org/arbitrum?project=magic',
           '43114': 'https://rpc.decentraland.org/avalanche?project=magic',
           '80001': 'https://rpc.decentraland.org/mumbai?project=magic',
+          '80002': 'https://rpc.decentraland.org/amoy?project=magic',
           '11155111': 'https://rpc.decentraland.org/sepolia?project=magic'
         },
         chains: [
@@ -136,6 +141,7 @@ describe('#getConfiguration', () => {
           ChainId.ETHEREUM_SEPOLIA,
           ChainId.MATIC_MAINNET,
           ChainId.MATIC_MUMBAI,
+          ChainId.MATIC_AMOY,
           ChainId.OPTIMISM_MAINNET,
           ChainId.ARBITRUM_MAINNET,
           ChainId.AVALANCHE_MAINNET,
@@ -163,6 +169,7 @@ describe('#getRpcUrls', () => {
         '42161': 'https://rpc.decentraland.org/arbitrum',
         '43114': 'https://rpc.decentraland.org/avalanche',
         '80001': 'https://rpc.decentraland.org/mumbai',
+        '80002': 'https://rpc.decentraland.org/amoy',
         '11155111': 'https://rpc.decentraland.org/sepolia'
       })
     })
@@ -185,6 +192,7 @@ describe('#getRpcUrls', () => {
         '43114':
           'https://rpc.decentraland.org/avalanche?project=walletconnect-v2',
         '80001': 'https://rpc.decentraland.org/mumbai?project=walletconnect-v2',
+        '80002': 'https://rpc.decentraland.org/amoy?project=walletconnect-v2',
         '11155111':
           'https://rpc.decentraland.org/sepolia?project=walletconnect-v2'
       })
@@ -206,6 +214,7 @@ describe('#getRpcUrls', () => {
         '42161': 'https://rpc.decentraland.org/arbitrum?project=walletlink',
         '43114': 'https://rpc.decentraland.org/avalanche?project=walletlink',
         '80001': 'https://rpc.decentraland.org/mumbai?project=walletlink',
+        '80002': 'https://rpc.decentraland.org/amoy?project=walletlink',
         '11155111': 'https://rpc.decentraland.org/sepolia?project=walletlink'
       })
     })
