@@ -174,6 +174,20 @@ export class AuthServerProvider {
   }
 
   /**
+   * Check that the current account has a an identity that is not expired.
+   */
+  static hasValidIdentity = () => {
+    const account = AuthServerProvider.getAccount()
+
+    if (!account) {
+      return false
+    }
+
+    // The sso function will not return an identity if it is expired.
+    return !!sso.localStorageGetIdentity(account)
+  }
+
+  /**
    * Waits for an outcome message but times out if the expiration defined in the provided request is reached.
    */
   private static awaitOutcomeWithTimeout = async (
