@@ -9,10 +9,6 @@ const configuration = Object.freeze({
   [ProviderType.FORTMATIC]: {
     apiKeys: {
       [ChainId.ETHEREUM_MAINNET]: 'pk_live_F8E24DF8DD5BCBC5',
-      [ChainId.ETHEREUM_ROPSTEN]: 'pk_test_5B728BEFE5C10911',
-      [ChainId.ETHEREUM_RINKEBY]: 'pk_test_5B728BEFE5C10911',
-      [ChainId.ETHEREUM_KOVAN]: 'pk_test_5B728BEFE5C10911',
-      [ChainId.ETHEREUM_GOERLI]: 'pk_test_5B728BEFE5C10911',
       [ChainId.ETHEREUM_SEPOLIA]: 'pk_test_5B728BEFE5C10911'
     },
     urls: getRpcUrls(ProviderType.FORTMATIC)
@@ -42,13 +38,9 @@ const configuration = Object.freeze({
           ChainId.FANTOM_MAINNET
         ]
       },
-      [ChainId.ETHEREUM_GOERLI]: {
-        chains: [ChainId.ETHEREUM_GOERLI],
-        optionalChains: [ChainId.MATIC_MUMBAI, ChainId.MATIC_AMOY]
-      },
       [ChainId.ETHEREUM_SEPOLIA]: {
         chains: [ChainId.ETHEREUM_SEPOLIA],
-        optionalChains: [ChainId.MATIC_MUMBAI, ChainId.MATIC_AMOY]
+        optionalChains: [ChainId.MATIC_AMOY]
       }
     }
   },
@@ -57,10 +49,8 @@ const configuration = Object.freeze({
     urls: getRpcUrls(ProviderType.MAGIC),
     chains: [
       ChainId.ETHEREUM_MAINNET,
-      ChainId.ETHEREUM_GOERLI,
       ChainId.ETHEREUM_SEPOLIA,
       ChainId.MATIC_MAINNET,
-      ChainId.MATIC_MUMBAI,
       ChainId.MATIC_AMOY,
       ChainId.OPTIMISM_MAINNET,
       ChainId.ARBITRUM_MAINNET,
@@ -79,12 +69,7 @@ export function getRpcUrls(providerType: ProviderType) {
   const rpcUrls = {
     [ChainId.ETHEREUM_MAINNET]: 'https://rpc.decentraland.org/mainnet',
     [ChainId.ETHEREUM_SEPOLIA]: 'https://rpc.decentraland.org/sepolia',
-    [ChainId.ETHEREUM_ROPSTEN]: 'https://rpc.decentraland.org/ropsten',
-    [ChainId.ETHEREUM_RINKEBY]: 'https://rpc.decentraland.org/rinkeby',
-    [ChainId.ETHEREUM_GOERLI]: 'https://rpc.decentraland.org/goerli',
-    [ChainId.ETHEREUM_KOVAN]: 'https://rpc.decentraland.org/kovan',
     [ChainId.MATIC_MAINNET]: 'https://rpc.decentraland.org/polygon',
-    [ChainId.MATIC_MUMBAI]: 'https://rpc.decentraland.org/mumbai',
     [ChainId.MATIC_AMOY]: 'https://rpc.decentraland.org/amoy',
     [ChainId.ARBITRUM_MAINNET]: 'https://rpc.decentraland.org/arbitrum',
     [ChainId.OPTIMISM_MAINNET]: 'https://rpc.decentraland.org/optimism',

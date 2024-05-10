@@ -16,7 +16,7 @@ export class StubConnector extends AbstractConnector {
         request: async ({ method }: Request.Arguments) => {
           switch (method) {
             case 'eth_chainId':
-              return this.chainId
+              return this.chainId.toString(16)
             default:
               return
           }

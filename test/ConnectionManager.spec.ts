@@ -72,7 +72,7 @@ describe('ConnectionManager', () => {
 
       const result = await connectionManager.connect(
         ProviderType.INJECTED,
-        ChainId.ETHEREUM_ROPSTEN
+        ChainId.ETHEREUM_SEPOLIA
       )
       const activateResult = await stubConnector.activate()
 
@@ -84,7 +84,7 @@ describe('ConnectionManager', () => {
           },
           providerType: ProviderType.INJECTED,
           account: activateResult.account,
-          chainId: ChainId.ETHEREUM_ROPSTEN
+          chainId: ChainId.ETHEREUM_SEPOLIA
         })
       )
     })
@@ -95,7 +95,7 @@ describe('ConnectionManager', () => {
 
       const result = await connectionManager.connect(
         ProviderType.INJECTED,
-        ChainId.ETHEREUM_ROPSTEN
+        ChainId.ETHEREUM_SEPOLIA
       )
       const { account } = await stubConnector.activate()
 
@@ -106,7 +106,7 @@ describe('ConnectionManager', () => {
           },
           providerType: ProviderType.INJECTED,
           account,
-          chainId: ChainId.ETHEREUM_ROPSTEN
+          chainId: ChainId.ETHEREUM_SEPOLIA
         })
       )
     })
@@ -118,12 +118,12 @@ describe('ConnectionManager', () => {
 
       await connectionManager.connect(
         ProviderType.NETWORK,
-        ChainId.ETHEREUM_KOVAN
+        ChainId.ETHEREUM_SEPOLIA
       )
 
       const value = JSON.stringify({
         providerType: ProviderType.NETWORK,
-        chainId: ChainId.ETHEREUM_KOVAN
+        chainId: ChainId.ETHEREUM_SEPOLIA
       })
       expect(storage.get(configuration.storageKey)).to.eq(value)
     })
@@ -178,16 +178,16 @@ describe('ConnectionManager', () => {
       await connectionManager.connect(ProviderType.INJECTED)
 
       // mock change in the chainId
-      stubConnector.setChainId(ChainId.ETHEREUM_ROPSTEN)
+      stubConnector.setChainId(ChainId.ETHEREUM_SEPOLIA)
 
       const result = await connectionManager.tryPreviousConnection()
 
       expect(
         getConnectorStub.firstCall.calledWith(ProviderType.INJECTED)
       ).to.eq(true)
-      expect(result.chainId).to.eq(ChainId.ETHEREUM_ROPSTEN)
+      expect(result.chainId).to.eq(ChainId.ETHEREUM_SEPOLIA)
       expect(connectionManager.getConnectionData()!.chainId).to.eq(
-        ChainId.ETHEREUM_ROPSTEN
+        ChainId.ETHEREUM_SEPOLIA
       )
     })
   })
@@ -199,12 +199,12 @@ describe('ConnectionManager', () => {
 
       await connectionManager.connect(
         ProviderType.INJECTED,
-        ChainId.ETHEREUM_KOVAN
+        ChainId.ETHEREUM_SEPOLIA
       )
 
       expect(connectionManager.getConnectionData()).to.deep.eq({
         providerType: ProviderType.INJECTED,
-        chainId: ChainId.ETHEREUM_KOVAN
+        chainId: ChainId.ETHEREUM_SEPOLIA
       })
     })
 
@@ -339,7 +339,7 @@ describe('ConnectionManager', () => {
 
   describe('#buildConnector', () => {
     const browser: any = global
-    const chainId = ChainId.ETHEREUM_KOVAN
+    const chainId = ChainId.ETHEREUM_SEPOLIA
 
     after(() => {
       delete browser.window
