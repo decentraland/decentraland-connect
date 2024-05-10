@@ -23,7 +23,7 @@ describe('connectors', () => {
 
     describe('#constructor', () => {
       it('should call super with the supplied chain id as supported chain ids', () => {
-        const chainId = ChainId.ETHEREUM_RINKEBY
+        const chainId = ChainId.ETHEREUM_SEPOLIA
         const connector = new InjectedConnector(chainId)
         browser.window = { ethereum: getSendableProvider(chainId) }
 
@@ -36,7 +36,7 @@ describe('connectors', () => {
   describe('FortmaticConnector', () => {
     describe('#constructor', () => {
       it('should call super with the Fortmatic configuration for the supplied chain id', async () => {
-        const chainId = ChainId.ETHEREUM_ROPSTEN
+        const chainId = ChainId.ETHEREUM_SEPOLIA
         const apiKey = 'test-api-key'
 
         const mockConfiguration = {
@@ -66,7 +66,7 @@ describe('connectors', () => {
   describe('NetworkConnector', () => {
     describe('#constructor', () => {
       it('should call super with the supplied chain id as default chain id', () => {
-        const chainId = ChainId.ETHEREUM_RINKEBY
+        const chainId = ChainId.ETHEREUM_SEPOLIA
         const connector = new NetworkConnector(chainId)
 
         return expect(connector.getChainId()).to.eventually.eq(chainId)
@@ -77,7 +77,7 @@ describe('connectors', () => {
   describe('WalletLinkConnector', () => {
     describe('#constructor', () => {
       it('should call super with the correct configuration', async () => {
-        const chainId = ChainId.ETHEREUM_RINKEBY
+        const chainId = ChainId.ETHEREUM_SEPOLIA
         const connector = new WalletLinkConnector(chainId)
 
         expect(connector.supportedChainIds).to.deep.eq([chainId])

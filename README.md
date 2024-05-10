@@ -7,14 +7,14 @@ Connect to the Ethereum network with ease
 # Table of contents
 
 - [API](#api)
-  - [ConnectionManager](#ConnectionManager)
+  - [ConnectionManager](#connectionmanager)
   - [connection](#connection)
-  - [Storage](#Storage)
-    - [LocalStorage](#LocalStorage)
+  - [Storage](#storage)
+    - [LocalStorage](#localstorage)
   - [Types](#types)
-    - [ProviderType](#ProviderType)
-    - [ChainId](#ChainId)
-    - [ConnectionResponse](#ConnectionResponse)
+    - [ProviderType](#providertype)
+    - [ChainId](#chainid)
+    - [ConnectionResponse](#connectionresponse)
 - [Example](#example)
 - [Development](#development)
 - [Copyright](#copyright)
@@ -25,11 +25,11 @@ The API surface is fairly small, you'll mainly be using the exported `connection
 
 ## ConnectionManager
 
-Handles the connection to the Ethereum network. It takes a [`Storage`](#Storage) as the only argument, which will be used to store the last used connection.
+Handles the connection to the Ethereum network. It takes a [`Storage`](#storage) as the only argument, which will be used to store the last used connection.
 
 ### .connect()
 
-Connects to the supplied provider type and chain. It'll default to `mainnet` if no chain is supplied. After a successfull call the params will be stored using the supplied [Storage](#Storage), which will allow you to call `tryPreviousConnection()`.
+Connects to the supplied provider type and chain. It'll default to `mainnet` if no chain is supplied. After a successfull call the params will be stored using the supplied [Storage](#storage), which will allow you to call `tryPreviousConnection()`.
 
 **Definition**
 
@@ -44,7 +44,7 @@ async connect(
 
 ```typescript
 const connection = new ConnectionManager(new Storage())
-await connection.connect(ProviderType.INJECTED, ChainId.ETHEREUM_ROPSTEN)
+await connection.connect(ProviderType.INJECTED, ChainId.ETHEREUM_SEPOLIA)
 ```
 
 ### .tryPreviousConnection()
@@ -62,9 +62,9 @@ async tryPreviousConnection(): Promise<ConnectionResponse>
 ```typescript
 // Calls connect first
 const connection = new ConnectionManager(new Storage())
-await connection.connect(ProviderType.INJECTED, ChainId.ETHEREUM_ROPSTEN)
+await connection.connect(ProviderType.INJECTED, ChainId.ETHEREUM_SEPOLIA)
 
-await connection.tryPreviousConnection() // Connects with ProviderType.INJECTED ChainId.ETHEREUM.ROPSTEN
+await connection.tryPreviousConnection() // Connects with ProviderType.INJECTED ChainId.ETHEREUM.SEPOLIA
 ```
 
 ### .disconnect()
@@ -81,7 +81,7 @@ async disconnect()
 
 ```typescript
 const connection = new ConnectionManager(new Storage())
-connection.connect(ProviderType.INJECTED, ChainId.ETHEREUM_ROPSTEN)
+connection.connect(ProviderType.INJECTED, ChainId.ETHEREUM_SEPOLIA)
 
 // (...)
 
@@ -90,7 +90,7 @@ connection.disconnect()
 
 ### .getConnectionData()
 
-Returns the data used for the last successfull [.connect()](#connect) call. It's used by [.tryPreviousConnection](#trypreviousconnection) to determine which connection to use. Check [ConnectionData](#ConnectionData) for more info on the returned type
+Returns the data used for the last successfull [.connect()](#connect) call. It's used by [.tryPreviousConnection](#trypreviousconnection) to determine which connection to use. Check [ConnectionData](#connectiondata) for more info on the returned type
 
 **Definition**
 
@@ -102,7 +102,7 @@ getConnectionData(): ConnectionData | undefined
 
 ```typescript
 const connection = new ConnectionManager(new Storage())
-connection.connect(ProviderType.INJECTED, ChainId.ETHEREUM_ROPSTEN)
+connection.connect(ProviderType.INJECTED, ChainId.ETHEREUM_SEPOLIA)
 
 // (...)
 
@@ -159,13 +159,13 @@ async createProvider(
 ```typescript
 const provider = await connection.createProvider(
   Provider.FORTMATIC,
-  ChainId.ETHEREUM_ROPSTEN
+  ChainId.ETHEREUM_SEPOLIA
 )
 ```
 
 ## connection
 
-Instance of [`ConnectionManager`](#ConnectionManager), using [`LocalStorage`](#LocalStorage) as it's internal storage engine, which translates to:
+Instance of [`ConnectionManager`](#connectionmanager), using [`LocalStorage`](#localstorage) as it's internal storage engine, which translates to:
 
 ```typescript
 export const connection = new ConnectionMager(new LocalStorage())
@@ -207,13 +207,9 @@ Different Ethereum chains
 ```typescript
 enum ChainId {
   ETHEREUM_MAINNET = 0x1,
-  ETHEREUM_ROPSTEN = 0x3,
-  ETHEREUM_RINKEBY = 0x4,
-  ETHEREUM_GOERLI = 0x5,
-  ETHEREUM_KOVAN = 0x45,
-  MATIC_MUMBAI = 0x13881,
-  MATIC_AMOY = 0x13882,
+  ETHEREUM_SEPOLIA = 0xaa36a7,
   MATIC_MAINNET = 0x89
+  MATIC_AMOY = 0x13882,
 }
 ```
 
