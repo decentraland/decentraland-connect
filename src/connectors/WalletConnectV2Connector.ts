@@ -114,7 +114,7 @@ export class WalletConnectV2Connector extends AbstractConnector {
     return this.provider?.session?.peer.metadata.name
   }
 
-  deactivate = (): void => {}
+  deactivate = (): void => undefined
 
   close = async (): Promise<void> => {
     if (!this.provider) {
