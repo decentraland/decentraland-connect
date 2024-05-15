@@ -106,10 +106,14 @@ export class ConnectionManager {
     return available
   }
 
-  async disconnect() {
+  async disconnect(): Promise<void> {
     if (this.connector) {
-      this.connector.deactivate()
+      // Remove event listeners
+      this.connector.removeAllListeners(ConnectorEvent.Deactivate)
+      this.connector.removeAllListeners(ConnectorEvent.Update)
 
+      // Deactivate and close the connector if it's closable
+      this.connector.deactivate()
       if (this.isClosableConnector()) {
         await (this.connector as ClosableConnector).close()
       }
@@ -201,18 +205,10 @@ export class ConnectionManager {
   }
 
   private handleWeb3ReactDeactivate = () => {
-    if (this.connector) {
-      this.connector.removeListener(
-        ConnectorEvent.Deactivate,
-        this.handleWeb3ReactDeactivate
-      )
-      this.connector.removeAllListeners(ConnectorEvent.Update)
-    }
-
     // Whenever the user manually disconnects the account from their wallet, the event will be
     // intercepted by this handler, calling the disconnect method.
     // Necessary to sanitize the state and prevent the continuation of a dead connection.
-    this.disconnect().catch(console.error)
+    return this.disconnect().catch(console.error)
   }
 }
 

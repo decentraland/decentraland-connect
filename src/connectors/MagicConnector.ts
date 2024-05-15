@@ -84,12 +84,11 @@ export class MagicConnector extends AbstractConnector {
     return this.account
   }
 
-  public async close() {
+  public async close(): Promise<boolean> {
     if (!this.magic) {
       throw new Error('Magic: instance was not initialized')
     }
-    this.emitDeactivate()
-    await this.magic.user.logout()
+    return this.magic.user.logout()
   }
 
   deactivate = (): void => undefined

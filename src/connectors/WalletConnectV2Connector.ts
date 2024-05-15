@@ -114,16 +114,18 @@ export class WalletConnectV2Connector extends AbstractConnector {
     return this.provider?.session?.peer.metadata.name
   }
 
-  deactivate = (): void => {
+  deactivate = (): void => {}
+
+  close = async (): Promise<void> => {
     if (!this.provider) {
       return
     }
 
-    this.provider
-      .removeListener('accountsChanged', this.handleAccountsChanged)
-      .removeListener('chainChanged', this.handleChainChanged)
-      .removeListener('disconnect', this.handleDisconnect)
-      .disconnect()
+    return this.provider
+    .removeListener('accountsChanged', this.handleAccountsChanged)
+    .removeListener('chainChanged', this.handleChainChanged)
+    .removeListener('disconnect', this.handleDisconnect)
+    .disconnect()
   }
 
   handleAccountsChanged = (accounts: string[]): void => {

@@ -68,8 +68,7 @@ export class FortmaticConnector extends AbstractConnector {
   // tslint:disable-next-line
   public deactivate() {}
 
-  public async close() {
-    await this.fortmatic.user.logout()
-    this.emitDeactivate()
+  public close(): Promise<unknown> {
+    return this.fortmatic.user.logout()
   }
 }
