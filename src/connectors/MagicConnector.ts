@@ -84,7 +84,7 @@ export class MagicConnector extends AbstractConnector {
     return this.account
   }
 
-  public async close(): Promise<boolean> {
+  public close(): Promise<boolean> {
     if (!this.magic) {
       throw new Error('Magic: instance was not initialized')
     }
