@@ -119,8 +119,6 @@ export class WalletConnectV2Connector extends AbstractConnector {
       return
     }
 
-    this.emitDeactivate()
-
     this.provider
       .removeListener('accountsChanged', this.handleAccountsChanged)
       .removeListener('chainChanged', this.handleChainChanged)
@@ -141,6 +139,6 @@ export class WalletConnectV2Connector extends AbstractConnector {
       throw new Error('Provider is undefined')
     }
 
-    this.deactivate()
+    return this.deactivate()
   }
 }

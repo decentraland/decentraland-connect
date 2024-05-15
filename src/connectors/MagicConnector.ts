@@ -84,14 +84,15 @@ export class MagicConnector extends AbstractConnector {
     return this.account
   }
 
-  deactivate = (): void => {
+  public async close() {
     if (!this.magic) {
       throw new Error('Magic: instance was not initialized')
     }
-
-    this.magic.user.logout()
     this.emitDeactivate()
+    await this.magic.user.logout()
   }
+
+  deactivate = (): void => undefined
 
   private buildMagicInstance = async (chainId: ChainId): Promise<InstanceWithExtensions<SDKBase, OAuthExtension[]>> => {
     const { Magic } = await import('magic-sdk')
