@@ -31,6 +31,15 @@ export class ConnectionManager {
     providerType: ProviderType,
     chainId: ChainId = ChainId.ETHEREUM_MAINNET
   ): Promise<ConnectionResponse> {
+    // If a previous connection existed, disconnect it before connecting the new one
+    if (this.connector) {
+      try {
+        await this.disconnect()
+      } catch (error) {
+        console.error('Error disconnecting previous connection', error)
+      }
+    }
+
     this.connector = this.buildConnector(providerType, chainId)
 
     this.connector.on(ConnectorEvent.Deactivate, this.handleWeb3ReactDeactivate)
