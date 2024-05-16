@@ -40,23 +40,21 @@ export class ConnectionManager {
       }
     }
 
-    this.connector = this.buildConnector(providerType, chainId)
+    const connector = this.buildConnector(providerType, chainId)
 
-    this.connector.on(ConnectorEvent.Deactivate, this.handleWeb3ReactDeactivate)
+    connector.on(ConnectorEvent.Deactivate, this.handleWeb3ReactDeactivate)
 
     if (providerType === ProviderType.MAGIC) {
-      this.connector.on(ConnectorEvent.Update, ({ chainId }) => {
+      connector.on(ConnectorEvent.Update, ({ chainId }) => {
         if (chainId) {
           this.setConnectionData(providerType, chainId)
         }
       })
     }
 
-    const {
-      provider,
-      account
-    }: ConnectorUpdate = await this.connector.activate()
+    const { provider, account }: ConnectorUpdate = await connector.activate()
 
+    this.connector = connector
     this.setConnectionData(providerType, chainId)
 
     return {
@@ -65,6 +63,10 @@ export class ConnectionManager {
       account: account || '',
       chainId
     }
+  }
+
+  async isConnected(): Promise<boolean> {
+    return !!this.connector && !!this.getConnectionData()
   }
 
   async tryPreviousConnection(): Promise<ConnectionResponse> {

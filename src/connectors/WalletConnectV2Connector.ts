@@ -141,6 +141,6 @@ export class WalletConnectV2Connector extends AbstractConnector {
       throw new Error('Provider is undefined')
     }
 
-    return this.deactivate()
+    return this.emitDeactivate()
   }
 }
