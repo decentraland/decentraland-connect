@@ -215,11 +215,15 @@ export class ConnectionManager {
     return this.connector && typeof this.connector['close'] !== 'undefined'
   }
 
-  private handleWeb3ReactDeactivate = () => {
+  private handleWeb3ReactDeactivate = async () => {
     // Whenever the user manually disconnects the account from their wallet, the event will be
     // intercepted by this handler, calling the disconnect method.
     // Necessary to sanitize the state and prevent the continuation of a dead connection.
-    return this.disconnect().catch(console.error)
+    try {
+      await this.disconnect()
+    } catch (error) {
+      console.error(error)
+    }
   }
 }
 
