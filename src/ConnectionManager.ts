@@ -66,13 +66,13 @@ export class ConnectionManager {
     }
 
     this.connector = connector
-    this.setConnectionData(providerType, chainId)
+    this.setConnectionData(providerType, chainIdToConnect)
 
     return {
       provider: ProviderAdapter.adapt(provider),
       providerType,
       account: account || '',
-      chainId
+      chainId: chainIdToConnect
     }
   }
 
