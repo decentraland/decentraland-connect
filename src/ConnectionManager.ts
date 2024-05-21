@@ -24,30 +24,48 @@ import './declarations'
 
 export class ConnectionManager {
   connector?: AbstractConnector
+  promiseOfConnection?: Promise<ConnectionResponse>
 
   constructor(public storage: Storage) {}
 
   async connect(
     providerType: ProviderType,
-    chainId: ChainId = ChainId.ETHEREUM_MAINNET
+    chainIdToConnect: ChainId = ChainId.ETHEREUM_MAINNET
   ): Promise<ConnectionResponse> {
-    this.connector = this.buildConnector(providerType, chainId)
+    // If a previous connection existed, disconnect from it
+    if (this.connector) {
+      try {
+        await this.disconnect()
+      } catch (error) {
+        console.error('Error disconnecting previous connection', error)
+      }
+    }
 
-    this.connector.on(ConnectorEvent.Deactivate, this.handleWeb3ReactDeactivate)
+    const connector = this.buildConnector(providerType, chainIdToConnect)
+    connector.on(ConnectorEvent.Deactivate, this.handleWeb3ReactDeactivate)
+    const { provider, account }: ConnectorUpdate = await connector.activate()
 
     if (providerType === ProviderType.MAGIC) {
-      this.connector.on(ConnectorEvent.Update, ({ chainId }) => {
+      connector.on(ConnectorEvent.Update, ({ chainId }) => {
         if (chainId) {
           this.setConnectionData(providerType, chainId)
         }
       })
     }
 
-    const {
-      provider,
-      account
-    }: ConnectorUpdate = await this.connector.activate()
+    let chainId = chainIdToConnect
 
+    // We need to return the correct current chain id for the injected providers
+    if (providerType === ProviderType.INJECTED) {
+      const currentChainIdHex = (await provider.request({
+        method: 'eth_chainId'
+      })) as string
+      chainId = currentChainIdHex
+        ? (parseInt(currentChainIdHex, 16) as ChainId)
+        : chainId
+    }
+
+    this.connector = connector
     this.setConnectionData(providerType, chainId)
 
     return {
@@ -58,6 +76,10 @@ export class ConnectionManager {
     }
   }
 
+  isConnected(): boolean {
+    return !!this.connector && !!this.getConnectionData()
+  }
+
   async tryPreviousConnection(): Promise<ConnectionResponse> {
     const connectionData = this.getConnectionData()
     if (!connectionData) {
@@ -66,24 +88,22 @@ export class ConnectionManager {
       )
     }
 
-    const response = await this.connect(
-      connectionData.providerType,
-      connectionData.chainId
-    )
-
-    // If the provider type is injected, the chainId could have changed since previous connection and still connect successfully.
-    // We need to check if the chainId has changed, and update the connectionData if so.
-    if (response.providerType === ProviderType.INJECTED) {
-      const currentChainIdHex = (await response.provider.request({
-        method: 'eth_chainId'
-      })) as string
-      const currentChainId = currentChainIdHex
-        ? (parseInt(currentChainIdHex, 16) as ChainId)
-        : null
-      if (currentChainId && connectionData.chainId !== currentChainId) {
-        this.setConnectionData(connectionData.providerType, currentChainId)
+    if (this.connector) {
+      return {
+        provider: await this.connector.getProvider(),
+        providerType: connectionData.providerType,
+        chainId: connectionData.chainId,
+        account: await this.connector.getAccount()
       }
     }
+
+    const response = this.promiseOfConnection
+      ? await this.promiseOfConnection
+      : await (this.promiseOfConnection = this.connect(
+          connectionData.providerType,
+          connectionData.chainId
+        ))
+    this.promiseOfConnection = undefined
 
     return {
       ...response,
@@ -106,10 +126,14 @@ export class ConnectionManager {
     return available
   }
 
-  async disconnect() {
+  async disconnect(): Promise<void> {
     if (this.connector) {
-      this.connector.deactivate()
+      // Remove event listeners
+      this.connector.removeAllListeners(ConnectorEvent.Deactivate)
+      this.connector.removeAllListeners(ConnectorEvent.Update)
 
+      // Deactivate and close the connector if it's closable
+      this.connector.deactivate()
       if (this.isClosableConnector()) {
         await (this.connector as ClosableConnector).close()
       }
@@ -200,19 +224,15 @@ export class ConnectionManager {
     return this.connector && typeof this.connector['close'] !== 'undefined'
   }
 
-  private handleWeb3ReactDeactivate = () => {
-    if (this.connector) {
-      this.connector.removeListener(
-        ConnectorEvent.Deactivate,
-        this.handleWeb3ReactDeactivate
-      )
-      this.connector.removeAllListeners(ConnectorEvent.Update)
-    }
-
+  private handleWeb3ReactDeactivate = async () => {
     // Whenever the user manually disconnects the account from their wallet, the event will be
     // intercepted by this handler, calling the disconnect method.
     // Necessary to sanitize the state and prevent the continuation of a dead connection.
-    this.disconnect().catch(console.error)
+    try {
+      await this.disconnect()
+    } catch (error) {
+      console.error(error)
+    }
   }
 }
 

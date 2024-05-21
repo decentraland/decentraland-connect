@@ -5,7 +5,7 @@ import { Storage } from '../src/storage'
 import { Request } from '../src/types'
 
 export class StubConnector extends AbstractConnector {
-  public account: string | null = null
+  public account: string | null = '0xdeadbeef'
 
   // stub property
   private chainId: ChainId = ChainId.ETHEREUM_MAINNET
@@ -25,7 +25,7 @@ export class StubConnector extends AbstractConnector {
           // no-op
         }
       },
-      account: '0xdeadbeef'
+      account: this.account
     }
   }
 
@@ -43,7 +43,7 @@ export class StubConnector extends AbstractConnector {
   }
 
   async getAccount(): Promise<null | string> {
-    return null
+    return this.account
   }
 
   deactivate(): void {
