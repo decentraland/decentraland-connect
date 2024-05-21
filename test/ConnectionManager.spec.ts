@@ -68,6 +68,7 @@ describe('ConnectionManager', () => {
 
     it('should return the connection data', async () => {
       const stubConnector = new StubConnector()
+      stubConnector.setChainId(ChainId.ETHEREUM_SEPOLIA)
       sinon.stub(connectionManager, 'buildConnector').returns(stubConnector)
 
       const result = await connectionManager.connect(
@@ -91,6 +92,7 @@ describe('ConnectionManager', () => {
 
     it('should not patch the provider with the request method if it already exists', async () => {
       const stubConnector = new StubConnector()
+      stubConnector.setChainId(ChainId.ETHEREUM_SEPOLIA)
       sinon.stub(connectionManager, 'buildConnector').returns(stubConnector)
 
       const result = await connectionManager.connect(
@@ -113,6 +115,7 @@ describe('ConnectionManager', () => {
 
     it('should store the last provider and chain', async () => {
       const stubConnector = new StubConnector()
+      stubConnector.setChainId(ChainId.ETHEREUM_SEPOLIA)
       const configuration = getConfiguration()
       sinon.stub(connectionManager, 'buildConnector').returns(stubConnector)
 
@@ -125,6 +128,37 @@ describe('ConnectionManager', () => {
         providerType: ProviderType.NETWORK,
         chainId: ChainId.ETHEREUM_SEPOLIA
       })
+
+      expect(storage.get(configuration.storageKey)).to.eq(value)
+    })
+
+    it('should store and return the current chain id and not the one supplied', async () => {
+      const stubConnector = new StubConnector()
+      stubConnector.setChainId(ChainId.ETHEREUM_MAINNET)
+      const configuration = getConfiguration()
+      sinon.stub(connectionManager, 'buildConnector').returns(stubConnector)
+
+      const result = await connectionManager.connect(
+        ProviderType.INJECTED,
+        ChainId.ETHEREUM_SEPOLIA
+      )
+      const activateResult = await stubConnector.activate()
+      const value = JSON.stringify({
+        providerType: ProviderType.INJECTED,
+        chainId: ChainId.ETHEREUM_MAINNET
+      })
+
+      expect(JSON.stringify(result)).to.eq(
+        JSON.stringify({
+          provider: {
+            request: () => {},
+            send: () => {}
+          },
+          providerType: ProviderType.INJECTED,
+          account: activateResult.account,
+          chainId: ChainId.ETHEREUM_MAINNET
+        })
+      )
       expect(storage.get(configuration.storageKey)).to.eq(value)
     })
   })
@@ -151,9 +185,6 @@ describe('ConnectionManager', () => {
       expect(
         getConnectorStub.firstCall.calledWith(ProviderType.FORTMATIC)
       ).to.eq(true)
-      expect(
-        getConnectorStub.secondCall.calledWith(ProviderType.FORTMATIC)
-      ).to.eq(true)
 
       expect(JSON.stringify(result)).to.eq(
         JSON.stringify({
@@ -161,33 +192,9 @@ describe('ConnectionManager', () => {
             request: () => {}
           },
           providerType: ProviderType.FORTMATIC,
-          account,
-          chainId: ChainId.ETHEREUM_MAINNET
+          chainId: ChainId.ETHEREUM_MAINNET,
+          account
         })
-      )
-    })
-
-    it('should update the connection data if the providerType is "injected" and the chainId of the provider changed since the last connection', async () => {
-      const stubConnector = new StubConnector()
-
-      const getConnectorStub = sinon
-        .stub(connectionManager, 'buildConnector')
-        .returns(stubConnector)
-
-      // connect to the default network (mainnet)
-      await connectionManager.connect(ProviderType.INJECTED)
-
-      // mock change in the chainId
-      stubConnector.setChainId(ChainId.ETHEREUM_SEPOLIA)
-
-      const result = await connectionManager.tryPreviousConnection()
-
-      expect(
-        getConnectorStub.firstCall.calledWith(ProviderType.INJECTED)
-      ).to.eq(true)
-      expect(result.chainId).to.eq(ChainId.ETHEREUM_SEPOLIA)
-      expect(connectionManager.getConnectionData()!.chainId).to.eq(
-        ChainId.ETHEREUM_SEPOLIA
       )
     })
   })
@@ -195,6 +202,7 @@ describe('ConnectionManager', () => {
   describe('#getConnectionData', () => {
     it('should return the data used on the last successful connection', async () => {
       const stubConnector = new StubConnector()
+      stubConnector.setChainId(ChainId.ETHEREUM_SEPOLIA)
       sinon.stub(connectionManager, 'buildConnector').returns(stubConnector)
 
       await connectionManager.connect(
@@ -208,8 +216,32 @@ describe('ConnectionManager', () => {
       })
     })
 
-    it('should return undefined if no connection happneed', () => {
+    it('should return undefined if no connection happened', () => {
       expect(connectionManager.getConnectionData()).to.eq(undefined)
+    })
+  })
+
+  describe('#isConnected', () => {
+    it('should return true if a connector exists and a connection happened', async () => {
+      const stubConnector = new StubConnector()
+      sinon.stub(connectionManager, 'buildConnector').returns(stubConnector)
+
+      await connectionManager.connect(
+        ProviderType.INJECTED,
+        ChainId.ETHEREUM_MAINNET
+      )
+
+      expect(connectionManager.isConnected()).to.eq(true)
+    })
+
+    it("should return false if there's no previous connection data", () => {
+      expect(connectionManager.isConnected()).to.eq(false)
+    })
+
+    it("should return false if there's no connector defined", async () => {
+      connectionManager.connector = new StubConnector()
+      await connectionManager.disconnect()
+      expect(connectionManager.isConnected()).to.eq(false)
     })
   })
 
