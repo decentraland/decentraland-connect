@@ -24,14 +24,15 @@ import './declarations'
 
 export class ConnectionManager {
   connector?: AbstractConnector
+  promiseOfConnection?: Promise<ConnectionResponse>
 
   constructor(public storage: Storage) {}
 
   async connect(
     providerType: ProviderType,
-    chainId: ChainId = ChainId.ETHEREUM_MAINNET
+    chainIdToConnect: ChainId = ChainId.ETHEREUM_MAINNET
   ): Promise<ConnectionResponse> {
-    // If a previous connection existed, disconnect it before connecting the new one
+    // If a previous connection existed, disconnect from it
     if (this.connector) {
       try {
         await this.disconnect()
@@ -40,9 +41,9 @@ export class ConnectionManager {
       }
     }
 
-    const connector = this.buildConnector(providerType, chainId)
-
+    const connector = this.buildConnector(providerType, chainIdToConnect)
     connector.on(ConnectorEvent.Deactivate, this.handleWeb3ReactDeactivate)
+    const { provider, account }: ConnectorUpdate = await connector.activate()
 
     if (providerType === ProviderType.MAGIC) {
       connector.on(ConnectorEvent.Update, ({ chainId }) => {
@@ -52,7 +53,17 @@ export class ConnectionManager {
       })
     }
 
-    const { provider, account }: ConnectorUpdate = await connector.activate()
+    let chainId = chainIdToConnect
+
+    // We need to return the correct current chain id for the injected providers
+    if (providerType === ProviderType.INJECTED) {
+      const currentChainIdHex = (await provider.request({
+        method: 'eth_chainId'
+      })) as string
+      chainId = currentChainIdHex
+        ? (parseInt(currentChainIdHex, 16) as ChainId)
+        : chainId
+    }
 
     this.connector = connector
     this.setConnectionData(providerType, chainId)
@@ -65,7 +76,7 @@ export class ConnectionManager {
     }
   }
 
-  async isConnected(): Promise<boolean> {
+  isConnected(): boolean {
     return !!this.connector && !!this.getConnectionData()
   }
 
@@ -77,24 +88,22 @@ export class ConnectionManager {
       )
     }
 
-    const response = await this.connect(
-      connectionData.providerType,
-      connectionData.chainId
-    )
-
-    // If the provider type is injected, the chainId could have changed since previous connection and still connect successfully.
-    // We need to check if the chainId has changed, and update the connectionData if so.
-    if (response.providerType === ProviderType.INJECTED) {
-      const currentChainIdHex = (await response.provider.request({
-        method: 'eth_chainId'
-      })) as string
-      const currentChainId = currentChainIdHex
-        ? (parseInt(currentChainIdHex, 16) as ChainId)
-        : null
-      if (currentChainId && connectionData.chainId !== currentChainId) {
-        this.setConnectionData(connectionData.providerType, currentChainId)
+    if (this.connector) {
+      return {
+        provider: await this.connector.getProvider(),
+        providerType: connectionData.providerType,
+        chainId: connectionData.chainId,
+        account: await this.connector.getAccount()
       }
     }
+
+    const response = this.promiseOfConnection
+      ? await this.promiseOfConnection
+      : await (this.promiseOfConnection = this.connect(
+          connectionData.providerType,
+          connectionData.chainId
+        ))
+    this.promiseOfConnection = undefined
 
     return {
       ...response,
