@@ -65,5 +65,6 @@ export class ErrorUnlockingWallet extends Error {
     super(
       'There was an error unlocking your wallet. Please be sure your wallet is unlocked and try again.'
     )
+    this.name = 'ErrorUnlockingWallet'
   }
 }

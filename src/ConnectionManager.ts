@@ -1,6 +1,6 @@
 import { ChainId } from '@dcl/schemas/dist/dapps/chain-id'
 import { ProviderType } from '@dcl/schemas/dist/dapps/provider-type'
-import { ConnectorEvent, ConnectorUpdate } from '@web3-react/types'
+import { ConnectorEvent } from '@web3-react/types'
 import {
   AbstractConnector,
   InjectedConnector,
@@ -16,8 +16,7 @@ import {
   ConnectionData,
   ConnectionResponse,
   Provider,
-  ClosableConnector,
-  ErrorUnlockingWallet
+  ClosableConnector
 } from './types'
 import { getConfiguration } from './configuration'
 import { ProviderAdapter } from './ProviderAdapter'
@@ -42,43 +41,43 @@ export class ConnectionManager {
       }
     }
 
-    const connector = this.buildConnector(providerType, chainIdToConnect)
-    connector.on(ConnectorEvent.Deactivate, this.handleWeb3ReactDeactivate)
-    let { provider, account }: ConnectorUpdate = {}
     try {
-      const _connector: ConnectorUpdate = await connector.activate()
-      ;({ provider, account } = _connector)
+      const connector = this.buildConnector(providerType, chainIdToConnect)
+      connector.on(ConnectorEvent.Deactivate, this.handleWeb3ReactDeactivate)
+
+      const { provider, account } = await connector.activate()
+
+      if (providerType === ProviderType.MAGIC) {
+        connector.on(ConnectorEvent.Update, ({ chainId }) => {
+          if (chainId) {
+            this.setConnectionData(providerType, chainId)
+          }
+        })
+      }
+
+      let chainId = chainIdToConnect
+
+      // We need to return the correct current chain id for the injected providers
+      if (providerType === ProviderType.INJECTED) {
+        const currentChainIdHex = (await provider.request({
+          method: 'eth_chainId'
+        })) as string
+        chainId = currentChainIdHex
+          ? (parseInt(currentChainIdHex, 16) as ChainId)
+          : chainId
+      }
+
+      this.connector = connector
+      this.setConnectionData(providerType, chainId)
+
+      return {
+        provider: ProviderAdapter.adapt(provider),
+        providerType,
+        account: account || '',
+        chainId
+      }
     } catch (error) {
-      throw new ErrorUnlockingWallet()
-    }
-    if (providerType === ProviderType.MAGIC) {
-      connector.on(ConnectorEvent.Update, ({ chainId }) => {
-        if (chainId) {
-          this.setConnectionData(providerType, chainId)
-        }
-      })
-    }
-
-    let chainId = chainIdToConnect
-
-    // We need to return the correct current chain id for the injected providers
-    if (providerType === ProviderType.INJECTED) {
-      const currentChainIdHex = (await provider.request({
-        method: 'eth_chainId'
-      })) as string
-      chainId = currentChainIdHex
-        ? (parseInt(currentChainIdHex, 16) as ChainId)
-        : chainId
-    }
-
-    this.connector = connector
-    this.setConnectionData(providerType, chainId)
-
-    return {
-      provider: ProviderAdapter.adapt(provider),
-      providerType,
-      account: account || '',
-      chainId
+      throw error
     }
   }
 
