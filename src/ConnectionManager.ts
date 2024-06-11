@@ -46,7 +46,8 @@ export class ConnectionManager {
     connector.on(ConnectorEvent.Deactivate, this.handleWeb3ReactDeactivate)
     let { provider, account }: ConnectorUpdate = {}
     try {
-      ;({ provider, account } = await connector.activate())
+      const update: ConnectorUpdate = await connector.activate()
+      ;({ provider, account } = update)
     } catch (error) {
       throw new ErrorUnlockingWallet()
     }
