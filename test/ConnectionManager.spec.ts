@@ -11,10 +11,11 @@ import {
   WalletLinkConnector
 } from '../src/connectors'
 import { LocalStorage } from '../src/storage'
-import { ClosableConnector } from '../src/types'
+import { ClosableConnector, ErrorUnlockingWallet } from '../src/types'
 import {
   StubClosableConnector,
   StubConnector,
+  StubLockedWalletConnector,
   StubStorage,
   getSendableProvider
 } from './utils'
@@ -160,6 +161,16 @@ describe('ConnectionManager', () => {
         })
       )
       expect(storage.get(configuration.storageKey)).to.eq(value)
+    })
+
+    describe('and the wallet is locked', () => {
+      it('should throw an error when activating the connector', async () => {
+        const stubConnector = new StubLockedWalletConnector()
+        sinon.stub(connectionManager, 'buildConnector').returns(stubConnector)
+        await expect(
+          connectionManager.connect(ProviderType.INJECTED)
+        ).to.be.rejectedWith(ErrorUnlockingWallet)
+      })
     })
   })
 
