@@ -16,7 +16,8 @@ import {
   ConnectionData,
   ConnectionResponse,
   Provider,
-  ClosableConnector
+  ClosableConnector,
+  ErrorUnlockingWallet
 } from './types'
 import { getConfiguration } from './configuration'
 import { ProviderAdapter } from './ProviderAdapter'
@@ -43,8 +44,12 @@ export class ConnectionManager {
 
     const connector = this.buildConnector(providerType, chainIdToConnect)
     connector.on(ConnectorEvent.Deactivate, this.handleWeb3ReactDeactivate)
-    const { provider, account }: ConnectorUpdate = await connector.activate()
-
+    let { provider, account }: ConnectorUpdate = {}
+    try {
+      ;({ provider, account } = await connector.activate())
+    } catch (error) {
+      throw new ErrorUnlockingWallet()
+    }
     if (providerType === ProviderType.MAGIC) {
       connector.on(ConnectorEvent.Update, ({ chainId }) => {
         if (chainId) {
