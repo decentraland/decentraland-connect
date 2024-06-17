@@ -43,7 +43,17 @@ export class ConnectionManager {
 
     const connector = this.buildConnector(providerType, chainIdToConnect)
     connector.on(ConnectorEvent.Deactivate, this.handleWeb3ReactDeactivate)
-    const { provider, account }: ConnectorUpdate = await connector.activate()
+
+    let { provider, account }: ConnectorUpdate = {}
+
+    try {
+      const _connector: ConnectorUpdate = await connector.activate()
+      provider = _connector.provider
+      account = _connector.account
+    } catch (error) {
+      console.error('Error activating the connector', error)
+      throw error
+    }
 
     if (providerType === ProviderType.MAGIC) {
       connector.on(ConnectorEvent.Update, ({ chainId }) => {

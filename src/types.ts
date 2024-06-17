@@ -59,3 +59,12 @@ export type ConnectionResponse = {
 export interface ClosableConnector extends AbstractConnector {
   close: () => Promise<void>
 }
+
+export class ErrorUnlockingWallet extends Error {
+  constructor() {
+    super(
+      'There was an error unlocking your wallet. Please be sure your wallet is unlocked and try again.'
+    )
+    this.name = 'ErrorUnlockingWallet'
+  }
+}

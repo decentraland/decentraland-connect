@@ -2,7 +2,7 @@ import { ChainId } from '@dcl/schemas/dist/dapps/chain-id'
 import { ConnectorUpdate } from '@web3-react/types'
 import { AbstractConnector } from '../src/connectors/AbstractConnector'
 import { Storage } from '../src/storage'
-import { Request } from '../src/types'
+import { ErrorUnlockingWallet, Request } from '../src/types'
 
 export class StubConnector extends AbstractConnector {
   public account: string | null = '0xdeadbeef'
@@ -54,6 +54,14 @@ export class StubConnector extends AbstractConnector {
 export class StubClosableConnector extends StubConnector {
   async close() {
     // no-op
+  }
+}
+
+export class StubLockedWalletConnector extends StubConnector {
+  async activate(): Promise<ConnectorUpdate> {
+    return new Promise((_resolve, reject) => {
+      reject(new ErrorUnlockingWallet())
+    })
   }
 }
 
