@@ -66,6 +66,10 @@ export class MagicConnector extends AbstractConnector {
         }
         return target.bind(provider)(...argumentsList)
       }
+    }), sendAsync: new Proxy(provider.send, {
+      apply: async (target, _thisArg, argumentsList) => {
+        return target.bind(provider)(...argumentsList);
+      }
     })}
   }
 
