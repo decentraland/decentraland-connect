@@ -47,6 +47,11 @@ export class AuthServerProvider {
   private static authServerUrl: string = ''
   private static authDappUrl: string = ''
   private static identityExpirationInMillis: number = 30 * 24 * 60 * 60 * 1000 // 30 days in the future.
+  private static openBrowser: (
+    url: string,
+    targer?: string,
+    features?: string
+  ) => void
 
   /**
    * Set the url of the auth server to be consumed by this provider.
@@ -67,6 +72,15 @@ export class AuthServerProvider {
    */
   static setIdentityExpiration(millis: number) {
     AuthServerProvider.identityExpirationInMillis = millis
+  }
+
+  /**
+   * Set the function that will be used to open the browser.
+   */
+  static setOpenBrowser(
+    openBrowser: (url: string, target?: string, features?: string) => void
+  ) {
+    AuthServerProvider.openBrowser = openBrowser
   }
 
   /**
@@ -222,11 +236,12 @@ export class AuthServerProvider {
    * Opens the browser on the auth dapp requests page for the given request id.
    */
   private static openAuthDapp = (requestResponse: any) => {
-    window.open(
-      `${AuthServerProvider.authDappUrl}/requests/${requestResponse.requestId}`,
-      '_blank',
-      'noopener,noreferrer'
-    )
+    const url = `${AuthServerProvider.authDappUrl}/requests/${requestResponse.requestId}`
+    const target = '_blank'
+    const features = 'noopener,noreferrer'
+    AuthServerProvider.openBrowser
+      ? AuthServerProvider.openBrowser(url, target, features)
+      : window.open(url, target, features)
   }
 
   /**
