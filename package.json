@@ -30,7 +30,7 @@
     "@dcl/schemas": "^11.4.0",
     "@dcl/single-sign-on-client": "^0.1.0",
     "@magic-ext/oauth": "^15.5.0",
-    "@walletconnect/ethereum-provider": "^2.13.0",
+    "@walletconnect/ethereum-provider": "^2.17.1",
     "@walletconnect/modal": "^2.6.2",
     "@web3-react/fortmatic-connector": "^6.1.6",
     "@web3-react/injected-connector": "^6.0.7",
