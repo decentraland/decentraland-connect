@@ -112,6 +112,31 @@ describe('#getConfiguration', () => {
           ChainId.BSC_MAINNET,
           ChainId.FANTOM_MAINNET
         ]
+      },
+      magic_test: {
+        apiKey: 'pk_live_CE856A4938B36648',
+        urls: {
+          '1': 'https://rpc.decentraland.org/mainnet?project=magic',
+          '10': 'https://rpc.decentraland.org/optimism?project=magic',
+          '56': 'https://rpc.decentraland.org/binance?project=magic',
+          '137': 'https://rpc.decentraland.org/polygon?project=magic',
+          '250': 'https://rpc.decentraland.org/fantom?project=magic',
+          '42161': 'https://rpc.decentraland.org/arbitrum?project=magic',
+          '43114': 'https://rpc.decentraland.org/avalanche?project=magic',
+          '80002': 'https://rpc.decentraland.org/amoy?project=magic',
+          '11155111': 'https://rpc.decentraland.org/sepolia?project=magic'
+        },
+        chains: [
+          ChainId.ETHEREUM_MAINNET,
+          ChainId.ETHEREUM_SEPOLIA,
+          ChainId.MATIC_MAINNET,
+          ChainId.MATIC_AMOY,
+          ChainId.OPTIMISM_MAINNET,
+          ChainId.ARBITRUM_MAINNET,
+          ChainId.AVALANCHE_MAINNET,
+          ChainId.BSC_MAINNET,
+          ChainId.FANTOM_MAINNET
+        ]
       }
     })
   })
