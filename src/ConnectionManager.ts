@@ -8,6 +8,7 @@ import {
   NetworkConnector,
   WalletLinkConnector,
   MagicConnector,
+  MagicTestConnector,
   WalletConnectV2Connector,
   AuthServerConnector
 } from './connectors'
@@ -194,6 +195,8 @@ export class ConnectionManager {
         return new FortmaticConnector(chainId)
       case ProviderType.MAGIC:
         return new MagicConnector(chainId)
+      case ProviderType.MAGIC_TEST:
+        return new MagicTestConnector(chainId)
       case ProviderType.WALLET_LINK:
         return new WalletLinkConnector(chainId)
       case ProviderType.NETWORK:
