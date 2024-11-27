@@ -12,7 +12,7 @@ export class MagicConnector extends AbstractConnector {
   private account: string | null
   private magic: InstanceWithExtensions<SDKBase, OAuthExtension[]> | undefined
 
-  constructor(desiredChainId: ChainId) {
+  constructor(desiredChainId: ChainId, private readonly isTest: boolean = false) {
     super({ supportedChainIds: getConfiguration()[ProviderType.MAGIC].chains })
     this.chainId = desiredChainId
     this.account = null
@@ -100,7 +100,7 @@ export class MagicConnector extends AbstractConnector {
   private buildMagicInstance = async (chainId: ChainId): Promise<InstanceWithExtensions<SDKBase, OAuthExtension[]>> => {
     const { Magic } = await import('magic-sdk')
     const { OAuthExtension } = await import('@magic-ext/oauth')
-    const magicConfiguration = getConfiguration()[ProviderType.MAGIC]
+    const magicConfiguration = getConfiguration()[this.isTest ? ProviderType.MAGIC_TEST : ProviderType.MAGIC]
     return new Magic(magicConfiguration.apiKey, {
       extensions: [new OAuthExtension()],
       network: {

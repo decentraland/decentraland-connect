@@ -58,6 +58,21 @@ const configuration = Object.freeze({
       ChainId.BSC_MAINNET,
       ChainId.FANTOM_MAINNET
     ]
+  },
+  [ProviderType.MAGIC_TEST]: {
+    apiKey: 'pk_live_CE856A4938B36648',
+    urls: getRpcUrls(ProviderType.MAGIC),
+    chains: [
+      ChainId.ETHEREUM_MAINNET,
+      ChainId.ETHEREUM_SEPOLIA,
+      ChainId.MATIC_MAINNET,
+      ChainId.MATIC_AMOY,
+      ChainId.OPTIMISM_MAINNET,
+      ChainId.ARBITRUM_MAINNET,
+      ChainId.AVALANCHE_MAINNET,
+      ChainId.BSC_MAINNET,
+      ChainId.FANTOM_MAINNET
+    ]
   }
 })
 
@@ -88,6 +103,9 @@ export function getRpcUrls(providerType: ProviderType) {
       project = 'fortmatic'
       break
     case ProviderType.MAGIC:
+      project = 'magic'
+      break
+    case ProviderType.MAGIC_TEST:
       project = 'magic'
       break
     case ProviderType.WALLET_CONNECT_V2:
