@@ -56,7 +56,11 @@ export class ConnectionManager {
       throw error
     }
 
-    if (providerType === ProviderType.MAGIC) {
+    // TODO: Remove magic_test provider
+    if (
+      providerType === ProviderType.MAGIC ||
+      providerType === ProviderType.MAGIC_TEST
+    ) {
       connector.on(ConnectorEvent.Update, ({ chainId }) => {
         if (chainId) {
           this.setConnectionData(providerType, chainId)
