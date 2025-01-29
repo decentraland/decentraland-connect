@@ -5,7 +5,7 @@ import { AbstractConnector } from './AbstractConnector'
 // tslint:disable-next-line
 import type { InstanceWithExtensions, SDKBase } from '@magic-sdk/provider'
 // tslint:disable-next-line
-import type { OAuthExtension } from '@magic-ext/oauth'
+import type { OAuthExtension } from '@magic-ext/oauth2'
 
 export class MagicConnector extends AbstractConnector {
   private chainId: ChainId
@@ -99,7 +99,7 @@ export class MagicConnector extends AbstractConnector {
 
   private buildMagicInstance = async (chainId: ChainId): Promise<InstanceWithExtensions<SDKBase, OAuthExtension[]>> => {
     const { Magic } = await import('magic-sdk')
-    const { OAuthExtension } = await import('@magic-ext/oauth')
+    const { OAuthExtension } = await import('@magic-ext/oauth2')
     const magicConfiguration = getConfiguration()[this.isTest ? ProviderType.MAGIC_TEST : ProviderType.MAGIC]
     return new Magic(magicConfiguration.apiKey, {
       extensions: [new OAuthExtension()],
