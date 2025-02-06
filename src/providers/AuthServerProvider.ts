@@ -126,7 +126,7 @@ export class AuthServerProvider {
     requestResponse
   }: {
     socket: Socket
-    ephemeralAccount: ethers.HDNodeWallet
+    ephemeralAccount: ethers.Wallet
     expiration: Date
     ephemeralMessage: string
     requestResponse: any
@@ -346,7 +346,7 @@ export class AuthServerProvider {
         'eth_getCode'
       ].includes(method)
     ) {
-      const provider = new ethers.JsonRpcProvider(
+      const provider = new ethers.providers.JsonRpcProvider(
         getRpcUrls(ProviderType.AUTH_SERVER)[this.getChainId()]
       )
 
