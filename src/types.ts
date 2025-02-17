@@ -22,6 +22,7 @@ export interface Provider extends EventEmitter {
   isDapper: boolean
   isFortmatic: boolean
   isMetamask: boolean
+  isMagic: boolean
   request(reqArgs: Request.Arguments): Promise<unknown>
   send(method: Request.Method, params?: Request.Params): Promise<unknown>
   send(method: Request.Arguments, params?: Request.Callback): Promise<void>
