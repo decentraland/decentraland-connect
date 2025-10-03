@@ -9,8 +9,7 @@ import {
   WalletLinkConnector,
   MagicConnector,
   MagicTestConnector,
-  WalletConnectV2Connector,
-  AuthServerConnector
+  WalletConnectV2Connector
 } from './connectors'
 import { LocalStorage, Storage } from './storage'
 import {
@@ -207,8 +206,6 @@ export class ConnectionManager {
         return new NetworkConnector(chainId)
       case ProviderType.WALLET_CONNECT_V2:
         return new WalletConnectV2Connector(chainId)
-      case ProviderType.AUTH_SERVER:
-        return new AuthServerConnector()
       default:
         throw new Error(`Invalid provider ${providerType}`)
     }
