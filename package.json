@@ -28,7 +28,6 @@
   },
   "dependencies": {
     "@dcl/schemas": "^15.1.2",
-    "@dcl/single-sign-on-client": "^0.1.0",
     "@magic-ext/oauth2": "^9.19.0",
     "@walletconnect/ethereum-provider": "^2.17.1",
     "@walletconnect/modal": "^2.6.2",
