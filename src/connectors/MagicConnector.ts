@@ -100,11 +100,17 @@ export class MagicConnector extends AbstractConnector {
   private buildMagicInstance = async (chainId: ChainId): Promise<InstanceWithExtensions<SDKBase, OAuthExtension[]>> => {
     const { Magic } = await import('magic-sdk')
     const { OAuthExtension } = await import('@magic-ext/oauth2')
-    const magicConfiguration = getConfiguration()[this.isTest ? ProviderType.MAGIC_TEST : ProviderType.MAGIC]
+    const magicConfiguration =
+      getConfiguration()[this.isTest ? ProviderType.MAGIC_TEST : ProviderType.MAGIC]
+    const rpcUrl = magicConfiguration.urls[chainId]
+    if (!rpcUrl) {
+      throw new Error(`Invariant error: Missing RPC url for chainId ${chainId}`)
+    }
+
     return new Magic(magicConfiguration.apiKey, {
       extensions: [new OAuthExtension()],
       network: {
-        rpcUrl: magicConfiguration.urls[chainId],
+        rpcUrl,
         chainId: chainId
       }
     })

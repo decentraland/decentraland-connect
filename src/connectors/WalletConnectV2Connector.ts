@@ -5,6 +5,7 @@ import { ChainId, ProviderType } from '@dcl/schemas'
 import type EthereumProvider from '@walletconnect/ethereum-provider'
 import { Storage } from '../storage'
 import { getConfiguration } from '../configuration'
+import { toRpcUrlRecord } from '../utils/urlMaps'
 
 export class WalletConnectV2Connector extends AbstractConnector {
   private static readonly configuration = getConfiguration()[
@@ -14,20 +15,30 @@ export class WalletConnectV2Connector extends AbstractConnector {
   provider?: typeof EthereumProvider.prototype
 
   constructor(private desiredChainId: ChainId) {
-    super({
-      supportedChainIds: ((): number[] => {
-        const {
-          chains,
-          optionalChains
-        } = WalletConnectV2Connector.configuration.chains[desiredChainId]
+    const { chains, optionalChains } =
+      WalletConnectV2Connector.getChainConfiguration(desiredChainId)
 
-        return [...chains, ...optionalChains]
-      })()
+    super({
+      supportedChainIds: [...chains, ...optionalChains]
     })
   }
 
   static clearStorage = (storage: Storage) => {
     storage.removeRegExp(new RegExp('^wc@2:'))
+  }
+
+  private static getRpcMap() {
+    return toRpcUrlRecord(WalletConnectV2Connector.configuration.urls)
+  }
+
+  private static getChainConfiguration(chainId: ChainId) {
+    const configuration = WalletConnectV2Connector.configuration.chains[chainId]
+
+    if (!configuration) {
+      throw new Error(`Invariant error: Unsupported chainId ${chainId}`)
+    }
+
+    return configuration
   }
 
   activate = async (): Promise<ConnectorUpdate<string | number>> => {
@@ -36,11 +47,11 @@ export class WalletConnectV2Connector extends AbstractConnector {
         const {
           chains,
           optionalChains
-        } = WalletConnectV2Connector.configuration.chains[this.desiredChainId]
+        } = WalletConnectV2Connector.getChainConfiguration(this.desiredChainId)
 
         return module.default.init({
           projectId: WalletConnectV2Connector.configuration.projectId,
-          rpcMap: WalletConnectV2Connector.configuration.urls,
+          rpcMap: WalletConnectV2Connector.getRpcMap(),
           chains,
           optionalChains,
           showQrModal: true,

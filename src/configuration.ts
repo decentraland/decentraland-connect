@@ -1,7 +1,8 @@
 import { ChainId } from '@dcl/schemas/dist/dapps/chain-id'
 import { ProviderType } from '@dcl/schemas/dist/dapps/provider-type'
+import type { Configuration, RpcUrlMap } from './configuration.types'
 
-const configuration = Object.freeze({
+const configuration: Configuration = Object.freeze({
   storageKey: 'decentraland-connect-storage-key',
 
   [ProviderType.INJECTED]: {},
@@ -74,14 +75,14 @@ const configuration = Object.freeze({
       ChainId.FANTOM_MAINNET
     ]
   }
-})
+}) as Configuration
 
-export function getConfiguration() {
+export function getConfiguration(): Configuration {
   return configuration
 }
 
-export function getRpcUrls(providerType: ProviderType) {
-  const rpcUrls = {
+export function getRpcUrls(providerType: ProviderType): RpcUrlMap {
+  const rpcUrls: RpcUrlMap = {
     [ChainId.ETHEREUM_MAINNET]: 'https://rpc.decentraland.org/mainnet',
     [ChainId.ETHEREUM_SEPOLIA]: 'https://rpc.decentraland.org/sepolia',
     [ChainId.MATIC_MAINNET]: 'https://rpc.decentraland.org/polygon',
@@ -119,8 +120,12 @@ export function getRpcUrls(providerType: ProviderType) {
   }
 
   if (project) {
-    for (const chainId in rpcUrls) {
-      rpcUrls[chainId] += `?project=${project}`
+    for (const key of Object.keys(rpcUrls)) {
+      const chainId = Number(key) as ChainId
+      const url = rpcUrls[chainId]
+      if (url) {
+        rpcUrls[chainId] = `${url}?project=${project}`
+      }
     }
   }
 

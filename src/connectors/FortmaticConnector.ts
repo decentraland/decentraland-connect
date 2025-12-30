@@ -11,17 +11,25 @@ export class FortmaticConnector extends AbstractConnector {
 
   constructor(chainId: ChainId) {
     const fortmaticConfiguration = getConfiguration()[ProviderType.FORTMATIC]
-    const supportedChainIds = Object.keys(
-      fortmaticConfiguration.apiKeys
-    ).map(key => Number(key))
+    const supportedChainIds = Object.keys(fortmaticConfiguration.apiKeys).map(
+      key => Number(key) as ChainId
+    )
     if (!supportedChainIds.includes(chainId)) {
       throw new Error(`Invariant error: Unsupported chainId ${chainId}`)
     }
     super({ supportedChainIds })
+    const apiKey = fortmaticConfiguration.apiKeys[chainId]
+    const rpcUrl = fortmaticConfiguration.urls[chainId]
 
-    this.apiKey = fortmaticConfiguration.apiKeys[chainId]
+    if (!apiKey || !rpcUrl) {
+      throw new Error(
+        `Invariant error: Missing configuration for chainId ${chainId}`
+      )
+    }
+
+    this.apiKey = apiKey
     this.chainId = chainId
-    this.rpcUrl = fortmaticConfiguration.urls[chainId]
+    this.rpcUrl = rpcUrl
   }
 
   public async activate(): Promise<ConnectorUpdate> {

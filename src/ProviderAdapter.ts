@@ -147,11 +147,17 @@ export class ProviderAdapter {
   }
 
   isModernProvider(): boolean {
-    return typeof this.provider['request'] === 'function'
+    return (
+      'request' in this.provider &&
+      typeof (this.provider).request === 'function'
+    )
   }
 
   hasSendAsync(): boolean {
-    return typeof this.provider['sendAsync'] === 'function'
+    return (
+      'sendAsync' in this.provider &&
+      typeof (this.provider as LegacyProvider).sendAsync === 'function'
+    )
   }
 
   patchOldMobile() {

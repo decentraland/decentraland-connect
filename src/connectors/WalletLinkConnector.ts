@@ -7,9 +7,14 @@ import { getConfiguration } from '../configuration'
 export class WalletLinkConnector extends BaseWalletLinkConnector {
   constructor(chainId: ChainId) {
     const config = getConfiguration()[ProviderType.WALLET_LINK]
+    const rpcUrl = config.urls[chainId]
+
+    if (!rpcUrl) {
+      throw new Error(`Invariant error: Missing RPC url for chainId ${chainId}`)
+    }
 
     super({
-      url: config.urls[chainId],
+      url: rpcUrl,
       appName: config.appName,
       supportedChainIds: [chainId]
     })
