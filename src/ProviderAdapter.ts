@@ -148,8 +148,7 @@ export class ProviderAdapter {
 
   isModernProvider(): boolean {
     return (
-      'request' in this.provider &&
-      typeof (this.provider).request === 'function'
+      'request' in this.provider && typeof this.provider.request === 'function'
     )
   }
 

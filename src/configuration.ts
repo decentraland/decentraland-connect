@@ -1,6 +1,6 @@
 import { ChainId } from '@dcl/schemas/dist/dapps/chain-id'
 import { ProviderType } from '@dcl/schemas/dist/dapps/provider-type'
-import type { Configuration, RpcUrlMap } from './configuration.types'
+import { Configuration, RpcUrlMap } from './configuration.types'
 
 const configuration: Configuration = Object.freeze({
   storageKey: 'decentraland-connect-storage-key',
