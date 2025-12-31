@@ -1,4 +1,3 @@
-import { expect } from 'chai'
 import sinon from 'sinon'
 import { ChainId } from '@dcl/schemas/dist/dapps/chain-id'
 import { ProviderType } from '@dcl/schemas/dist/dapps/provider-type'
@@ -17,18 +16,18 @@ describe('connectors', () => {
   describe('InjectedConnector', () => {
     const browser: any = global
 
-    after(() => {
+    afterAll(() => {
       delete browser.window
     })
 
     describe('#constructor', () => {
-      it('should call super with the supplied chain id as supported chain ids', () => {
+      it('should call super with the supplied chain id as supported chain ids', async () => {
         const chainId = ChainId.ETHEREUM_SEPOLIA
         const connector = new InjectedConnector(chainId)
         browser.window = { ethereum: getSendableProvider(chainId) }
 
-        expect(connector.supportedChainIds).to.deep.eq([chainId])
-        return expect(connector.getChainId()).to.eventually.eq(chainId)
+        expect(connector.supportedChainIds).toEqual([chainId])
+        await expect(connector.getChainId()).resolves.toBe(chainId)
       })
     })
   })
@@ -55,8 +54,8 @@ describe('connectors', () => {
 
         const connector = new FortmaticConnector(chainId)
 
-        expect(await connector.getChainId()).to.eq(chainId)
-        expect(await connector.getApiKey()).to.eq(apiKey)
+        expect(await connector.getChainId()).toBe(chainId)
+        expect(await connector.getApiKey()).toBe(apiKey)
 
         configurationStub.restore()
       })
@@ -65,11 +64,11 @@ describe('connectors', () => {
 
   describe('NetworkConnector', () => {
     describe('#constructor', () => {
-      it('should call super with the supplied chain id as default chain id', () => {
+      it('should call super with the supplied chain id as default chain id', async () => {
         const chainId = ChainId.ETHEREUM_SEPOLIA
         const connector = new NetworkConnector(chainId)
 
-        return expect(connector.getChainId()).to.eventually.eq(chainId)
+        await expect(connector.getChainId()).resolves.toBe(chainId)
       })
     })
   })
@@ -80,7 +79,7 @@ describe('connectors', () => {
         const chainId = ChainId.ETHEREUM_SEPOLIA
         const connector = new WalletLinkConnector(chainId)
 
-        expect(connector.supportedChainIds).to.deep.eq([chainId])
+        expect(connector.supportedChainIds).toEqual([chainId])
       })
     })
   })

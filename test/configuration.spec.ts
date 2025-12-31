@@ -1,11 +1,10 @@
 import { ChainId } from '@dcl/schemas'
-import { expect } from 'chai'
 import { ProviderType } from '@dcl/schemas/dist/dapps/provider-type'
 import { getConfiguration, getRpcUrls } from '../src/configuration'
 
 describe('#getConfiguration', () => {
   it('should return the configuration using the environment', () => {
-    expect(getConfiguration()).to.deep.eq({
+    expect(getConfiguration()).toEqual({
       storageKey: 'decentraland-connect-storage-key',
       injected: {},
       formatic: {
@@ -145,7 +144,7 @@ describe('#getConfiguration', () => {
 describe('#getRpcUrls', () => {
   describe('when the provider type does not have a special treatment', () => {
     it('should return the rpc configurations', () => {
-      expect(getRpcUrls(ProviderType.INJECTED)).to.deep.eq({
+      expect(getRpcUrls(ProviderType.INJECTED)).toEqual({
         '1': 'https://rpc.decentraland.org/mainnet',
         '10': 'https://rpc.decentraland.org/optimism',
         '56': 'https://rpc.decentraland.org/binance',
@@ -161,7 +160,7 @@ describe('#getRpcUrls', () => {
 
   describe('when the provider type is wallet connect 2', () => {
     it('should return the rpc configurations appending the project query string', () => {
-      expect(getRpcUrls(ProviderType.WALLET_CONNECT_V2)).to.deep.eq({
+      expect(getRpcUrls(ProviderType.WALLET_CONNECT_V2)).toEqual({
         '1': 'https://rpc.decentraland.org/mainnet?project=walletconnect-v2',
         '10': 'https://rpc.decentraland.org/optimism?project=walletconnect-v2',
         '56': 'https://rpc.decentraland.org/binance?project=walletconnect-v2',
@@ -180,7 +179,7 @@ describe('#getRpcUrls', () => {
 
   describe('when the provider type is wallet link', () => {
     it('should return the rpc configurations appending the project query string', () => {
-      expect(getRpcUrls(ProviderType.WALLET_LINK)).to.deep.eq({
+      expect(getRpcUrls(ProviderType.WALLET_LINK)).toEqual({
         '1': 'https://rpc.decentraland.org/mainnet?project=walletlink',
         '10': 'https://rpc.decentraland.org/optimism?project=walletlink',
         '56': 'https://rpc.decentraland.org/binance?project=walletlink',

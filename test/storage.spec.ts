@@ -1,4 +1,3 @@
-import { expect } from 'chai'
 import sinon from 'sinon'
 import { LocalStorage } from '../src/storage'
 
@@ -35,7 +34,7 @@ describe('LocalStorage', () => {
       const result = localStorage.get(key)
 
       mockStorage.verify()
-      expect(result).to.eq(value)
+      expect(result).toBe(value)
     })
 
     it('should return undefined when the key does not exist', () => {
@@ -50,7 +49,7 @@ describe('LocalStorage', () => {
       const result = localStorage.get(key)
 
       mockStorage.verify()
-      expect(result).to.eq(undefined)
+      expect(result).toBe(undefined)
     })
   })
 

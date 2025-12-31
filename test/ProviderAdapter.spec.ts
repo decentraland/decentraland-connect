@@ -1,4 +1,3 @@
-import { expect } from 'chai'
 import sinon from 'sinon'
 import { ProviderAdapter } from '../src/ProviderAdapter'
 import { LegacyProvider, Provider, Request } from '../src/types'
@@ -10,8 +9,8 @@ describe('ProviderAdapter', () => {
     it('should return a new object adding the request and send methods', () => {
       const mockProvider = {} as any
       const adaptedProvider = ProviderAdapter.adapt(mockProvider)
-      expect(typeof adaptedProvider.request).to.eq('function')
-      expect(typeof adaptedProvider.send).to.eq('function')
+      expect(typeof adaptedProvider.request).toBe('function')
+      expect(typeof adaptedProvider.send).toBe('function')
     })
   })
 
@@ -25,7 +24,7 @@ describe('ProviderAdapter', () => {
       const params = ['0x', 2]
       const providerAdapter = new ProviderAdapter(provider)
 
-      expect(await providerAdapter.request({ method, params })).to.eq(result)
+      expect(await providerAdapter.request({ method, params })).toBe(result)
       expect(stub.calledWith(
         {
           jsonrpc: '2.0',
@@ -33,7 +32,7 @@ describe('ProviderAdapter', () => {
           method,
           params
         }
-      )).to.eq(true)
+      )).toBe(true)
     })
 
     it("should forward to the provider's request method if it exists", async () => {
@@ -47,8 +46,8 @@ describe('ProviderAdapter', () => {
       const params = ['0x', 2]
       const providerAdapter = new ProviderAdapter(provider)
 
-      expect(await providerAdapter.request({ method, params })).to.eq(result)
-      expect(stub.calledOnceWith({ method, params })).to.eq(true)
+      expect(await providerAdapter.request({ method, params })).toBe(result)
+      expect(stub.calledOnceWith({ method, params })).toBe(true)
     })
   })
 
@@ -62,7 +61,7 @@ describe('ProviderAdapter', () => {
       const params = ['0x', 2]
       const providerAdapter = new ProviderAdapter(provider)
 
-      expect(await providerAdapter.send(method, params)).to.eq(result)
+      expect(await providerAdapter.send(method, params)).toBe(result)
       expect(stub.calledWith(
         {
           jsonrpc: '2.0',
@@ -70,7 +69,7 @@ describe('ProviderAdapter', () => {
           method,
           params
         }
-      )).to.eq(true)
+      )).toBe(true)
     })
 
     it('should should support a callback', async () => {
@@ -86,20 +85,20 @@ describe('ProviderAdapter', () => {
       const callback = (err: number | null, value: any) =>
         callbackMock(err, value)
 
-      expect(await providerAdapter.send({ method, params }, callback)).to.eq(
+      expect(await providerAdapter.send({ method, params }, callback)).toBe(
         undefined
       )
-      expect(stub.calledOnceWith({ method, params })).to.eq(true)
+      expect(stub.calledOnceWith({ method, params })).toBe(true)
       expect(
         callbackMock.calledOnceWith(null, { id: '', jsonrpc: '2.0', result })
-      ).to.eq(true)
+      ).toBe(true)
     })
   })
 
   describe('#isModernProvider', () => {
     it('should return false if the provider supplied has a send method but lacks a request', () => {
       const provider = { send: mock } as LegacyProvider
-      expect(new ProviderAdapter(provider).isModernProvider()).to.eq(false)
+      expect(new ProviderAdapter(provider).isModernProvider()).toBe(false)
     })
 
     it('should return true if the provider supplied has a send and also has a request', () => {
@@ -107,12 +106,12 @@ describe('ProviderAdapter', () => {
         request: mock,
         send: mock
       } as Provider
-      expect(new ProviderAdapter(provider).isModernProvider()).to.eq(true)
+      expect(new ProviderAdapter(provider).isModernProvider()).toBe(true)
     })
 
     it('should return true if the provider supplied has a request but lacks a send', () => {
       const provider = { request: mock } as Provider
-      expect(new ProviderAdapter(provider).isModernProvider()).to.eq(true)
+      expect(new ProviderAdapter(provider).isModernProvider()).toBe(true)
     })
   })
 })
