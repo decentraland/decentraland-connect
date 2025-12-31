@@ -3,20 +3,19 @@ import { AbstractConnector } from '@web3-react/abstract-connector'
 import { ChainId } from '@dcl/schemas/dist/dapps/chain-id'
 import { ProviderType } from '@dcl/schemas/dist/dapps/provider-type'
 
+/* eslint-disable @typescript-eslint/no-namespace */
 export namespace Request {
   export type Method = string
-
   export type Params = readonly unknown[] | object
-
   export type Arguments = {
     readonly method: Method
     readonly params?: Params
     readonly jsonrpc?: string
     readonly id?: number
   }
-
-  export type Callback = (err: number | null, value: any) => void
+  export type Callback = (err: number | null, value: unknown) => void
 }
+/* eslint-enable @typescript-eslint/no-namespace */
 
 export interface Provider extends EventEmitter {
   isDapper: boolean

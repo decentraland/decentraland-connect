@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import { ChainId } from '@dcl/schemas'
 import { ProviderType } from '@dcl/schemas/dist/dapps/provider-type'
 import { getConfiguration, getRpcUrls } from '../src/configuration'
@@ -58,18 +59,13 @@ describe('#getConfiguration', () => {
         },
         urls: {
           '1': 'https://rpc.decentraland.org/mainnet?project=walletconnect-v2',
-          '10':
-            'https://rpc.decentraland.org/optimism?project=walletconnect-v2',
+          '10': 'https://rpc.decentraland.org/optimism?project=walletconnect-v2',
           '56': 'https://rpc.decentraland.org/binance?project=walletconnect-v2',
-          '11155111':
-            'https://rpc.decentraland.org/sepolia?project=walletconnect-v2',
-          '137':
-            'https://rpc.decentraland.org/polygon?project=walletconnect-v2',
+          '11155111': 'https://rpc.decentraland.org/sepolia?project=walletconnect-v2',
+          '137': 'https://rpc.decentraland.org/polygon?project=walletconnect-v2',
           '250': 'https://rpc.decentraland.org/fantom?project=walletconnect-v2',
-          '42161':
-            'https://rpc.decentraland.org/arbitrum?project=walletconnect-v2',
-          '43114':
-            'https://rpc.decentraland.org/avalanche?project=walletconnect-v2',
+          '42161': 'https://rpc.decentraland.org/arbitrum?project=walletconnect-v2',
+          '43114': 'https://rpc.decentraland.org/avalanche?project=walletconnect-v2',
           '80002': 'https://rpc.decentraland.org/amoy?project=walletconnect-v2'
         }
       },
@@ -166,13 +162,10 @@ describe('#getRpcUrls', () => {
         '56': 'https://rpc.decentraland.org/binance?project=walletconnect-v2',
         '137': 'https://rpc.decentraland.org/polygon?project=walletconnect-v2',
         '250': 'https://rpc.decentraland.org/fantom?project=walletconnect-v2',
-        '42161':
-          'https://rpc.decentraland.org/arbitrum?project=walletconnect-v2',
-        '43114':
-          'https://rpc.decentraland.org/avalanche?project=walletconnect-v2',
+        '42161': 'https://rpc.decentraland.org/arbitrum?project=walletconnect-v2',
+        '43114': 'https://rpc.decentraland.org/avalanche?project=walletconnect-v2',
         '80002': 'https://rpc.decentraland.org/amoy?project=walletconnect-v2',
-        '11155111':
-          'https://rpc.decentraland.org/sepolia?project=walletconnect-v2'
+        '11155111': 'https://rpc.decentraland.org/sepolia?project=walletconnect-v2'
       })
     })
   })

@@ -1,19 +1,15 @@
 import { ChainId } from '@dcl/schemas/dist/dapps/chain-id'
 import { ProviderType } from '@dcl/schemas/dist/dapps/provider-type'
-import {
-  InjectedConnector,
-  FortmaticConnector,
-  NetworkConnector,
-  WalletLinkConnector
-} from '../src/connectors'
 import * as configurationMethods from '../src/configuration'
+import { FortmaticConnector, InjectedConnector, NetworkConnector, WalletLinkConnector } from '../src/connectors'
 import { getSendableProvider } from './utils'
 
 describe('connectors', () => {
   const configuration = configurationMethods.getConfiguration()
 
   describe('InjectedConnector', () => {
-    const browser: any = global
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const browser = global as any
 
     afterAll(() => {
       delete browser.window
@@ -47,9 +43,7 @@ describe('connectors', () => {
             }
           }
         }
-        const configurationMock = jest
-          .spyOn(configurationMethods, 'getConfiguration')
-          .mockReturnValue(mockConfiguration)
+        const configurationMock = jest.spyOn(configurationMethods, 'getConfiguration').mockReturnValue(mockConfiguration)
 
         const connector = new FortmaticConnector(chainId)
 

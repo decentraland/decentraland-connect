@@ -187,7 +187,12 @@ export class ConnectionManager {
   getConnectionData(): ConnectionData | undefined {
     const { storageKey } = getConfiguration()
     const connectionData = this.storage.get(storageKey)
-    return connectionData ? JSON.parse(connectionData) : undefined
+    try {
+      return connectionData ? JSON.parse(connectionData) : undefined
+    } catch (error) {
+      console.error('Error parsing connection data', error)
+      return undefined
+    }
   }
 
   private clearConnectionData = () => {

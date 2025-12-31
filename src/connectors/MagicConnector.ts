@@ -36,6 +36,7 @@ export class MagicConnector extends AbstractConnector {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getProvider = async (): Promise<any> => {
     if (!this.magic) {
       throw new Error('Magic: instance was not initialized')
@@ -104,7 +105,9 @@ export class MagicConnector extends AbstractConnector {
   deactivate = (): void => undefined
 
   private buildMagicInstance = async (chainId: ChainId): Promise<InstanceWithExtensions<SDKBase, OAuthExtension[]>> => {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     const { Magic } = await import('magic-sdk')
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     const { OAuthExtension } = await import('@magic-ext/oauth2')
     const magicConfiguration = getConfiguration()[this.isTest ? ProviderType.MAGIC_TEST : ProviderType.MAGIC]
     return new Magic(magicConfiguration.apiKey, {
