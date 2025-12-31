@@ -41,7 +41,9 @@ describe('ConnectionManager', () => {
   describe('#connect', () => {
     it('should set the connector', async () => {
       const stubConnector = new StubConnector()
-      jest.spyOn(connectionManager, 'buildConnector').mockReturnValue(stubConnector)
+      jest
+        .spyOn(connectionManager, 'buildConnector')
+        .mockReturnValue(stubConnector)
 
       expect(connectionManager.connector).toBe(undefined)
       await connectionManager.connect(ProviderType.INJECTED)
@@ -57,14 +59,19 @@ describe('ConnectionManager', () => {
 
       await connectionManager.connect(ProviderType.INJECTED)
 
-      expect(getConnectorMock).toHaveBeenCalledWith(ProviderType.INJECTED, expect.anything())
+      expect(getConnectorMock).toHaveBeenCalledWith(
+        ProviderType.INJECTED,
+        expect.anything()
+      )
       expect(activateMock).toHaveBeenCalledTimes(1)
     })
 
     it('should return the connection data', async () => {
       const stubConnector = new StubConnector()
       stubConnector.setChainId(ChainId.ETHEREUM_SEPOLIA)
-      jest.spyOn(connectionManager, 'buildConnector').mockReturnValue(stubConnector)
+      jest
+        .spyOn(connectionManager, 'buildConnector')
+        .mockReturnValue(stubConnector)
 
       const result = await connectionManager.connect(
         ProviderType.INJECTED,
@@ -88,7 +95,9 @@ describe('ConnectionManager', () => {
     it('should not patch the provider with the request method if it already exists', async () => {
       const stubConnector = new StubConnector()
       stubConnector.setChainId(ChainId.ETHEREUM_SEPOLIA)
-      jest.spyOn(connectionManager, 'buildConnector').mockReturnValue(stubConnector)
+      jest
+        .spyOn(connectionManager, 'buildConnector')
+        .mockReturnValue(stubConnector)
 
       const result = await connectionManager.connect(
         ProviderType.INJECTED,
@@ -112,7 +121,9 @@ describe('ConnectionManager', () => {
       const stubConnector = new StubConnector()
       stubConnector.setChainId(ChainId.ETHEREUM_SEPOLIA)
       const configuration = getConfiguration()
-      jest.spyOn(connectionManager, 'buildConnector').mockReturnValue(stubConnector)
+      jest
+        .spyOn(connectionManager, 'buildConnector')
+        .mockReturnValue(stubConnector)
 
       await connectionManager.connect(
         ProviderType.NETWORK,
@@ -131,7 +142,9 @@ describe('ConnectionManager', () => {
       const stubConnector = new StubConnector()
       stubConnector.setChainId(ChainId.ETHEREUM_MAINNET)
       const configuration = getConfiguration()
-      jest.spyOn(connectionManager, 'buildConnector').mockReturnValue(stubConnector)
+      jest
+        .spyOn(connectionManager, 'buildConnector')
+        .mockReturnValue(stubConnector)
 
       const result = await connectionManager.connect(
         ProviderType.INJECTED,
@@ -160,7 +173,9 @@ describe('ConnectionManager', () => {
     describe('and the wallet is locked', () => {
       it('should throw an error when activating the connector', async () => {
         const stubConnector = new StubLockedWalletConnector()
-        jest.spyOn(connectionManager, 'buildConnector').mockReturnValue(stubConnector)
+        jest
+          .spyOn(connectionManager, 'buildConnector')
+          .mockReturnValue(stubConnector)
         await expect(
           connectionManager.connect(ProviderType.INJECTED)
         ).rejects.toThrow(ErrorUnlockingWallet)
@@ -170,9 +185,7 @@ describe('ConnectionManager', () => {
 
   describe('#tryPreviousConnection', () => {
     it('should throw if called without provider type and none is found on storage', async () => {
-      await expect(
-        connectionManager.tryPreviousConnection()
-      ).rejects.toThrow(
+      await expect(connectionManager.tryPreviousConnection()).rejects.toThrow(
         'Could not find a valid provider. Make sure to call the `connect` method first'
       )
     })
@@ -187,7 +200,11 @@ describe('ConnectionManager', () => {
       const result = await connectionManager.tryPreviousConnection()
       const { account } = await stubConnector.activate()
 
-      expect(getConnectorMock).toHaveBeenNthCalledWith(1, ProviderType.FORTMATIC, expect.anything())
+      expect(getConnectorMock).toHaveBeenNthCalledWith(
+        1,
+        ProviderType.FORTMATIC,
+        expect.anything()
+      )
 
       expect(JSON.stringify(result)).toBe(
         JSON.stringify({
@@ -206,7 +223,9 @@ describe('ConnectionManager', () => {
     it('should return the data used on the last successful connection', async () => {
       const stubConnector = new StubConnector()
       stubConnector.setChainId(ChainId.ETHEREUM_SEPOLIA)
-      jest.spyOn(connectionManager, 'buildConnector').mockReturnValue(stubConnector)
+      jest
+        .spyOn(connectionManager, 'buildConnector')
+        .mockReturnValue(stubConnector)
 
       await connectionManager.connect(
         ProviderType.INJECTED,
@@ -227,7 +246,9 @@ describe('ConnectionManager', () => {
   describe('#isConnected', () => {
     it('should return true if a connector exists and a connection happened', async () => {
       const stubConnector = new StubConnector()
-      jest.spyOn(connectionManager, 'buildConnector').mockReturnValue(stubConnector)
+      jest
+        .spyOn(connectionManager, 'buildConnector')
+        .mockReturnValue(stubConnector)
 
       await connectionManager.connect(
         ProviderType.INJECTED,
@@ -255,7 +276,10 @@ describe('ConnectionManager', () => {
 
     it('should deactivate the connector', async () => {
       connectionManager.connector = new StubConnector()
-      const deactivateMock = jest.spyOn(connectionManager.connector, 'deactivate')
+      const deactivateMock = jest.spyOn(
+        connectionManager.connector,
+        'deactivate'
+      )
 
       await connectionManager.disconnect()
 
@@ -314,7 +338,10 @@ describe('ConnectionManager', () => {
           providerType
         )
 
-        expect(getConnectorMock).toHaveBeenCalledWith(providerType, expect.anything())
+        expect(getConnectorMock).toHaveBeenCalledWith(
+          providerType,
+          expect.anything()
+        )
         expect(getProviderMock).toHaveBeenCalledTimes(1)
         expect(createdProvider.request).not.toBe(undefined)
         jest.restoreAllMocks()
@@ -325,7 +352,10 @@ describe('ConnectionManager', () => {
   describe('#getProvider', () => {
     it('should call the connectors getProvider method', async () => {
       connectionManager.connector = new StubConnector()
-      const getProviderMock = jest.spyOn(connectionManager.connector, 'getProvider')
+      const getProviderMock = jest.spyOn(
+        connectionManager.connector,
+        'getProvider'
+      )
 
       await connectionManager.getProvider()
 

@@ -1,5 +1,5 @@
-import { ConnectorUpdate } from '@web3-react/types'
 import { AbstractConnector } from '@web3-react/abstract-connector'
+import { ConnectorUpdate } from '@web3-react/types'
 import { ChainId, ProviderType } from '@dcl/schemas'
 import { getConfiguration } from '../configuration'
 
@@ -11,9 +11,7 @@ export class FortmaticConnector extends AbstractConnector {
 
   constructor(chainId: ChainId) {
     const fortmaticConfiguration = getConfiguration()[ProviderType.FORTMATIC]
-    const supportedChainIds = Object.keys(
-      fortmaticConfiguration.apiKeys
-    ).map(key => Number(key))
+    const supportedChainIds = Object.keys(fortmaticConfiguration.apiKeys).map(key => Number(key))
     if (!supportedChainIds.includes(chainId)) {
       throw new Error(`Invariant error: Unsupported chainId ${chainId}`)
     }
@@ -65,7 +63,6 @@ export class FortmaticConnector extends AbstractConnector {
       .then((accounts: string[]): string => accounts[0])
   }
 
-  // tslint:disable-next-line
   public deactivate() {}
 
   public close(): Promise<unknown> {

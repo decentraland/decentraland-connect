@@ -1,21 +1,18 @@
-import { ConnectorUpdate } from '@web3-react/types'
-import { AbstractConnector } from './AbstractConnector'
-import { ChainId, ProviderType } from '@dcl/schemas'
-// tslint:disable-next-line
+// eslint-disable-next-line import/no-named-as-default, @typescript-eslint/naming-convention
 import type EthereumProvider from '@walletconnect/ethereum-provider'
-import { Storage } from '../storage'
+import { ConnectorUpdate } from '@web3-react/types'
+import { ChainId, ProviderType } from '@dcl/schemas'
 import { getConfiguration } from '../configuration'
+import { Storage } from '../storage'
+import { AbstractConnector } from './AbstractConnector'
 
 export class WalletConnectV2Connector extends AbstractConnector {
-  private static readonly configuration = getConfiguration()[
-    ProviderType.WALLET_CONNECT_V2
-  ]
+  private static readonly configuration = getConfiguration()[ProviderType.WALLET_CONNECT_V2]
 
   provider?: typeof EthereumProvider.prototype
 
   private static getSupportedChainIds(desiredChainId: ChainId): number[] {
-    const chainConfig =
-      WalletConnectV2Connector.configuration.chains[desiredChainId]
+    const chainConfig = WalletConnectV2Connector.configuration.chains[desiredChainId]
 
     if (!chainConfig) {
       throw new Error(
@@ -29,8 +26,7 @@ export class WalletConnectV2Connector extends AbstractConnector {
 
   constructor(private desiredChainId: ChainId) {
     super({
-      supportedChainIds:
-        WalletConnectV2Connector.getSupportedChainIds(desiredChainId)
+      supportedChainIds: WalletConnectV2Connector.getSupportedChainIds(desiredChainId)
     })
   }
 
@@ -64,10 +60,7 @@ export class WalletConnectV2Connector extends AbstractConnector {
 
   private initProvider = async () => {
     const module = await import('@walletconnect/ethereum-provider')
-    const {
-      chains,
-      optionalChains
-    } = WalletConnectV2Connector.configuration.chains[this.desiredChainId]
+    const { chains, optionalChains } = WalletConnectV2Connector.configuration.chains[this.desiredChainId]
 
     return module.default.init({
       projectId: WalletConnectV2Connector.configuration.projectId,
@@ -81,6 +74,7 @@ export class WalletConnectV2Connector extends AbstractConnector {
         themeVariables: {
           // Display the WC modal over other Decentraland UI's modals.
           // Won't be visible without this.
+          // eslint-disable-next-line @typescript-eslint/naming-convention
           '--wcm-z-index': '3000'
         }
       },
@@ -109,9 +103,7 @@ export class WalletConnectV2Connector extends AbstractConnector {
     } catch (error) {
       // If we get a stale session error during init, clear storage and retry
       if (WalletConnectV2Connector.isStaleSessionError(error)) {
-        console.warn(
-          'WalletConnect session is stale, clearing storage and retrying...'
-        )
+        console.warn('WalletConnect session is stale, clearing storage and retrying...')
         WalletConnectV2Connector.clearLocalStorage()
         provider = await this.initProvider()
       } else {
@@ -126,9 +118,7 @@ export class WalletConnectV2Connector extends AbstractConnector {
     } catch (error) {
       // If we get a stale session error during enable, clear storage and retry
       if (WalletConnectV2Connector.isStaleSessionError(error)) {
-        console.warn(
-          'WalletConnect session is stale, clearing storage and retrying...'
-        )
+        console.warn('WalletConnect session is stale, clearing storage and retrying...')
         WalletConnectV2Connector.clearLocalStorage()
         provider = await this.initProvider()
         accounts = await provider.enable()
@@ -150,7 +140,7 @@ export class WalletConnectV2Connector extends AbstractConnector {
     }
   }
 
-  getProvider = async (): Promise<any> => {
+  getProvider = async (): Promise<typeof EthereumProvider.prototype> => {
     if (!this.provider) {
       throw new Error('Provider is undefined')
     }

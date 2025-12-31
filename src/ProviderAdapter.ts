@@ -42,10 +42,7 @@ export class ProviderAdapter {
     return this.provider.emit(event, args)
   }
 
-  removeListener = (
-    event: string | symbol,
-    listener: (...args: any[]) => void
-  ) => {
+  removeListener = (event: string | symbol, listener: (...args: any[]) => void) => {
     return this.provider.removeListener(event, listener)
   }
 
@@ -78,10 +75,7 @@ export class ProviderAdapter {
 
   send(method: Method, params?: Params): Promise<unknown>
   send(args: Arguments, callback: Callback): Promise<void>
-  async send(
-    methodOrArgs: Method | Arguments,
-    paramsOrCallback?: Params | Callback
-  ): Promise<unknown> {
+  async send(methodOrArgs: Method | Arguments, paramsOrCallback?: Params | Callback): Promise<unknown> {
     let method: Method
     let params: Params
     let callback: Callback
@@ -112,9 +106,7 @@ export class ProviderAdapter {
         .then(result => [null, result])
         .catch(error => [error, undefined])
 
-      const returnValue = hasCallback
-        ? { id: '', jsonrpc: '2.0', result }
-        : result
+      const returnValue = hasCallback ? { id: '', jsonrpc: '2.0', result } : result
       return callback(err, returnValue)
     } else {
       this.patchOldMobile()

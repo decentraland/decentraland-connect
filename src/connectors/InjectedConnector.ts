@@ -1,6 +1,6 @@
-import { ChainId } from '@dcl/schemas/dist/dapps/chain-id'
 import { InjectedConnector as BaseInjectedConnector } from '@web3-react/injected-connector'
 import { ConnectorUpdate } from '@web3-react/types'
+import { ChainId } from '@dcl/schemas/dist/dapps/chain-id'
 import { ErrorUnlockingWallet } from '../types'
 
 const UNLOCK_WALLET_TIMEOUT = 60 * 1000 // 60 seconds
