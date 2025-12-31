@@ -1,6 +1,6 @@
 {
   "name": "decentraland-connect",
-  "version": "9.2.0",
+  "version": "0.0.0-development",
   "main": "cjs/index.js",
   "module": "esm/index.js",
   "exports": {
