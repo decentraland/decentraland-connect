@@ -25,7 +25,7 @@
     "test:report": "jest --coverage"
   },
   "dependencies": {
-    "@dcl/schemas": "^15.1.2",
+    "@dcl/schemas": "^21.0.0",
     "@magic-ext/oauth2": "^9.19.0",
     "@walletconnect/ethereum-provider": "^2.23.1",
     "@walletconnect/modal": "^2.7.0",
