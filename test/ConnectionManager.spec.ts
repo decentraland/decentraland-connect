@@ -1,4 +1,3 @@
-import sinon from 'sinon'
 import { ChainId } from '@dcl/schemas/dist/dapps/chain-id'
 import { ProviderType } from '@dcl/schemas/dist/dapps/provider-type'
 import { getConfiguration } from '../src/configuration'
@@ -28,7 +27,7 @@ describe('ConnectionManager', () => {
   })
 
   afterEach(() => {
-    sinon.restore()
+    jest.restoreAllMocks()
     const { storageKey } = getConfiguration()
     storage.remove(storageKey)
   })
@@ -42,7 +41,7 @@ describe('ConnectionManager', () => {
   describe('#connect', () => {
     it('should set the connector', async () => {
       const stubConnector = new StubConnector()
-      sinon.stub(connectionManager, 'buildConnector').returns(stubConnector)
+      jest.spyOn(connectionManager, 'buildConnector').mockReturnValue(stubConnector)
 
       expect(connectionManager.connector).toBe(undefined)
       await connectionManager.connect(ProviderType.INJECTED)
@@ -51,21 +50,21 @@ describe('ConnectionManager', () => {
 
     it('should activate the connector', async () => {
       const stubConnector = new StubConnector()
-      const getConnectorStub = sinon
-        .stub(connectionManager, 'buildConnector')
-        .returns(stubConnector)
-      const activateStub = sinon.stub(stubConnector, 'activate').callThrough()
+      const getConnectorMock = jest
+        .spyOn(connectionManager, 'buildConnector')
+        .mockReturnValue(stubConnector)
+      const activateMock = jest.spyOn(stubConnector, 'activate')
 
       await connectionManager.connect(ProviderType.INJECTED)
 
-      expect(getConnectorStub.calledWith(ProviderType.INJECTED)).toBe(true)
-      expect(activateStub.calledOnce).toBe(true)
+      expect(getConnectorMock).toHaveBeenCalledWith(ProviderType.INJECTED, expect.anything())
+      expect(activateMock).toHaveBeenCalledTimes(1)
     })
 
     it('should return the connection data', async () => {
       const stubConnector = new StubConnector()
       stubConnector.setChainId(ChainId.ETHEREUM_SEPOLIA)
-      sinon.stub(connectionManager, 'buildConnector').returns(stubConnector)
+      jest.spyOn(connectionManager, 'buildConnector').mockReturnValue(stubConnector)
 
       const result = await connectionManager.connect(
         ProviderType.INJECTED,
@@ -89,7 +88,7 @@ describe('ConnectionManager', () => {
     it('should not patch the provider with the request method if it already exists', async () => {
       const stubConnector = new StubConnector()
       stubConnector.setChainId(ChainId.ETHEREUM_SEPOLIA)
-      sinon.stub(connectionManager, 'buildConnector').returns(stubConnector)
+      jest.spyOn(connectionManager, 'buildConnector').mockReturnValue(stubConnector)
 
       const result = await connectionManager.connect(
         ProviderType.INJECTED,
@@ -113,7 +112,7 @@ describe('ConnectionManager', () => {
       const stubConnector = new StubConnector()
       stubConnector.setChainId(ChainId.ETHEREUM_SEPOLIA)
       const configuration = getConfiguration()
-      sinon.stub(connectionManager, 'buildConnector').returns(stubConnector)
+      jest.spyOn(connectionManager, 'buildConnector').mockReturnValue(stubConnector)
 
       await connectionManager.connect(
         ProviderType.NETWORK,
@@ -132,7 +131,7 @@ describe('ConnectionManager', () => {
       const stubConnector = new StubConnector()
       stubConnector.setChainId(ChainId.ETHEREUM_MAINNET)
       const configuration = getConfiguration()
-      sinon.stub(connectionManager, 'buildConnector').returns(stubConnector)
+      jest.spyOn(connectionManager, 'buildConnector').mockReturnValue(stubConnector)
 
       const result = await connectionManager.connect(
         ProviderType.INJECTED,
@@ -161,7 +160,7 @@ describe('ConnectionManager', () => {
     describe('and the wallet is locked', () => {
       it('should throw an error when activating the connector', async () => {
         const stubConnector = new StubLockedWalletConnector()
-        sinon.stub(connectionManager, 'buildConnector').returns(stubConnector)
+        jest.spyOn(connectionManager, 'buildConnector').mockReturnValue(stubConnector)
         await expect(
           connectionManager.connect(ProviderType.INJECTED)
         ).rejects.toThrow(ErrorUnlockingWallet)
@@ -180,17 +179,15 @@ describe('ConnectionManager', () => {
 
     it('should connect to the last supplied provider', async () => {
       const stubConnector = new StubConnector()
-      const getConnectorStub = sinon
-        .stub(connectionManager, 'buildConnector')
-        .returns(stubConnector)
+      const getConnectorMock = jest
+        .spyOn(connectionManager, 'buildConnector')
+        .mockReturnValue(stubConnector)
 
       await connectionManager.connect(ProviderType.FORTMATIC)
       const result = await connectionManager.tryPreviousConnection()
       const { account } = await stubConnector.activate()
 
-      expect(
-        getConnectorStub.firstCall.calledWith(ProviderType.FORTMATIC)
-      ).toBe(true)
+      expect(getConnectorMock).toHaveBeenNthCalledWith(1, ProviderType.FORTMATIC, expect.anything())
 
       expect(JSON.stringify(result)).toBe(
         JSON.stringify({
@@ -209,7 +206,7 @@ describe('ConnectionManager', () => {
     it('should return the data used on the last successful connection', async () => {
       const stubConnector = new StubConnector()
       stubConnector.setChainId(ChainId.ETHEREUM_SEPOLIA)
-      sinon.stub(connectionManager, 'buildConnector').returns(stubConnector)
+      jest.spyOn(connectionManager, 'buildConnector').mockReturnValue(stubConnector)
 
       await connectionManager.connect(
         ProviderType.INJECTED,
@@ -230,7 +227,7 @@ describe('ConnectionManager', () => {
   describe('#isConnected', () => {
     it('should return true if a connector exists and a connection happened', async () => {
       const stubConnector = new StubConnector()
-      sinon.stub(connectionManager, 'buildConnector').returns(stubConnector)
+      jest.spyOn(connectionManager, 'buildConnector').mockReturnValue(stubConnector)
 
       await connectionManager.connect(
         ProviderType.INJECTED,
@@ -258,27 +255,23 @@ describe('ConnectionManager', () => {
 
     it('should deactivate the connector', async () => {
       connectionManager.connector = new StubConnector()
-      const deactivateStub = sinon.stub(
-        connectionManager.connector,
-        'deactivate'
-      )
+      const deactivateMock = jest.spyOn(connectionManager.connector, 'deactivate')
 
       await connectionManager.disconnect()
 
-      expect(deactivateStub.calledOnce).toBe(true)
+      expect(deactivateMock).toHaveBeenCalledTimes(1)
     })
 
     it('should call close if the provider type allows it', async () => {
       connectionManager.connector = new StubClosableConnector()
-      const closeStub = sinon.stub(
+      const closeMock = jest.spyOn(
         connectionManager.connector as ClosableConnector,
         'close'
       )
 
       await connectionManager.disconnect()
 
-      expect(closeStub.calledOnce).toBe(true)
-      sinon.restore()
+      expect(closeMock).toHaveBeenCalledTimes(1)
     })
 
     it('should clean the storage', async () => {
@@ -310,21 +303,21 @@ describe('ConnectionManager', () => {
         const stubConnector = new StubConnector()
         const provider = { send: () => {} }
 
-        const getConnectorStub = sinon
-          .stub(connectionManager, 'buildConnector')
-          .returns(stubConnector)
-        const getProviderStub = sinon
-          .stub(stubConnector, 'getProvider')
-          .returns(Promise.resolve(provider))
+        const getConnectorMock = jest
+          .spyOn(connectionManager, 'buildConnector')
+          .mockReturnValue(stubConnector)
+        const getProviderMock = jest
+          .spyOn(stubConnector, 'getProvider')
+          .mockResolvedValue(provider)
 
         const createdProvider = await connectionManager.createProvider(
           providerType
         )
 
-        expect(getConnectorStub.calledWith(providerType)).toBe(true)
-        expect(getProviderStub.calledOnce).toBe(true)
+        expect(getConnectorMock).toHaveBeenCalledWith(providerType, expect.anything())
+        expect(getProviderMock).toHaveBeenCalledTimes(1)
         expect(createdProvider.request).not.toBe(undefined)
-        sinon.restore()
+        jest.restoreAllMocks()
       }
     })
   })
@@ -332,14 +325,11 @@ describe('ConnectionManager', () => {
   describe('#getProvider', () => {
     it('should call the connectors getProvider method', async () => {
       connectionManager.connector = new StubConnector()
-      const getProviderStub = sinon.stub(
-        connectionManager.connector,
-        'getProvider'
-      )
+      const getProviderMock = jest.spyOn(connectionManager.connector, 'getProvider')
 
       await connectionManager.getProvider()
 
-      expect(getProviderStub.calledOnce).toBe(true)
+      expect(getProviderMock).toHaveBeenCalledTimes(1)
     })
 
     it('should throw if no successful connect occurred', async () => {

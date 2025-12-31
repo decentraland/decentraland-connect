@@ -1,4 +1,3 @@
-import sinon from 'sinon'
 import { ChainId } from '@dcl/schemas/dist/dapps/chain-id'
 import { ProviderType } from '@dcl/schemas/dist/dapps/provider-type'
 import {
@@ -48,16 +47,16 @@ describe('connectors', () => {
             }
           }
         }
-        const configurationStub = sinon
-          .stub(configurationMethods, 'getConfiguration')
-          .returns(mockConfiguration)
+        const configurationMock = jest
+          .spyOn(configurationMethods, 'getConfiguration')
+          .mockReturnValue(mockConfiguration)
 
         const connector = new FortmaticConnector(chainId)
 
         expect(await connector.getChainId()).toBe(chainId)
         expect(await connector.getApiKey()).toBe(apiKey)
 
-        configurationStub.restore()
+        configurationMock.mockRestore()
       })
     })
   })

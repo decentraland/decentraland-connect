@@ -1,22 +1,23 @@
-import sinon from 'sinon'
 import { LocalStorage } from '../src/storage'
 
 describe('LocalStorage', () => {
   const browser: any = global
-  const windowLocalStorage = {
-    getItem: (_key: string) => { },
-    setItem: (_key: string, _value: any) => { },
-    removeItem: (_key: string) => { }
+  let windowLocalStorage: {
+    getItem: jest.Mock
+    setItem: jest.Mock
+    removeItem: jest.Mock
   }
-  let mockStorage: sinon.SinonMock
 
   beforeEach(() => {
-    mockStorage = sinon.mock(windowLocalStorage)
+    windowLocalStorage = {
+      getItem: jest.fn(),
+      setItem: jest.fn(),
+      removeItem: jest.fn()
+    }
     browser.window = { localStorage: windowLocalStorage }
   })
 
   afterEach(() => {
-    mockStorage.restore()
     delete browser.window
   })
 
@@ -24,31 +25,25 @@ describe('LocalStorage', () => {
     it('should call the window localStorage get method', () => {
       const key = 'key'
       const value = 'value'
-      mockStorage
-        .expects('getItem')
-        .once()
-        .withArgs(key)
-        .returns(value)
+      windowLocalStorage.getItem.mockReturnValue(value)
 
       const localStorage = new LocalStorage()
       const result = localStorage.get(key)
 
-      mockStorage.verify()
+      expect(windowLocalStorage.getItem).toHaveBeenCalledWith(key)
+      expect(windowLocalStorage.getItem).toHaveBeenCalledTimes(1)
       expect(result).toBe(value)
     })
 
     it('should return undefined when the key does not exist', () => {
       const key = 'key'
-      mockStorage
-        .expects('getItem')
-        .once()
-        .withArgs(key)
-        .returns(null)
+      windowLocalStorage.getItem.mockReturnValue(null)
 
       const localStorage = new LocalStorage()
       const result = localStorage.get(key)
 
-      mockStorage.verify()
+      expect(windowLocalStorage.getItem).toHaveBeenCalledWith(key)
+      expect(windowLocalStorage.getItem).toHaveBeenCalledTimes(1)
       expect(result).toBe(undefined)
     })
   })
@@ -57,26 +52,24 @@ describe('LocalStorage', () => {
     it('should call the window localStorage set method', () => {
       const key = 'key'
       const value = 'value'
-      mockStorage
-        .expects('setItem')
-        .once()
-        .withArgs(key, value)
 
       const localStorage = new LocalStorage()
       localStorage.set(key, value)
+
+      expect(windowLocalStorage.setItem).toHaveBeenCalledWith(key, value)
+      expect(windowLocalStorage.setItem).toHaveBeenCalledTimes(1)
     })
   })
 
   describe('#remove', () => {
     it('should call the window localStorage removeItem method', () => {
       const key = 'key'
-      mockStorage
-        .expects('removeItem')
-        .once()
-        .withArgs(key)
 
       const localStorage = new LocalStorage()
       localStorage.remove(key)
+
+      expect(windowLocalStorage.removeItem).toHaveBeenCalledWith(key)
+      expect(windowLocalStorage.removeItem).toHaveBeenCalledTimes(1)
     })
   })
 })
