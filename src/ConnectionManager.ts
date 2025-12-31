@@ -213,7 +213,7 @@ export class ConnectionManager {
   }
 
   private isClosableConnector() {
-    return this.connector && typeof this.connector['close'] !== 'undefined'
+    return this.connector && 'close' in this.connector
   }
 
   private handleWeb3ReactDeactivate = async () => {

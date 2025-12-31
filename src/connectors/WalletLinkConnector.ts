@@ -7,9 +7,14 @@ import { getConfiguration } from '../configuration'
 export class WalletLinkConnector extends BaseWalletLinkConnector {
   constructor(chainId: ChainId) {
     const config = getConfiguration()[ProviderType.WALLET_LINK]
+    const url = config.urls[chainId as keyof typeof config.urls]
+
+    if (!url) {
+      throw new Error(`Unsupported chainId for WalletLink: ${chainId}. Supported chains: ${Object.keys(config.urls).join(', ')}`)
+    }
 
     super({
-      url: config.urls[chainId],
+      url,
       appName: config.appName,
       supportedChainIds: [chainId]
     })

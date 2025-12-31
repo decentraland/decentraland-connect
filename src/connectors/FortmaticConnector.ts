@@ -18,9 +18,9 @@ export class FortmaticConnector extends AbstractConnector {
     }
     super({ supportedChainIds })
 
-    this.apiKey = fortmaticConfiguration.apiKeys[chainId]
+    this.apiKey = fortmaticConfiguration.apiKeys[chainId as keyof typeof fortmaticConfiguration.apiKeys]
     this.chainId = chainId
-    this.rpcUrl = fortmaticConfiguration.urls[chainId]
+    this.rpcUrl = fortmaticConfiguration.urls[chainId as keyof typeof fortmaticConfiguration.urls]
   }
 
   public async activate(): Promise<ConnectorUpdate> {

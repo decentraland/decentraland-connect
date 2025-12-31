@@ -137,7 +137,7 @@ export class ProviderAdapter {
   }
 
   isModernProvider(): boolean {
-    return typeof this.provider['request'] === 'function'
+    return 'request' in this.provider && typeof this.provider.request === 'function'
   }
 
   hasSendAsync(): boolean {

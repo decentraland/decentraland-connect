@@ -12,7 +12,8 @@ export class WalletConnectV2Connector extends AbstractConnector {
   provider?: typeof EthereumProvider.prototype
 
   private static getSupportedChainIds(desiredChainId: ChainId): number[] {
-    const chainConfig = WalletConnectV2Connector.configuration.chains[desiredChainId]
+    const chains = WalletConnectV2Connector.configuration.chains as Record<ChainId, { chains: ChainId[]; optionalChains: ChainId[] }>
+    const chainConfig = chains[desiredChainId]
 
     if (!chainConfig) {
       throw new Error(
@@ -60,13 +61,14 @@ export class WalletConnectV2Connector extends AbstractConnector {
 
   private initProvider = async () => {
     const module = await import('@walletconnect/ethereum-provider')
-    const { chains, optionalChains } = WalletConnectV2Connector.configuration.chains[this.desiredChainId]
+    const chainsConfig = WalletConnectV2Connector.configuration.chains as Record<ChainId, { chains: ChainId[]; optionalChains: ChainId[] }>
+    const { chains, optionalChains } = chainsConfig[this.desiredChainId]
 
     return module.default.init({
       projectId: WalletConnectV2Connector.configuration.projectId,
       rpcMap: WalletConnectV2Connector.configuration.urls,
       chains,
-      optionalChains,
+      optionalChains: optionalChains as [number, ...number[]],
       showQrModal: true,
       // Decentraland's RPCs don't support the `test` method used for the ping.
       disableProviderPing: true,

@@ -119,7 +119,8 @@ export function getRpcUrls(providerType: ProviderType) {
   }
 
   if (project) {
-    for (const chainId in rpcUrls) {
+    const chainIds = Object.keys(rpcUrls) as unknown as Array<keyof typeof rpcUrls>
+    for (const chainId of chainIds) {
       rpcUrls[chainId] += `?project=${project}`
     }
   }

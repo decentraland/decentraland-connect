@@ -110,11 +110,17 @@ export class MagicConnector extends AbstractConnector {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     const { OAuthExtension } = await import('@magic-ext/oauth2')
     const magicConfiguration = getConfiguration()[this.isTest ? ProviderType.MAGIC_TEST : ProviderType.MAGIC]
+    const rpcUrl = magicConfiguration.urls[chainId as keyof typeof magicConfiguration.urls]
+
+    if (!rpcUrl) {
+      throw new Error(`Unsupported chainId for Magic: ${chainId}. Supported chains: ${Object.keys(magicConfiguration.urls).join(', ')}`)
+    }
+
     return new Magic(magicConfiguration.apiKey, {
       extensions: [new OAuthExtension()],
       network: {
-        rpcUrl: magicConfiguration.urls[chainId],
-        chainId: chainId
+        rpcUrl,
+        chainId
       }
     })
   }
