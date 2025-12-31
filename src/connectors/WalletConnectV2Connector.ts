@@ -13,16 +13,24 @@ export class WalletConnectV2Connector extends AbstractConnector {
 
   provider?: typeof EthereumProvider.prototype
 
+  private static getSupportedChainIds(desiredChainId: ChainId): number[] {
+    const chainConfig =
+      WalletConnectV2Connector.configuration.chains[desiredChainId]
+
+    if (!chainConfig) {
+      throw new Error(
+        `Unsupported chainId for WalletConnect: ${desiredChainId}. ` +
+          `Supported chains: ${Object.keys(WalletConnectV2Connector.configuration.chains).join(', ')}`
+      )
+    }
+
+    return [...chainConfig.chains, ...chainConfig.optionalChains]
+  }
+
   constructor(private desiredChainId: ChainId) {
     super({
-      supportedChainIds: ((): number[] => {
-        const {
-          chains,
-          optionalChains
-        } = WalletConnectV2Connector.configuration.chains[desiredChainId]
-
-        return [...chains, ...optionalChains]
-      })()
+      supportedChainIds:
+        WalletConnectV2Connector.getSupportedChainIds(desiredChainId)
     })
   }
 
@@ -30,48 +38,104 @@ export class WalletConnectV2Connector extends AbstractConnector {
     storage.removeRegExp(new RegExp('^wc@2:'))
   }
 
-  activate = async (): Promise<ConnectorUpdate<string | number>> => {
-    const provider = await import('@walletconnect/ethereum-provider').then(
-      module => {
-        const {
-          chains,
-          optionalChains
-        } = WalletConnectV2Connector.configuration.chains[this.desiredChainId]
-
-        return module.default.init({
-          projectId: WalletConnectV2Connector.configuration.projectId,
-          rpcMap: WalletConnectV2Connector.configuration.urls,
-          chains,
-          optionalChains,
-          showQrModal: true,
-          // Decentraland's RPCs don't support the `test` method used for the ping.
-          disableProviderPing: true,
-          qrModalOptions: {
-            themeVariables: {
-              // Display the WC modal over other Decentraland UI's modals.
-              // Won't be visible without this.
-              '--wcm-z-index': '3000'
-            }
-          },
-          // Methods and events based on what is used on the decentraland dapps and the ethereum-provider lib found at:
-          // https://github.com/WalletConnect/walletconnect-monorepo/blob/v2.0/providers/ethereum-provider/src/constants/rpc.ts
-          // If the wallet doesn't support non optional methods, it will not allow the connection.
-          methods: ['eth_sendTransaction', 'personal_sign'],
-          optionalMethods: [
-            'eth_accounts',
-            'eth_requestAccounts',
-            'eth_sign',
-            'eth_signTypedData_v4',
-            'wallet_switchEthereumChain',
-            'wallet_addEthereumChain'
-          ],
-          events: ['chainChanged', 'accountsChanged'],
-          optionalEvents: ['disconnect']
-        })
+  private static clearLocalStorage = () => {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      for (let i = localStorage.length - 1; i >= 0; i--) {
+        const key = localStorage.key(i)
+        if (key && key.startsWith('wc@2:')) {
+          localStorage.removeItem(key)
+        }
       }
-    )
+    }
+  }
 
-    const accounts = await provider.enable()
+  private static isStaleSessionError(error: unknown): boolean {
+    if (error instanceof Error) {
+      const message = error.message.toLowerCase()
+      return (
+        message.includes('no matching key') ||
+        message.includes("session topic doesn't exist") ||
+        message.includes('missing or invalid') ||
+        message.includes('expired')
+      )
+    }
+    return false
+  }
+
+  private initProvider = async () => {
+    const module = await import('@walletconnect/ethereum-provider')
+    const {
+      chains,
+      optionalChains
+    } = WalletConnectV2Connector.configuration.chains[this.desiredChainId]
+
+    return module.default.init({
+      projectId: WalletConnectV2Connector.configuration.projectId,
+      rpcMap: WalletConnectV2Connector.configuration.urls,
+      chains,
+      optionalChains,
+      showQrModal: true,
+      // Decentraland's RPCs don't support the `test` method used for the ping.
+      disableProviderPing: true,
+      qrModalOptions: {
+        themeVariables: {
+          // Display the WC modal over other Decentraland UI's modals.
+          // Won't be visible without this.
+          '--wcm-z-index': '3000'
+        }
+      },
+      // Methods and events based on what is used on the decentraland dapps and the ethereum-provider lib found at:
+      // https://github.com/WalletConnect/walletconnect-monorepo/blob/v2.0/providers/ethereum-provider/src/constants/rpc.ts
+      // If the wallet doesn't support non optional methods, it will not allow the connection.
+      methods: ['eth_sendTransaction', 'personal_sign'],
+      optionalMethods: [
+        'eth_accounts',
+        'eth_requestAccounts',
+        'eth_sign',
+        'eth_signTypedData_v4',
+        'wallet_switchEthereumChain',
+        'wallet_addEthereumChain'
+      ],
+      events: ['chainChanged', 'accountsChanged'],
+      optionalEvents: ['disconnect']
+    })
+  }
+
+  activate = async (): Promise<ConnectorUpdate<string | number>> => {
+    let provider: typeof EthereumProvider.prototype
+
+    try {
+      provider = await this.initProvider()
+    } catch (error) {
+      // If we get a stale session error during init, clear storage and retry
+      if (WalletConnectV2Connector.isStaleSessionError(error)) {
+        console.warn(
+          'WalletConnect session is stale, clearing storage and retrying...'
+        )
+        WalletConnectV2Connector.clearLocalStorage()
+        provider = await this.initProvider()
+      } else {
+        throw error
+      }
+    }
+
+    let accounts: string[]
+
+    try {
+      accounts = await provider.enable()
+    } catch (error) {
+      // If we get a stale session error during enable, clear storage and retry
+      if (WalletConnectV2Connector.isStaleSessionError(error)) {
+        console.warn(
+          'WalletConnect session is stale, clearing storage and retrying...'
+        )
+        WalletConnectV2Connector.clearLocalStorage()
+        provider = await this.initProvider()
+        accounts = await provider.enable()
+      } else {
+        throw error
+      }
+    }
 
     provider.on('accountsChanged', this.handleAccountsChanged)
     provider.on('chainChanged', this.handleChainChanged)
@@ -107,7 +171,7 @@ export class WalletConnectV2Connector extends AbstractConnector {
       throw new Error('Provider is undefined')
     }
 
-    return this.provider.accounts[0]
+    return this.provider.accounts[0] ?? null
   }
 
   getWalletName = (): string | undefined => {
@@ -117,15 +181,25 @@ export class WalletConnectV2Connector extends AbstractConnector {
   deactivate = (): void => undefined
 
   close = async (): Promise<void> => {
-    if (!this.provider) {
+    // Capture provider reference and clear it immediately to prevent
+    // other methods from using it during/after disconnect
+    const provider = this.provider
+    if (!provider) {
       return
     }
+    this.provider = undefined
 
-    return this.provider
-    .removeListener('accountsChanged', this.handleAccountsChanged)
-    .removeListener('chainChanged', this.handleChainChanged)
-    .removeListener('disconnect', this.handleDisconnect)
-    .disconnect()
+    // Remove listeners first to prevent any callbacks during disconnect
+    provider.removeListener('accountsChanged', this.handleAccountsChanged)
+    provider.removeListener('chainChanged', this.handleChainChanged)
+    provider.removeListener('disconnect', this.handleDisconnect)
+
+    try {
+      await provider.disconnect()
+    } catch (error) {
+      // Log but don't throw - we've already cleaned up our state
+      console.warn('Error during WalletConnect disconnect:', error)
+    }
   }
 
   handleAccountsChanged = (accounts: string[]): void => {
@@ -137,10 +211,6 @@ export class WalletConnectV2Connector extends AbstractConnector {
   }
 
   handleDisconnect = (): void => {
-    if (!this.provider) {
-      throw new Error('Provider is undefined')
-    }
-
-    return this.emitDeactivate()
+    this.emitDeactivate()
   }
 }
