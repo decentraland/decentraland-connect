@@ -3,7 +3,7 @@ import type EthereumProvider from '@walletconnect/ethereum-provider'
 import { ConnectorUpdate } from '@web3-react/types'
 import { ChainId, ProviderType } from '@dcl/schemas'
 import { getConfiguration } from '../configuration'
-import { Storage } from '../storage'
+import { LocalStorage, Storage } from '../storage'
 import { AbstractConnector } from './AbstractConnector'
 
 export class WalletConnectV2Connector extends AbstractConnector {
@@ -31,19 +31,11 @@ export class WalletConnectV2Connector extends AbstractConnector {
     })
   }
 
-  static clearStorage = (storage: Storage) => {
+  /**
+   * Clears all WalletConnect v2 session data from localStorage.
+   */
+  static clearStorage = (storage: Storage = new LocalStorage()) => {
     storage.removeRegExp(new RegExp('^wc@2:'))
-  }
-
-  private static clearLocalStorage = () => {
-    if (typeof window !== 'undefined' && window.localStorage) {
-      for (let i = localStorage.length - 1; i >= 0; i--) {
-        const key = localStorage.key(i)
-        if (key && key.startsWith('wc@2:')) {
-          localStorage.removeItem(key)
-        }
-      }
-    }
   }
 
   private static isStaleSessionError(error: unknown): boolean {
@@ -106,7 +98,7 @@ export class WalletConnectV2Connector extends AbstractConnector {
       // If we get a stale session error during init, clear storage and retry
       if (WalletConnectV2Connector.isStaleSessionError(error)) {
         console.warn('WalletConnect session is stale, clearing storage and retrying...')
-        WalletConnectV2Connector.clearLocalStorage()
+        WalletConnectV2Connector.clearStorage()
         provider = await this.initProvider()
       } else {
         throw error
@@ -121,7 +113,7 @@ export class WalletConnectV2Connector extends AbstractConnector {
       // If we get a stale session error during enable, clear storage and retry
       if (WalletConnectV2Connector.isStaleSessionError(error)) {
         console.warn('WalletConnect session is stale, clearing storage and retrying...')
-        WalletConnectV2Connector.clearLocalStorage()
+        WalletConnectV2Connector.clearStorage()
         provider = await this.initProvider()
         accounts = await provider.enable()
       } else {
