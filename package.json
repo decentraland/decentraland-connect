@@ -22,9 +22,7 @@
     "build": "npm run build:esm && npm run build:cjs",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:report": "jest --coverage",
-    "semantic-release": "semantic-release",
-    "commitmsg": "validate-commit-msg"
+    "test:report": "jest --coverage"
   },
   "dependencies": {
     "@dcl/schemas": "^15.1.2",
@@ -54,8 +52,7 @@
     "tslint-config-prettier": "^1.18.0",
     "tslint-language-service": "^0.9.9",
     "tslint-plugin-prettier": "^2.3.0",
-    "typescript": "^4.9.5",
-    "validate-commit-message": "^3.0.1"
+    "typescript": "^4.9.5"
   },
   "prettier": {
     "printWidth": 80,
