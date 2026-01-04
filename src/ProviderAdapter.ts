@@ -34,18 +34,15 @@ export class ProviderAdapter {
     } as Provider
   }
 
-  on = (event: string | symbol, listener: (...args: any[]) => void) => {
+  on = (event: string | symbol, listener: (...args: unknown[]) => void) => {
     return this.provider.on(event, listener)
   }
 
-  emit = (event: string | symbol, ...args: any[]) => {
+  emit = (event: string | symbol, ...args: unknown[]) => {
     return this.provider.emit(event, args)
   }
 
-  removeListener = (
-    event: string | symbol,
-    listener: (...args: any[]) => void
-  ) => {
+  removeListener = (event: string | symbol, listener: (...args: unknown[]) => void) => {
     return this.provider.removeListener(event, listener)
   }
 
@@ -65,7 +62,7 @@ export class ProviderAdapter {
       return this.provider.sendAsync(args, (err, value) => {
         // Some providers like Wallet Connect V2 do not wrap the sendAsync response in the standardized JSON-RPC format.
         // It needs to be wrapped for compatibility with other connectors.
-        if (value && !value.hasOwnProperty('result')) {
+        if (value && !Object.prototype.hasOwnProperty.call(value, 'result')) {
           callback(err, { id: 0, jsonrpc: '2.0', result: value })
         } else {
           callback(err, value)
@@ -78,10 +75,7 @@ export class ProviderAdapter {
 
   send(method: Method, params?: Params): Promise<unknown>
   send(args: Arguments, callback: Callback): Promise<void>
-  async send(
-    methodOrArgs: Method | Arguments,
-    paramsOrCallback?: Params | Callback
-  ): Promise<unknown> {
+  async send(methodOrArgs: Method | Arguments, paramsOrCallback?: Params | Callback): Promise<unknown> {
     let method: Method
     let params: Params
     let callback: Callback
@@ -112,14 +106,12 @@ export class ProviderAdapter {
         .then(result => [null, result])
         .catch(error => [error, undefined])
 
-      const returnValue = hasCallback
-        ? { id: '', jsonrpc: '2.0', result }
-        : result
+      const returnValue = hasCallback ? { id: '', jsonrpc: '2.0', result } : result
       return callback(err, returnValue)
     } else {
       this.patchOldMobile()
 
-      const [err, value]: [number | null, any] = hasCallback
+      const [err, value]: [number | null, unknown] = hasCallback
         ? await new Promise(resolve =>
             this.provider.send(methodOrArgs, (err, value) => {
               resolve([err, value])
@@ -134,10 +126,8 @@ export class ProviderAdapter {
                 params
               },
               (err, value) => {
-                resolve([
-                  value && value.hasOwnProperty('error') ? value.error : err,
-                  value && value.hasOwnProperty('result') ? value.result : value
-                ])
+                const response = value as { error?: number | null; result?: unknown } | undefined
+                resolve([response?.error ?? err, response?.result ?? value])
               }
             )
           )
@@ -147,7 +137,7 @@ export class ProviderAdapter {
   }
 
   isModernProvider(): boolean {
-    return typeof this.provider['request'] === 'function'
+    return 'request' in this.provider && typeof this.provider.request === 'function'
   }
 
   hasSendAsync(): boolean {
@@ -165,7 +155,7 @@ export class ProviderAdapter {
       this.provider.send !== this.provider.sendAsync
     ) {
       // send has to be replaced by sendAsync for old providers
-      this.provider.send = this.provider.sendAsync as any
+      this.provider.send = this.provider.sendAsync.bind(this.provider) as typeof this.provider.send
     }
   }
 }

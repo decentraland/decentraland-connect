@@ -1,26 +1,21 @@
+/* eslint-disable import/group-exports */
+import { ConnectorEvent, ConnectorUpdate } from '@web3-react/types'
 import { ChainId } from '@dcl/schemas/dist/dapps/chain-id'
 import { ProviderType } from '@dcl/schemas/dist/dapps/provider-type'
-import { ConnectorEvent, ConnectorUpdate } from '@web3-react/types'
+import { getConfiguration } from './configuration'
 import {
   AbstractConnector,
-  InjectedConnector,
   FortmaticConnector,
-  NetworkConnector,
-  WalletLinkConnector,
+  InjectedConnector,
   MagicConnector,
   MagicTestConnector,
-  WalletConnectV2Connector
+  NetworkConnector,
+  WalletConnectV2Connector,
+  WalletLinkConnector
 } from './connectors'
-import { LocalStorage, Storage } from './storage'
-import {
-  ConnectionData,
-  ConnectionResponse,
-  Provider,
-  ClosableConnector
-} from './types'
-import { getConfiguration } from './configuration'
 import { ProviderAdapter } from './ProviderAdapter'
-import './declarations'
+import { LocalStorage, Storage } from './storage'
+import { ClosableConnector, ConnectionData, ConnectionResponse, Provider } from './types'
 
 export class ConnectionManager {
   connector?: AbstractConnector
@@ -28,10 +23,7 @@ export class ConnectionManager {
 
   constructor(public storage: Storage) {}
 
-  async connect(
-    providerType: ProviderType,
-    chainIdToConnect: ChainId = ChainId.ETHEREUM_MAINNET
-  ): Promise<ConnectionResponse> {
+  async connect(providerType: ProviderType, chainIdToConnect: ChainId = ChainId.ETHEREUM_MAINNET): Promise<ConnectionResponse> {
     // If a previous connection existed, disconnect from it
     if (this.connector) {
       try {
@@ -56,10 +48,7 @@ export class ConnectionManager {
     }
 
     // TODO: Remove magic_test provider
-    if (
-      providerType === ProviderType.MAGIC ||
-      providerType === ProviderType.MAGIC_TEST
-    ) {
+    if (providerType === ProviderType.MAGIC || providerType === ProviderType.MAGIC_TEST) {
       connector.on(ConnectorEvent.Update, ({ chainId }) => {
         if (chainId) {
           this.setConnectionData(providerType, chainId)
@@ -74,9 +63,7 @@ export class ConnectionManager {
       const currentChainIdHex = (await provider.request({
         method: 'eth_chainId'
       })) as string
-      chainId = currentChainIdHex
-        ? (parseInt(currentChainIdHex, 16) as ChainId)
-        : chainId
+      chainId = currentChainIdHex ? (parseInt(currentChainIdHex, 16) as ChainId) : chainId
     }
 
     this.connector = connector
@@ -97,26 +84,22 @@ export class ConnectionManager {
   async tryPreviousConnection(): Promise<ConnectionResponse> {
     const connectionData = this.getConnectionData()
     if (!connectionData) {
-      throw new Error(
-        'Could not find a valid provider. Make sure to call the `connect` method first'
-      )
+      throw new Error('Could not find a valid provider. Make sure to call the `connect` method first')
     }
 
     if (this.connector) {
+      const [provider, account] = await Promise.all([this.connector.getProvider(), this.connector.getAccount()])
       return {
-        provider: await this.connector.getProvider(),
+        provider,
         providerType: connectionData.providerType,
         chainId: connectionData.chainId,
-        account: await this.connector.getAccount()
+        account
       }
     }
 
     const response = this.promiseOfConnection
       ? await this.promiseOfConnection
-      : await (this.promiseOfConnection = this.connect(
-          connectionData.providerType,
-          connectionData.chainId
-        ))
+      : await (this.promiseOfConnection = this.connect(connectionData.providerType, connectionData.chainId))
     this.promiseOfConnection = undefined
 
     return {
@@ -126,11 +109,7 @@ export class ConnectionManager {
   }
 
   getAvailableProviders(): ProviderType[] {
-    const available = [
-      ProviderType.FORTMATIC,
-      ProviderType.WALLET_CONNECT,
-      ProviderType.WALLET_LINK
-    ]
+    const available = [ProviderType.FORTMATIC, ProviderType.WALLET_CONNECT, ProviderType.WALLET_LINK]
     if (typeof window !== 'undefined' && window.ethereum !== undefined) {
       available.unshift(ProviderType.INJECTED)
     } else {
@@ -178,19 +157,13 @@ export class ConnectionManager {
     return undefined
   }
 
-  async createProvider(
-    providerType: ProviderType,
-    chainId: ChainId = ChainId.ETHEREUM_MAINNET
-  ): Promise<Provider> {
+  async createProvider(providerType: ProviderType, chainId: ChainId = ChainId.ETHEREUM_MAINNET): Promise<Provider> {
     const connector = this.buildConnector(providerType, chainId)
     const provider = await connector.getProvider()
     return ProviderAdapter.adapt(provider)
   }
 
-  buildConnector(
-    providerType: ProviderType,
-    chainId: ChainId
-  ): AbstractConnector {
+  buildConnector(providerType: ProviderType, chainId: ChainId): AbstractConnector {
     switch (providerType) {
       case ProviderType.INJECTED:
         return new InjectedConnector(chainId)
@@ -214,7 +187,12 @@ export class ConnectionManager {
   getConnectionData(): ConnectionData | undefined {
     const { storageKey } = getConfiguration()
     const connectionData = this.storage.get(storageKey)
-    return connectionData ? JSON.parse(connectionData) : undefined
+    try {
+      return connectionData ? JSON.parse(connectionData) : undefined
+    } catch (error) {
+      console.error('Error parsing connection data', error)
+      return undefined
+    }
   }
 
   private clearConnectionData = () => {
@@ -235,7 +213,7 @@ export class ConnectionManager {
   }
 
   private isClosableConnector() {
-    return this.connector && typeof this.connector['close'] !== 'undefined'
+    return this.connector && 'close' in this.connector
   }
 
   private handleWeb3ReactDeactivate = async () => {

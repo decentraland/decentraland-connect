@@ -1,11 +1,11 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import { ChainId } from '@dcl/schemas'
-import { expect } from 'chai'
 import { ProviderType } from '@dcl/schemas/dist/dapps/provider-type'
 import { getConfiguration, getRpcUrls } from '../src/configuration'
 
 describe('#getConfiguration', () => {
   it('should return the configuration using the environment', () => {
-    expect(getConfiguration()).to.deep.eq({
+    expect(getConfiguration()).toEqual({
       storageKey: 'decentraland-connect-storage-key',
       injected: {},
       formatic: {
@@ -40,37 +40,26 @@ describe('#getConfiguration', () => {
       },
       wallet_connect_v2: {
         projectId: '61570c542c2d66c659492e5b24a41522',
-        chains: {
-          '1': {
-            chains: [ChainId.ETHEREUM_MAINNET],
-            optionalChains: [
-              ChainId.MATIC_MAINNET,
-              ChainId.ARBITRUM_MAINNET,
-              ChainId.OPTIMISM_MAINNET,
-              ChainId.AVALANCHE_MAINNET,
-              ChainId.BSC_MAINNET,
-              ChainId.FANTOM_MAINNET
-            ]
-          },
-          '11155111': {
-            chains: [ChainId.ETHEREUM_SEPOLIA],
-            optionalChains: [ChainId.MATIC_AMOY]
-          }
-        },
+        chains: [
+          ChainId.ETHEREUM_MAINNET,
+          ChainId.ETHEREUM_SEPOLIA,
+          ChainId.MATIC_MAINNET,
+          ChainId.MATIC_AMOY,
+          ChainId.ARBITRUM_MAINNET,
+          ChainId.OPTIMISM_MAINNET,
+          ChainId.AVALANCHE_MAINNET,
+          ChainId.BSC_MAINNET,
+          ChainId.FANTOM_MAINNET
+        ],
         urls: {
           '1': 'https://rpc.decentraland.org/mainnet?project=walletconnect-v2',
-          '10':
-            'https://rpc.decentraland.org/optimism?project=walletconnect-v2',
+          '10': 'https://rpc.decentraland.org/optimism?project=walletconnect-v2',
           '56': 'https://rpc.decentraland.org/binance?project=walletconnect-v2',
-          '11155111':
-            'https://rpc.decentraland.org/sepolia?project=walletconnect-v2',
-          '137':
-            'https://rpc.decentraland.org/polygon?project=walletconnect-v2',
+          '11155111': 'https://rpc.decentraland.org/sepolia?project=walletconnect-v2',
+          '137': 'https://rpc.decentraland.org/polygon?project=walletconnect-v2',
           '250': 'https://rpc.decentraland.org/fantom?project=walletconnect-v2',
-          '42161':
-            'https://rpc.decentraland.org/arbitrum?project=walletconnect-v2',
-          '43114':
-            'https://rpc.decentraland.org/avalanche?project=walletconnect-v2',
+          '42161': 'https://rpc.decentraland.org/arbitrum?project=walletconnect-v2',
+          '43114': 'https://rpc.decentraland.org/avalanche?project=walletconnect-v2',
           '80002': 'https://rpc.decentraland.org/amoy?project=walletconnect-v2'
         }
       },
@@ -145,7 +134,7 @@ describe('#getConfiguration', () => {
 describe('#getRpcUrls', () => {
   describe('when the provider type does not have a special treatment', () => {
     it('should return the rpc configurations', () => {
-      expect(getRpcUrls(ProviderType.INJECTED)).to.deep.eq({
+      expect(getRpcUrls(ProviderType.INJECTED)).toEqual({
         '1': 'https://rpc.decentraland.org/mainnet',
         '10': 'https://rpc.decentraland.org/optimism',
         '56': 'https://rpc.decentraland.org/binance',
@@ -161,26 +150,23 @@ describe('#getRpcUrls', () => {
 
   describe('when the provider type is wallet connect 2', () => {
     it('should return the rpc configurations appending the project query string', () => {
-      expect(getRpcUrls(ProviderType.WALLET_CONNECT_V2)).to.deep.eq({
+      expect(getRpcUrls(ProviderType.WALLET_CONNECT_V2)).toEqual({
         '1': 'https://rpc.decentraland.org/mainnet?project=walletconnect-v2',
         '10': 'https://rpc.decentraland.org/optimism?project=walletconnect-v2',
         '56': 'https://rpc.decentraland.org/binance?project=walletconnect-v2',
         '137': 'https://rpc.decentraland.org/polygon?project=walletconnect-v2',
         '250': 'https://rpc.decentraland.org/fantom?project=walletconnect-v2',
-        '42161':
-          'https://rpc.decentraland.org/arbitrum?project=walletconnect-v2',
-        '43114':
-          'https://rpc.decentraland.org/avalanche?project=walletconnect-v2',
+        '42161': 'https://rpc.decentraland.org/arbitrum?project=walletconnect-v2',
+        '43114': 'https://rpc.decentraland.org/avalanche?project=walletconnect-v2',
         '80002': 'https://rpc.decentraland.org/amoy?project=walletconnect-v2',
-        '11155111':
-          'https://rpc.decentraland.org/sepolia?project=walletconnect-v2'
+        '11155111': 'https://rpc.decentraland.org/sepolia?project=walletconnect-v2'
       })
     })
   })
 
   describe('when the provider type is wallet link', () => {
     it('should return the rpc configurations appending the project query string', () => {
-      expect(getRpcUrls(ProviderType.WALLET_LINK)).to.deep.eq({
+      expect(getRpcUrls(ProviderType.WALLET_LINK)).toEqual({
         '1': 'https://rpc.decentraland.org/mainnet?project=walletlink',
         '10': 'https://rpc.decentraland.org/optimism?project=walletlink',
         '56': 'https://rpc.decentraland.org/binance?project=walletlink',

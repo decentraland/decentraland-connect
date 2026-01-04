@@ -1,12 +1,12 @@
 import { Storage } from './Storage'
 
 export class LocalStorage extends Storage {
-  get(key: string): any | undefined {
+  get(key: string): string | undefined {
     const result = window.localStorage.getItem(key)
     return result === null ? undefined : result
   }
 
-  set(key: string, value: any): void {
+  set(key: string, value: string): void {
     window.localStorage.setItem(key, value)
   }
 
