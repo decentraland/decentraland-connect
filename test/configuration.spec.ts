@@ -40,23 +40,17 @@ describe('#getConfiguration', () => {
       },
       wallet_connect_v2: {
         projectId: '61570c542c2d66c659492e5b24a41522',
-        chains: {
-          '1': {
-            chains: [ChainId.ETHEREUM_MAINNET],
-            optionalChains: [
-              ChainId.MATIC_MAINNET,
-              ChainId.ARBITRUM_MAINNET,
-              ChainId.OPTIMISM_MAINNET,
-              ChainId.AVALANCHE_MAINNET,
-              ChainId.BSC_MAINNET,
-              ChainId.FANTOM_MAINNET
-            ]
-          },
-          '11155111': {
-            chains: [ChainId.ETHEREUM_SEPOLIA],
-            optionalChains: [ChainId.MATIC_AMOY]
-          }
-        },
+        chains: [
+          ChainId.ETHEREUM_MAINNET,
+          ChainId.ETHEREUM_SEPOLIA,
+          ChainId.MATIC_MAINNET,
+          ChainId.MATIC_AMOY,
+          ChainId.ARBITRUM_MAINNET,
+          ChainId.OPTIMISM_MAINNET,
+          ChainId.AVALANCHE_MAINNET,
+          ChainId.BSC_MAINNET,
+          ChainId.FANTOM_MAINNET
+        ],
         urls: {
           '1': 'https://rpc.decentraland.org/mainnet?project=walletconnect-v2',
           '10': 'https://rpc.decentraland.org/optimism?project=walletconnect-v2',

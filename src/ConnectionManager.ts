@@ -13,7 +13,6 @@ import {
   WalletConnectV2Connector,
   WalletLinkConnector
 } from './connectors'
-import './declarations'
 import { ProviderAdapter } from './ProviderAdapter'
 import { LocalStorage, Storage } from './storage'
 import { ClosableConnector, ConnectionData, ConnectionResponse, Provider } from './types'
@@ -89,11 +88,12 @@ export class ConnectionManager {
     }
 
     if (this.connector) {
+      const [provider, account] = await Promise.all([this.connector.getProvider(), this.connector.getAccount()])
       return {
-        provider: await this.connector.getProvider(),
+        provider,
         providerType: connectionData.providerType,
         chainId: connectionData.chainId,
-        account: await this.connector.getAccount()
+        account
       }
     }
 

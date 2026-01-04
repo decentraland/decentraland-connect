@@ -26,23 +26,17 @@ const configuration = Object.freeze({
   [ProviderType.WALLET_CONNECT_V2]: {
     projectId: '61570c542c2d66c659492e5b24a41522',
     urls: getRpcUrls(ProviderType.WALLET_CONNECT_V2),
-    chains: {
-      [ChainId.ETHEREUM_MAINNET]: {
-        chains: [ChainId.ETHEREUM_MAINNET],
-        optionalChains: [
-          ChainId.MATIC_MAINNET,
-          ChainId.ARBITRUM_MAINNET,
-          ChainId.OPTIMISM_MAINNET,
-          ChainId.AVALANCHE_MAINNET,
-          ChainId.BSC_MAINNET,
-          ChainId.FANTOM_MAINNET
-        ]
-      },
-      [ChainId.ETHEREUM_SEPOLIA]: {
-        chains: [ChainId.ETHEREUM_SEPOLIA],
-        optionalChains: [ChainId.MATIC_AMOY]
-      }
-    }
+    chains: [
+      ChainId.ETHEREUM_MAINNET,
+      ChainId.ETHEREUM_SEPOLIA,
+      ChainId.MATIC_MAINNET,
+      ChainId.MATIC_AMOY,
+      ChainId.ARBITRUM_MAINNET,
+      ChainId.OPTIMISM_MAINNET,
+      ChainId.AVALANCHE_MAINNET,
+      ChainId.BSC_MAINNET,
+      ChainId.FANTOM_MAINNET
+    ]
   },
   [ProviderType.MAGIC]: {
     apiKey: 'pk_live_212568025B158355',

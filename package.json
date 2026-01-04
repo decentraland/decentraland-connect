@@ -27,8 +27,7 @@
   "dependencies": {
     "@dcl/schemas": "^21.0.0",
     "@magic-ext/oauth2": "^9.19.0",
-    "@walletconnect/ethereum-provider": "^2.23.1",
-    "@walletconnect/modal": "^2.7.0",
+    "@reown/appkit": "^1.8.15",
     "@web3-react/fortmatic-connector": "^6.1.6",
     "@web3-react/injected-connector": "^6.0.7",
     "@web3-react/network-connector": "^6.1.3",
