@@ -114,12 +114,10 @@ export class WalletConnectV2Connector extends AbstractConnector {
   private initAppKit = async () => {
     // Reuse existing AppKit instance if available
     if (WalletConnectV2Connector.sharedAppKit) {
-      console.log('Reusing existing AppKit instance')
       this.appKit = WalletConnectV2Connector.sharedAppKit
       return this.appKit
     }
 
-    console.log('Initializing AppKit')
     const { createAppKit } = await import('@reown/appkit')
 
     const networks = await this.getNetworks()
@@ -156,7 +154,6 @@ export class WalletConnectV2Connector extends AbstractConnector {
     // Use a subscription to detect when account state is ready rather than fixed timeout
     await this.waitForSessionRestore()
 
-    console.log('AppKit created', this.appKit)
     return this.appKit
   }
 
@@ -169,27 +166,22 @@ export class WalletConnectV2Connector extends AbstractConnector {
     if (!appKit) return
 
     const account = appKit.getAccount()
-    console.log('Current account state:', account)
 
     // If status is already resolved, no need to wait
     if (account?.status === 'connected' || account?.status === 'disconnected') {
-      console.log('Session state already determined:', account.status)
       return
     }
 
     // Wait for status to resolve (handles reconnecting, connecting, and undefined)
     const timeoutMs = account?.status ? 5000 : 500 // Longer timeout if actively connecting
-    console.log(`Session is ${account?.status ?? 'undefined'}, waiting for resolution...`)
 
     return new Promise(resolve => {
       const timeout = setTimeout(() => {
-        console.log('Session state timeout')
         unsub?.()
         resolve()
       }, timeoutMs)
 
       const unsub = appKit.subscribeAccount((newAccount: UseAppKitAccountReturn) => {
-        console.log('Account status changed:', newAccount?.status)
         if (newAccount?.status === 'connected' || newAccount?.status === 'disconnected') {
           clearTimeout(timeout)
           unsub?.()
@@ -205,7 +197,6 @@ export class WalletConnectV2Connector extends AbstractConnector {
    */
   private openModalAndWaitForConnection = async (): Promise<void> => {
     const appKit = this.requireAppKit()
-    console.log('Opening AppKit modal for connection...')
 
     const waitForConnection = (): Promise<string> => {
       return new Promise((resolve, reject) => {
@@ -263,7 +254,6 @@ export class WalletConnectV2Connector extends AbstractConnector {
   activate = async (): Promise<ConnectorUpdate<string | number>> => {
     try {
       await this.initAppKit()
-      console.log('AppKit initialized')
     } catch (error) {
       console.error('Error initializing AppKit', error)
       // If we get a stale session error during init, clear ALL storage and retry
@@ -281,7 +271,6 @@ export class WalletConnectV2Connector extends AbstractConnector {
     // Check if already connected using getAccount() for reliable session detection
     const existingAccount = appKit.getAccount()
     const isConnected = existingAccount?.status === 'connected' && existingAccount?.address
-    console.log('Checking existing connection:', { isConnected, status: existingAccount?.status, address: existingAccount?.address })
 
     if (!isConnected) {
       await this.openModalAndWaitForConnection()
@@ -313,12 +302,6 @@ export class WalletConnectV2Connector extends AbstractConnector {
     const address = appKit.getAddress('eip155')
     const chainId = appKit.getChainId()
 
-    console.log('Provider activated', {
-      chainId,
-      account: address,
-      provider: this.provider
-    })
-
     return {
       chainId: chainId || this.desiredChainId,
       account: address || null,
@@ -327,30 +310,23 @@ export class WalletConnectV2Connector extends AbstractConnector {
   }
 
   getProvider = async (): Promise<EIP1193Provider> => {
-    console.log('Getting provider', this.provider)
     if (!this.provider) {
-      console.error('Provider is undefined', this.provider)
       throw new Error('Provider is undefined')
     }
-    console.log('Returning provider', this.provider)
 
     return this.provider
   }
 
   getChainId = async (): Promise<string | number> => {
-    console.log('Getting chainId')
     const chainId = this.requireAppKit().getChainId()
-    console.log('Current chainId', chainId)
     return chainId ?? this.desiredChainId
   }
 
   getAccount = async (): Promise<string | null> => {
-    console.log('Getting account')
     return this.requireAppKit().getAddress('eip155') ?? null
   }
 
   getWalletName = (): string | undefined => {
-    console.log('Getting wallet name')
     return this.appKit?.getWalletInfo?.('eip155')?.name
   }
 
