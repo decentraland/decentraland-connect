@@ -6,12 +6,7 @@ import { ProviderType } from '@dcl/schemas/dist/dapps/provider-type'
  */
 const thirdwebConfig = {
   clientId: '8d056704cd974d011e0c4c51dadb841e',
-  chains: [
-    ChainId.ETHEREUM_MAINNET,
-    ChainId.ETHEREUM_SEPOLIA,
-    ChainId.MATIC_MAINNET,
-    ChainId.MATIC_AMOY
-  ]
+  chains: [ChainId.ETHEREUM_MAINNET, ChainId.ETHEREUM_SEPOLIA, ChainId.MATIC_MAINNET, ChainId.MATIC_AMOY]
 }
 
 /**

@@ -49,11 +49,7 @@ export class ConnectionManager {
     }
 
     // Handle chain change events for Magic and Thirdweb
-    if (
-      providerType === ProviderType.MAGIC ||
-      providerType === ProviderType.MAGIC_TEST ||
-      providerType === ProviderType.THIRDWEB
-    ) {
+    if (providerType === ProviderType.MAGIC || providerType === ProviderType.MAGIC_TEST || providerType === ProviderType.THIRDWEB) {
       connector.on(ConnectorEvent.Update, ({ chainId }) => {
         if (chainId) {
           this.setConnectionData(providerType, chainId)

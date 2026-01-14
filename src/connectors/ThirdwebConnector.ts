@@ -52,10 +52,7 @@ export class ThirdwebConnector extends AbstractConnector {
 
   constructor(desiredChainId: ChainId) {
     super({
-      supportedChainIds: getConfiguration().thirdweb?.chains ?? [
-        ChainId.ETHEREUM_MAINNET,
-        ChainId.ETHEREUM_SEPOLIA
-      ]
+      supportedChainIds: getConfiguration().thirdweb?.chains ?? [ChainId.ETHEREUM_MAINNET, ChainId.ETHEREUM_SEPOLIA]
     })
     this.chainId = desiredChainId
     this.client = null
@@ -85,9 +82,7 @@ export class ThirdwebConnector extends AbstractConnector {
     const config = getConfiguration().thirdweb
 
     if (!config?.clientId) {
-      throw new Error(
-        'Thirdweb: clientId is not configured. Call setThirdwebClientId() first.'
-      )
+      throw new Error('Thirdweb: clientId is not configured. Call setThirdwebClientId() first.')
     }
 
     this.client = thirdweb.createThirdwebClient({ clientId: config.clientId })
@@ -108,9 +103,7 @@ export class ThirdwebConnector extends AbstractConnector {
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       wallets = require('thirdweb/wallets')
     } catch (error) {
-      throw new Error(
-        'Thirdweb: thirdweb package is not installed. Run: npm install thirdweb'
-      )
+      throw new Error('Thirdweb: thirdweb package is not installed. Run: npm install thirdweb')
     }
 
     this.wallet = wallets.inAppWallet()
@@ -146,15 +139,11 @@ export class ThirdwebConnector extends AbstractConnector {
     try {
       account = await wallet.autoConnect({ client })
     } catch (error) {
-      throw new Error(
-        'Thirdweb: No active session. User must authenticate first.'
-      )
+      throw new Error('Thirdweb: No active session. User must authenticate first.')
     }
 
     if (!account) {
-      throw new Error(
-        'Thirdweb: No active session. User must authenticate first.'
-      )
+      throw new Error('Thirdweb: No active session. User must authenticate first.')
     }
 
     // Create the EIP-1193 provider using thirdweb's official adapter
@@ -191,9 +180,7 @@ export class ThirdwebConnector extends AbstractConnector {
    */
   getProvider = async (): Promise<Provider> => {
     if (!this.eip1193Provider) {
-      throw new Error(
-        'Thirdweb: wallet is not connected. Call activate() first.'
-      )
+      throw new Error('Thirdweb: wallet is not connected. Call activate() first.')
     }
 
     // Wrap the thirdweb provider with our Provider interface flags
@@ -218,10 +205,7 @@ export class ThirdwebConnector extends AbstractConnector {
               const newChainIdHex = argumentsList[0]?.params?.[0]?.chainId
               const newChainId = parseInt(newChainIdHex, 16)
 
-              if (
-                this.supportedChainIds &&
-                !this.supportedChainIds.includes(newChainId)
-              ) {
+              if (this.supportedChainIds && !this.supportedChainIds.includes(newChainId)) {
                 throw new Error('Thirdweb: unsupported chain')
               }
 
