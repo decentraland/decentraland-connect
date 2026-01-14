@@ -27,7 +27,7 @@
     "commitmsg": "validate-commit-msg"
   },
   "dependencies": {
-    "@dcl/schemas": "^15.1.2",
+    "@dcl/schemas": "^22.1.0",
     "@magic-ext/oauth2": "^9.19.0",
     "@walletconnect/ethereum-provider": "^2.17.1",
     "@walletconnect/modal": "^2.6.2",
@@ -38,6 +38,14 @@
     "magic-sdk": "^27.0.0",
     "socket.io-client": "^4.7.2",
     "tslib": "^2.6.2"
+  },
+  "peerDependencies": {
+    "thirdweb": "^5.0.0"
+  },
+  "peerDependenciesMeta": {
+    "thirdweb": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@types/chai": "^4.2.14",

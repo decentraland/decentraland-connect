@@ -1,7 +1,28 @@
 import { ChainId } from '@dcl/schemas/dist/dapps/chain-id'
 import { ProviderType } from '@dcl/schemas/dist/dapps/provider-type'
 
-const configuration = Object.freeze({
+/**
+ * Thirdweb configuration
+ */
+const thirdwebConfig = {
+  clientId: '8d056704cd974d011e0c4c51dadb841e',
+  chains: [
+    ChainId.ETHEREUM_MAINNET,
+    ChainId.ETHEREUM_SEPOLIA,
+    ChainId.MATIC_MAINNET,
+    ChainId.MATIC_AMOY
+  ]
+}
+
+/**
+ * Set the thirdweb client ID
+ * Must be called before using ThirdwebConnector (ProviderType.THIRDWEB)
+ */
+export function setThirdwebClientId(clientId: string) {
+  thirdwebConfig.clientId = clientId
+}
+
+const configuration = {
   storageKey: 'decentraland-connect-storage-key',
 
   [ProviderType.INJECTED]: {},
@@ -73,15 +94,17 @@ const configuration = Object.freeze({
       ChainId.BSC_MAINNET,
       ChainId.FANTOM_MAINNET
     ]
-  }
-})
+  },
+  // Thirdweb uses ProviderType.THIRDWEB
+  thirdweb: thirdwebConfig
+}
 
 export function getConfiguration() {
   return configuration
 }
 
 export function getRpcUrls(providerType: ProviderType) {
-  const rpcUrls = {
+  const rpcUrls: Record<number, string> = {
     [ChainId.ETHEREUM_MAINNET]: 'https://rpc.decentraland.org/mainnet',
     [ChainId.ETHEREUM_SEPOLIA]: 'https://rpc.decentraland.org/sepolia',
     [ChainId.MATIC_MAINNET]: 'https://rpc.decentraland.org/polygon',
@@ -111,8 +134,8 @@ export function getRpcUrls(providerType: ProviderType) {
     case ProviderType.WALLET_CONNECT_V2:
       project = 'walletconnect-v2'
       break
-    case ProviderType.AUTH_SERVER:
-      project = 'auth-server'
+    case ProviderType.THIRDWEB:
+      project = 'thirdweb'
       break
     default:
       break
