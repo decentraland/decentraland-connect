@@ -5,3 +5,4 @@ esm
 cjs
 .nyc_output
 coverage
+.vscode

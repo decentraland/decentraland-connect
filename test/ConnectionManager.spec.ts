@@ -1,27 +1,11 @@
-import chai from 'chai'
-import chaiAsPromised from 'chai-as-promised'
-import sinon from 'sinon'
 import { ChainId } from '@dcl/schemas/dist/dapps/chain-id'
 import { ProviderType } from '@dcl/schemas/dist/dapps/provider-type'
 import { getConfiguration } from '../src/configuration'
 import { ConnectionManager, connection } from '../src/ConnectionManager'
-import {
-  FortmaticConnector,
-  InjectedConnector,
-  WalletLinkConnector
-} from '../src/connectors'
+import { FortmaticConnector, InjectedConnector, WalletLinkConnector } from '../src/connectors'
 import { LocalStorage } from '../src/storage'
 import { ClosableConnector, ErrorUnlockingWallet } from '../src/types'
-import {
-  StubClosableConnector,
-  StubConnector,
-  StubLockedWalletConnector,
-  StubStorage,
-  getSendableProvider
-} from './utils'
-
-chai.use(chaiAsPromised)
-const { expect } = chai
+import { StubClosableConnector, StubConnector, StubLockedWalletConnector, StubStorage, getSendableProvider } from './utils'
 
 describe('ConnectionManager', () => {
   let storage: StubStorage
@@ -33,52 +17,47 @@ describe('ConnectionManager', () => {
   })
 
   afterEach(() => {
-    sinon.restore()
+    jest.restoreAllMocks()
     const { storageKey } = getConfiguration()
     storage.remove(storageKey)
   })
 
   describe('connection', () => {
     it('should use LocalStorage as its storage', () => {
-      expect(connection.storage).to.instanceOf(LocalStorage)
+      expect(connection.storage).toBeInstanceOf(LocalStorage)
     })
   })
 
   describe('#connect', () => {
     it('should set the connector', async () => {
       const stubConnector = new StubConnector()
-      sinon.stub(connectionManager, 'buildConnector').returns(stubConnector)
+      jest.spyOn(connectionManager, 'buildConnector').mockReturnValue(stubConnector)
 
-      expect(connectionManager.connector).to.eq(undefined)
+      expect(connectionManager.connector).toBe(undefined)
       await connectionManager.connect(ProviderType.INJECTED)
-      expect(connectionManager.connector).to.eq(stubConnector)
+      expect(connectionManager.connector).toBe(stubConnector)
     })
 
     it('should activate the connector', async () => {
       const stubConnector = new StubConnector()
-      const getConnectorStub = sinon
-        .stub(connectionManager, 'buildConnector')
-        .returns(stubConnector)
-      const activateStub = sinon.stub(stubConnector, 'activate').callThrough()
+      const getConnectorMock = jest.spyOn(connectionManager, 'buildConnector').mockReturnValue(stubConnector)
+      const activateMock = jest.spyOn(stubConnector, 'activate')
 
       await connectionManager.connect(ProviderType.INJECTED)
 
-      expect(getConnectorStub.calledWith(ProviderType.INJECTED)).to.eq(true)
-      expect(activateStub.calledOnce).to.eq(true)
+      expect(getConnectorMock).toHaveBeenCalledWith(ProviderType.INJECTED, expect.anything())
+      expect(activateMock).toHaveBeenCalledTimes(1)
     })
 
     it('should return the connection data', async () => {
       const stubConnector = new StubConnector()
       stubConnector.setChainId(ChainId.ETHEREUM_SEPOLIA)
-      sinon.stub(connectionManager, 'buildConnector').returns(stubConnector)
+      jest.spyOn(connectionManager, 'buildConnector').mockReturnValue(stubConnector)
 
-      const result = await connectionManager.connect(
-        ProviderType.INJECTED,
-        ChainId.ETHEREUM_SEPOLIA
-      )
+      const result = await connectionManager.connect(ProviderType.INJECTED, ChainId.ETHEREUM_SEPOLIA)
       const activateResult = await stubConnector.activate()
 
-      expect(JSON.stringify(result)).to.eq(
+      expect(JSON.stringify(result)).toBe(
         JSON.stringify({
           provider: {
             request: () => {},
@@ -94,15 +73,12 @@ describe('ConnectionManager', () => {
     it('should not patch the provider with the request method if it already exists', async () => {
       const stubConnector = new StubConnector()
       stubConnector.setChainId(ChainId.ETHEREUM_SEPOLIA)
-      sinon.stub(connectionManager, 'buildConnector').returns(stubConnector)
+      jest.spyOn(connectionManager, 'buildConnector').mockReturnValue(stubConnector)
 
-      const result = await connectionManager.connect(
-        ProviderType.INJECTED,
-        ChainId.ETHEREUM_SEPOLIA
-      )
+      const result = await connectionManager.connect(ProviderType.INJECTED, ChainId.ETHEREUM_SEPOLIA)
       const { account } = await stubConnector.activate()
 
-      expect(JSON.stringify(result)).to.eq(
+      expect(JSON.stringify(result)).toBe(
         JSON.stringify({
           provider: {
             request: () => {}
@@ -118,38 +94,32 @@ describe('ConnectionManager', () => {
       const stubConnector = new StubConnector()
       stubConnector.setChainId(ChainId.ETHEREUM_SEPOLIA)
       const configuration = getConfiguration()
-      sinon.stub(connectionManager, 'buildConnector').returns(stubConnector)
+      jest.spyOn(connectionManager, 'buildConnector').mockReturnValue(stubConnector)
 
-      await connectionManager.connect(
-        ProviderType.NETWORK,
-        ChainId.ETHEREUM_SEPOLIA
-      )
+      await connectionManager.connect(ProviderType.NETWORK, ChainId.ETHEREUM_SEPOLIA)
 
       const value = JSON.stringify({
         providerType: ProviderType.NETWORK,
         chainId: ChainId.ETHEREUM_SEPOLIA
       })
 
-      expect(storage.get(configuration.storageKey)).to.eq(value)
+      expect(storage.get(configuration.storageKey)).toBe(value)
     })
 
     it('should store and return the current chain id and not the one supplied', async () => {
       const stubConnector = new StubConnector()
       stubConnector.setChainId(ChainId.ETHEREUM_MAINNET)
       const configuration = getConfiguration()
-      sinon.stub(connectionManager, 'buildConnector').returns(stubConnector)
+      jest.spyOn(connectionManager, 'buildConnector').mockReturnValue(stubConnector)
 
-      const result = await connectionManager.connect(
-        ProviderType.INJECTED,
-        ChainId.ETHEREUM_SEPOLIA
-      )
+      const result = await connectionManager.connect(ProviderType.INJECTED, ChainId.ETHEREUM_SEPOLIA)
       const activateResult = await stubConnector.activate()
       const value = JSON.stringify({
         providerType: ProviderType.INJECTED,
         chainId: ChainId.ETHEREUM_MAINNET
       })
 
-      expect(JSON.stringify(result)).to.eq(
+      expect(JSON.stringify(result)).toBe(
         JSON.stringify({
           provider: {
             request: () => {},
@@ -160,44 +130,36 @@ describe('ConnectionManager', () => {
           chainId: ChainId.ETHEREUM_MAINNET
         })
       )
-      expect(storage.get(configuration.storageKey)).to.eq(value)
+      expect(storage.get(configuration.storageKey)).toBe(value)
     })
 
     describe('and the wallet is locked', () => {
       it('should throw an error when activating the connector', async () => {
         const stubConnector = new StubLockedWalletConnector()
-        sinon.stub(connectionManager, 'buildConnector').returns(stubConnector)
-        await expect(
-          connectionManager.connect(ProviderType.INJECTED)
-        ).to.be.rejectedWith(ErrorUnlockingWallet)
+        jest.spyOn(connectionManager, 'buildConnector').mockReturnValue(stubConnector)
+        await expect(connectionManager.connect(ProviderType.INJECTED)).rejects.toThrow(ErrorUnlockingWallet)
       })
     })
   })
 
   describe('#tryPreviousConnection', () => {
-    it('should throw if called without provider type and none is found on storage', () => {
-      return expect(
-        connectionManager.tryPreviousConnection()
-      ).to.be.rejectedWith(
+    it('should throw if called without provider type and none is found on storage', async () => {
+      await expect(connectionManager.tryPreviousConnection()).rejects.toThrow(
         'Could not find a valid provider. Make sure to call the `connect` method first'
       )
     })
 
     it('should connect to the last supplied provider', async () => {
       const stubConnector = new StubConnector()
-      const getConnectorStub = sinon
-        .stub(connectionManager, 'buildConnector')
-        .returns(stubConnector)
+      const getConnectorMock = jest.spyOn(connectionManager, 'buildConnector').mockReturnValue(stubConnector)
 
       await connectionManager.connect(ProviderType.FORTMATIC)
       const result = await connectionManager.tryPreviousConnection()
       const { account } = await stubConnector.activate()
 
-      expect(
-        getConnectorStub.firstCall.calledWith(ProviderType.FORTMATIC)
-      ).to.eq(true)
+      expect(getConnectorMock).toHaveBeenNthCalledWith(1, ProviderType.FORTMATIC, expect.anything())
 
-      expect(JSON.stringify(result)).to.eq(
+      expect(JSON.stringify(result)).toBe(
         JSON.stringify({
           provider: {
             request: () => {}
@@ -214,76 +176,63 @@ describe('ConnectionManager', () => {
     it('should return the data used on the last successful connection', async () => {
       const stubConnector = new StubConnector()
       stubConnector.setChainId(ChainId.ETHEREUM_SEPOLIA)
-      sinon.stub(connectionManager, 'buildConnector').returns(stubConnector)
+      jest.spyOn(connectionManager, 'buildConnector').mockReturnValue(stubConnector)
 
-      await connectionManager.connect(
-        ProviderType.INJECTED,
-        ChainId.ETHEREUM_SEPOLIA
-      )
+      await connectionManager.connect(ProviderType.INJECTED, ChainId.ETHEREUM_SEPOLIA)
 
-      expect(connectionManager.getConnectionData()).to.deep.eq({
+      expect(connectionManager.getConnectionData()).toEqual({
         providerType: ProviderType.INJECTED,
         chainId: ChainId.ETHEREUM_SEPOLIA
       })
     })
 
     it('should return undefined if no connection happened', () => {
-      expect(connectionManager.getConnectionData()).to.eq(undefined)
+      expect(connectionManager.getConnectionData()).toBe(undefined)
     })
   })
 
   describe('#isConnected', () => {
     it('should return true if a connector exists and a connection happened', async () => {
       const stubConnector = new StubConnector()
-      sinon.stub(connectionManager, 'buildConnector').returns(stubConnector)
+      jest.spyOn(connectionManager, 'buildConnector').mockReturnValue(stubConnector)
 
-      await connectionManager.connect(
-        ProviderType.INJECTED,
-        ChainId.ETHEREUM_MAINNET
-      )
+      await connectionManager.connect(ProviderType.INJECTED, ChainId.ETHEREUM_MAINNET)
 
-      expect(connectionManager.isConnected()).to.eq(true)
+      expect(connectionManager.isConnected()).toBe(true)
     })
 
     it("should return false if there's no previous connection data", () => {
-      expect(connectionManager.isConnected()).to.eq(false)
+      expect(connectionManager.isConnected()).toBe(false)
     })
 
     it("should return false if there's no connector defined", async () => {
       connectionManager.connector = new StubConnector()
       await connectionManager.disconnect()
-      expect(connectionManager.isConnected()).to.eq(false)
+      expect(connectionManager.isConnected()).toBe(false)
     })
   })
 
   describe('#disconnect', () => {
-    it('should not do anything if no connector exists', () => {
-      return expect(connectionManager.disconnect()).not.to.be.rejected
+    it('should not do anything if no connector exists', async () => {
+      await expect(connectionManager.disconnect()).resolves.not.toThrow()
     })
 
     it('should deactivate the connector', async () => {
       connectionManager.connector = new StubConnector()
-      const deactivateStub = sinon.stub(
-        connectionManager.connector,
-        'deactivate'
-      )
+      const deactivateMock = jest.spyOn(connectionManager.connector, 'deactivate')
 
       await connectionManager.disconnect()
 
-      expect(deactivateStub.calledOnce).to.eq(true)
+      expect(deactivateMock).toHaveBeenCalledTimes(1)
     })
 
     it('should call close if the provider type allows it', async () => {
       connectionManager.connector = new StubClosableConnector()
-      const closeStub = sinon.stub(
-        connectionManager.connector as ClosableConnector,
-        'close'
-      )
+      const closeMock = jest.spyOn(connectionManager.connector as ClosableConnector, 'close')
 
       await connectionManager.disconnect()
 
-      expect(closeStub.calledOnce).to.eq(true)
-      sinon.restore()
+      expect(closeMock).toHaveBeenCalledTimes(1)
     })
 
     it('should clean the storage', async () => {
@@ -293,7 +242,7 @@ describe('ConnectionManager', () => {
       connectionManager.connector = new StubConnector()
       await connectionManager.disconnect()
 
-      expect(storage.get(configuration.storageKey)).to.eq(undefined)
+      expect(storage.get(configuration.storageKey)).toBe(undefined)
     })
 
     it('should clean the instance variables', async () => {
@@ -301,7 +250,7 @@ describe('ConnectionManager', () => {
 
       await connectionManager.disconnect()
 
-      expect(connectionManager.connector).to.eq(undefined)
+      expect(connectionManager.connector).toBe(undefined)
     })
   })
 
@@ -315,21 +264,15 @@ describe('ConnectionManager', () => {
         const stubConnector = new StubConnector()
         const provider = { send: () => {} }
 
-        const getConnectorStub = sinon
-          .stub(connectionManager, 'buildConnector')
-          .returns(stubConnector)
-        const getProviderStub = sinon
-          .stub(stubConnector, 'getProvider')
-          .returns(Promise.resolve(provider))
+        const getConnectorMock = jest.spyOn(connectionManager, 'buildConnector').mockReturnValue(stubConnector)
+        const getProviderMock = jest.spyOn(stubConnector, 'getProvider').mockResolvedValue(provider)
 
-        const createdProvider = await connectionManager.createProvider(
-          providerType
-        )
+        const createdProvider = await connectionManager.createProvider(providerType)
 
-        expect(getConnectorStub.calledWith(providerType)).to.eq(true)
-        expect(getProviderStub.calledOnce).to.eq(true)
-        expect(createdProvider.request).not.to.eq(undefined)
-        sinon.restore()
+        expect(getConnectorMock).toHaveBeenCalledWith(providerType, expect.anything())
+        expect(getProviderMock).toHaveBeenCalledTimes(1)
+        expect('request' in createdProvider).toBe(true)
+        jest.restoreAllMocks()
       }
     })
   })
@@ -337,27 +280,22 @@ describe('ConnectionManager', () => {
   describe('#getProvider', () => {
     it('should call the connectors getProvider method', async () => {
       connectionManager.connector = new StubConnector()
-      const getProviderStub = sinon.stub(
-        connectionManager.connector,
-        'getProvider'
-      )
+      const getProviderMock = jest.spyOn(connectionManager.connector, 'getProvider')
 
       await connectionManager.getProvider()
 
-      expect(getProviderStub.calledOnce).to.eq(true)
+      expect(getProviderMock).toHaveBeenCalledTimes(1)
     })
 
-    it('should throw if no successful connect occurred', () => {
+    it('should throw if no successful connect occurred', async () => {
       connectionManager.connector = undefined
-      return expect(connectionManager.getProvider()).to.be.rejectedWith(
-        'No valid connector found. Please .connect() first'
-      )
+      await expect(connectionManager.getProvider()).rejects.toThrow('No valid connector found. Please .connect() first')
     })
   })
 
   describe('#getAvailableProviders', () => {
     it('should return an array with the provider types', () => {
-      expect(connectionManager.getAvailableProviders()).to.deep.eq([
+      expect(connectionManager.getAvailableProviders()).toEqual([
         ProviderType.METAMASK_MOBILE,
         ProviderType.FORTMATIC,
         ProviderType.WALLET_CONNECT,
@@ -366,10 +304,11 @@ describe('ConnectionManager', () => {
     })
 
     it('should add the INJECTED provider if window.ethereum exists', () => {
-      const browser: any = global
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const browser = global as any
       browser.window = { ethereum: true }
 
-      expect(connectionManager.getAvailableProviders()).to.deep.eq([
+      expect(connectionManager.getAvailableProviders()).toEqual([
         ProviderType.INJECTED,
         ProviderType.FORTMATIC,
         ProviderType.WALLET_CONNECT,
@@ -381,47 +320,37 @@ describe('ConnectionManager', () => {
   })
 
   describe('#buildConnector', () => {
-    const browser: any = global
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const browser = global as any
     const chainId = ChainId.ETHEREUM_SEPOLIA
 
-    after(() => {
+    afterAll(() => {
       delete browser.window
     })
 
     it('should throw if an invalid provider type is supplied', () => {
-      const providerType = 'Invalid Provider Type' as any
-      expect(() =>
-        connectionManager.buildConnector(providerType, ChainId.ETHEREUM_MAINNET)
-      ).to.throw(`Invalid provider ${providerType}`)
+      const providerType = 'Invalid Provider Type' as unknown as ProviderType
+      expect(() => connectionManager.buildConnector(providerType, ChainId.ETHEREUM_MAINNET)).toThrow(`Invalid provider ${providerType}`)
     })
 
-    it('should return an instance of FortmaticConnector for the supplied chain', () => {
-      const connector = connectionManager.buildConnector(
-        ProviderType.FORTMATIC,
-        chainId
-      )
-      expect(connector).to.be.instanceOf(FortmaticConnector)
-      return expect(connector.getChainId()).to.eventually.eq(chainId)
+    it('should return an instance of FortmaticConnector for the supplied chain', async () => {
+      const connector = connectionManager.buildConnector(ProviderType.FORTMATIC, chainId)
+      expect(connector).toBeInstanceOf(FortmaticConnector)
+      await expect(connector.getChainId()).resolves.toBe(chainId)
     })
 
-    it('should return an instance of InjectedConnector for the supplied chain', () => {
-      const connector = connectionManager.buildConnector(
-        ProviderType.INJECTED,
-        chainId
-      )
+    it('should return an instance of InjectedConnector for the supplied chain', async () => {
+      const connector = connectionManager.buildConnector(ProviderType.INJECTED, chainId)
       browser.window = { ethereum: getSendableProvider(chainId) }
 
-      expect(connector).to.be.instanceOf(InjectedConnector)
-      return expect(connector.getChainId()).to.eventually.eq(chainId)
+      expect(connector).toBeInstanceOf(InjectedConnector)
+      await expect(connector.getChainId()).resolves.toBe(chainId)
     })
 
     it('should return an instance of WalletLinkConnector', async () => {
-      const connector = connectionManager.buildConnector(
-        ProviderType.WALLET_LINK,
-        chainId
-      )
-      expect(connector).to.be.instanceOf(WalletLinkConnector)
-      expect(connector.supportedChainIds).to.deep.eq([chainId])
+      const connector = connectionManager.buildConnector(ProviderType.WALLET_LINK, chainId)
+      expect(connector).toBeInstanceOf(WalletLinkConnector)
+      expect(connector.supportedChainIds).toEqual([chainId])
     })
   })
 })
