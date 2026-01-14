@@ -9,8 +9,8 @@ import {
   InjectedConnector,
   MagicConnector,
   MagicTestConnector,
-  ThirdwebConnector,
   NetworkConnector,
+  ThirdwebConnector,
   WalletConnectV2Connector,
   WalletLinkConnector
 } from './connectors'

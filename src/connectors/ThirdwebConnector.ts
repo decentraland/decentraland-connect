@@ -1,8 +1,8 @@
-import { ChainId } from '@dcl/schemas/dist/dapps/chain-id'
 import { ConnectorUpdate } from '@web3-react/types'
-import { AbstractConnector } from './AbstractConnector'
+import { ChainId } from '@dcl/schemas/dist/dapps/chain-id'
 import { getConfiguration } from '../configuration'
 import { Provider } from '../types'
+import { AbstractConnector } from './AbstractConnector'
 
 // Thirdweb types - we use any to avoid requiring thirdweb as a dependency
 // The actual thirdweb package is imported dynamically by the consuming app
@@ -201,36 +201,32 @@ export class ThirdwebConnector extends AbstractConnector {
 
           // Handle wallet_switchEthereumChain by updating internal state
           if (method === 'wallet_switchEthereumChain') {
-            try {
-              const newChainIdHex = argumentsList[0]?.params?.[0]?.chainId
-              const newChainId = parseInt(newChainIdHex, 16)
+            const newChainIdHex = argumentsList[0]?.params?.[0]?.chainId
+            const newChainId = parseInt(newChainIdHex, 16)
 
-              if (this.supportedChainIds && !this.supportedChainIds.includes(newChainId)) {
-                throw new Error('Thirdweb: unsupported chain')
-              }
-
-              // Update internal chain and recreate provider
-              this.chainId = newChainId as ChainId
-              this.chain = null // Reset chain to be recreated
-              this.eip1193Provider = null // Reset provider to be recreated
-
-              // Recreate provider with new chain
-              const client = await this.getClient()
-              const wallet = await this.getWallet()
-              const chain = await this.getChain()
-              // eslint-disable-next-line @typescript-eslint/no-var-requires
-              const { EIP1193 } = require('thirdweb/wallets')
-              this.eip1193Provider = EIP1193.toProvider({
-                wallet,
-                chain,
-                client
-              })
-
-              this.emitUpdate({ chainId: newChainId })
-              return null
-            } catch (error) {
-              throw error
+            if (this.supportedChainIds && !this.supportedChainIds.includes(newChainId)) {
+              throw new Error('Thirdweb: unsupported chain')
             }
+
+            // Update internal chain and recreate provider
+            this.chainId = newChainId as ChainId
+            this.chain = null // Reset chain to be recreated
+            this.eip1193Provider = null // Reset provider to be recreated
+
+            // Recreate provider with new chain
+            const client = await this.getClient()
+            const wallet = await this.getWallet()
+            const chain = await this.getChain()
+            // eslint-disable-next-line @typescript-eslint/no-var-requires
+            const { EIP1193 } = require('thirdweb/wallets')
+            this.eip1193Provider = EIP1193.toProvider({
+              wallet,
+              chain,
+              client
+            })
+
+            this.emitUpdate({ chainId: newChainId })
+            return null
           }
 
           return target.bind(thirdwebProvider)(...argumentsList)
