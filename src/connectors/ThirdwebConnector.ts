@@ -22,24 +22,20 @@ type EIP1193Provider = any
  *
  * IMPORTANT: The consuming application must:
  * 1. Have `thirdweb` installed as a dependency
- * 2. Call setThirdwebClientId() before using this connector
- * 3. Authenticate the user via thirdweb SDK BEFORE calling connect()
+ * 2. Authenticate the user via thirdweb SDK BEFORE calling connect()
  *
  * The connector uses autoConnect() to restore an existing thirdweb session.
  *
  * @example
  * ```typescript
- * import { setThirdwebClientId, connection } from 'decentraland-connect'
+ * import { connection } from 'decentraland-connect'
  * import { ProviderType, ChainId } from '@dcl/schemas'
  *
- * // 1. Configure thirdweb
- * setThirdwebClientId('your-client-id')
- *
- * // 2. In your app, authenticate with thirdweb SDK directly:
+ * // 1. In your app, authenticate with thirdweb SDK directly:
  * //    - preAuthenticate() to send OTP
  * //    - wallet.connect() to verify OTP
  *
- * // 3. Connect (this will auto-connect to the existing session)
+ * // 2. Connect (this will auto-connect to the existing session)
  * const result = await connection.connect(ProviderType.THIRDWEB, ChainId.ETHEREUM_MAINNET)
  * ```
  */
@@ -82,7 +78,7 @@ export class ThirdwebConnector extends AbstractConnector {
     const config = getConfiguration().thirdweb
 
     if (!config?.clientId) {
-      throw new Error('Thirdweb: clientId is not configured. Call setThirdwebClientId() first.')
+      throw new Error('Thirdweb: clientId is not configured.')
     }
 
     this.client = thirdweb.createThirdwebClient({ clientId: config.clientId })

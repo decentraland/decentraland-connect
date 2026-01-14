@@ -9,14 +9,6 @@ const thirdwebConfig = {
   chains: [ChainId.ETHEREUM_MAINNET, ChainId.ETHEREUM_SEPOLIA, ChainId.MATIC_MAINNET, ChainId.MATIC_AMOY]
 }
 
-/**
- * Set the thirdweb client ID
- * Must be called before using ThirdwebConnector (ProviderType.THIRDWEB)
- */
-export function setThirdwebClientId(clientId: string) {
-  thirdwebConfig.clientId = clientId
-}
-
 const configuration = {
   storageKey: 'decentraland-connect-storage-key',
 
