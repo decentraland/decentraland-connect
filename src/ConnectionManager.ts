@@ -10,6 +10,7 @@ import {
   MagicConnector,
   MagicTestConnector,
   NetworkConnector,
+  ThirdwebConnector,
   WalletConnectV2Connector,
   WalletLinkConnector
 } from './connectors'
@@ -47,8 +48,8 @@ export class ConnectionManager {
       throw error
     }
 
-    // TODO: Remove magic_test provider
-    if (providerType === ProviderType.MAGIC || providerType === ProviderType.MAGIC_TEST) {
+    // Handle chain change events for Magic and Thirdweb
+    if (providerType === ProviderType.MAGIC || providerType === ProviderType.MAGIC_TEST || providerType === ProviderType.THIRDWEB) {
       connector.on(ConnectorEvent.Update, ({ chainId }) => {
         if (chainId) {
           this.setConnectionData(providerType, chainId)
@@ -78,7 +79,8 @@ export class ConnectionManager {
   }
 
   isConnected(): boolean {
-    return !!this.connector && !!this.getConnectionData()
+    const connected = !!this.connector && !!this.getConnectionData()
+    return connected
   }
 
   async tryPreviousConnection(): Promise<ConnectionResponse> {
@@ -93,7 +95,7 @@ export class ConnectionManager {
         provider,
         providerType: connectionData.providerType,
         chainId: connectionData.chainId,
-        account
+        account: account || ''
       }
     }
 
@@ -179,6 +181,10 @@ export class ConnectionManager {
         return new NetworkConnector(chainId)
       case ProviderType.WALLET_CONNECT_V2:
         return new WalletConnectV2Connector(chainId)
+      case ProviderType.THIRDWEB:
+        // Thirdweb connector for email OTP and social logins
+        // Similar to Magic, wraps thirdweb SDK and exposes an EIP-1193 provider
+        return new ThirdwebConnector(chainId)
       default:
         throw new Error(`Invalid provider ${providerType}`)
     }
@@ -195,6 +201,18 @@ export class ConnectionManager {
     }
   }
 
+  /**
+   * Manually store connection data without activating a connector.
+   * This is useful for providers like Thirdweb where the session is managed
+   * externally and we just need to record the connection type for later reconnection.
+   *
+   * @param providerType - The type of provider (e.g., ProviderType.THIRDWEB)
+   * @param chainId - The chain ID to connect to
+   */
+  storeConnectionData(providerType: ProviderType, chainId: ChainId): void {
+    this.setConnectionData(providerType, chainId)
+  }
+
   private clearConnectionData = () => {
     const { storageKey } = getConfiguration()
     this.storage.remove(storageKey)
@@ -209,6 +227,7 @@ export class ConnectionManager {
       providerType,
       chainId
     } as ConnectionData)
+
     this.storage.set(storageKey, connectionData)
   }
 

@@ -126,6 +126,10 @@ describe('#getConfiguration', () => {
           ChainId.BSC_MAINNET,
           ChainId.FANTOM_MAINNET
         ]
+      },
+      thirdweb: {
+        clientId: '8d056704cd974d011e0c4c51dadb841e',
+        chains: [ChainId.ETHEREUM_MAINNET, ChainId.ETHEREUM_SEPOLIA, ChainId.MATIC_MAINNET, ChainId.MATIC_AMOY]
       }
     })
   })
