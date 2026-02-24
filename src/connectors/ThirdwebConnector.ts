@@ -1,19 +1,11 @@
 import { ConnectorUpdate } from '@web3-react/types'
+import type { ThirdwebClient } from 'thirdweb'
+import type { Chain } from 'thirdweb/chains'
+import type { EIP1193, Wallet } from 'thirdweb/wallets'
 import { ChainId } from '@dcl/schemas/dist/dapps/chain-id'
 import { getConfiguration } from '../configuration'
 import { Provider } from '../types'
 import { AbstractConnector } from './AbstractConnector'
-
-// Thirdweb types - we use any to avoid requiring thirdweb as a dependency
-// The actual thirdweb package is imported dynamically by the consuming app
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type ThirdwebClient = any
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type ThirdwebWallet = any
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type ThirdwebChain = any
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type EIP1193Provider = any
 
 /**
  * ThirdwebConnector - Connects to thirdweb's in-app wallet (email OTP, social logins)
@@ -42,9 +34,9 @@ type EIP1193Provider = any
 export class ThirdwebConnector extends AbstractConnector {
   private chainId: ChainId
   private client: ThirdwebClient | null
-  private wallet: ThirdwebWallet | null
-  private chain: ThirdwebChain | null
-  private eip1193Provider: EIP1193Provider | null
+  private wallet: Wallet | null
+  private chain: Chain | null
+  private eip1193Provider: EIP1193.EIP1193Provider | null
 
   constructor(desiredChainId: ChainId) {
     super({
@@ -65,12 +57,10 @@ export class ThirdwebConnector extends AbstractConnector {
       return this.client
     }
 
-    // Dynamic require to avoid TypeScript trying to resolve thirdweb types at compile time
-    // thirdweb must be installed by the consuming application
+    // Dynamic import to avoid bundling thirdweb — must be installed by the consuming application
     let thirdweb
     try {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      thirdweb = require('thirdweb')
+      thirdweb = await import('thirdweb')
     } catch (error) {
       throw new Error('Thirdweb: thirdweb package is not installed.')
     }
@@ -88,16 +78,14 @@ export class ThirdwebConnector extends AbstractConnector {
   /**
    * Get or create the in-app wallet instance
    */
-  private async getWallet(): Promise<ThirdwebWallet> {
+  private async getWallet(): Promise<Wallet> {
     if (this.wallet) {
       return this.wallet
     }
 
-    // Dynamic require to avoid TypeScript trying to resolve thirdweb types at compile time
     let wallets
     try {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      wallets = require('thirdweb/wallets')
+      wallets = await import('thirdweb/wallets')
     } catch (error) {
       throw new Error('Thirdweb: thirdweb package is not installed. Run: npm install thirdweb')
     }
@@ -109,13 +97,12 @@ export class ThirdwebConnector extends AbstractConnector {
   /**
    * Get or create the thirdweb chain object
    */
-  private async getChain(): Promise<ThirdwebChain> {
+  private async getChain(): Promise<Chain> {
     if (this.chain) {
       return this.chain
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const chains = require('thirdweb/chains')
+    const chains = await import('thirdweb/chains')
     this.chain = chains.defineChain(this.chainId)
     return this.chain
   }
@@ -145,8 +132,7 @@ export class ThirdwebConnector extends AbstractConnector {
     // Create the EIP-1193 provider using thirdweb's official adapter
     const chain = await this.getChain()
 
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { EIP1193 } = require('thirdweb/wallets')
+    const { EIP1193 } = await import('thirdweb/wallets')
     this.eip1193Provider = EIP1193.toProvider({
       wallet,
       chain,
@@ -213,8 +199,7 @@ export class ThirdwebConnector extends AbstractConnector {
             const client = await this.getClient()
             const wallet = await this.getWallet()
             const chain = await this.getChain()
-            // eslint-disable-next-line @typescript-eslint/no-var-requires
-            const { EIP1193 } = require('thirdweb/wallets')
+            const { EIP1193 } = await import('thirdweb/wallets')
             this.eip1193Provider = EIP1193.toProvider({
               wallet,
               chain,
@@ -225,13 +210,13 @@ export class ThirdwebConnector extends AbstractConnector {
             return null
           }
 
-          return target.bind(thirdwebProvider)(...argumentsList)
+          return Reflect.apply(target, thirdwebProvider, argumentsList)
         }
       }),
       // Add sendAsync for compatibility
       sendAsync: new Proxy(thirdwebProvider.request, {
         apply: async (target, _thisArg, argumentsList) => {
-          return target.bind(thirdwebProvider)(...argumentsList)
+          return Reflect.apply(target, thirdwebProvider, argumentsList)
         }
       })
     } as Provider
