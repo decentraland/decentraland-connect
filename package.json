@@ -1,25 +1,18 @@
 {
   "name": "decentraland-connect",
   "version": "0.0.0-development",
-  "main": "cjs/index.js",
-  "module": "esm/index.js",
+  "type": "module",
+  "main": "dist/index.js",
   "exports": {
-    ".": {
-      "import": "./esm/index.js",
-      "require": "./cjs/index.js"
-    }
+    ".": "./dist/index.js"
   },
   "files": [
-    "esm",
-    "cjs"
+    "dist"
   ],
   "scripts": {
     "lint": "eslint 'src/**/*.ts'",
     "lint:fix": "eslint 'src/**/*.ts' --fix",
-    "postbuild": "node scripts/postbuild.js",
-    "build:esm": "tsc --project tsconfig.esm.json",
-    "build:cjs": "tsc --project tsconfig.cjs.json",
-    "build": "npm run build:esm && npm run build:cjs",
+    "build": "tsc --project tsconfig.build.json",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:report": "jest --coverage"
