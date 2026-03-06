@@ -75,7 +75,11 @@ export class WalletConnectV2Connector extends AbstractConnector {
         message.includes('expired') ||
         // "User rejected methods" indicates a method negotiation failure with stale session,
         // not a manual user rejection (which would be "User rejected the request")
-        message.includes('user rejected methods')
+        message.includes('user rejected methods') ||
+        // Namespace errors from @walletconnect/universal-provider's validateChain
+        // when session has stale namespace data without matching rpcProviders
+        message.includes('is not configured') ||
+        message.includes('cannot read properties')
       )
     }
     return false
