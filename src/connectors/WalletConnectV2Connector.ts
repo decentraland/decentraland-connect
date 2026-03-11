@@ -79,7 +79,10 @@ export class WalletConnectV2Connector extends AbstractConnector {
         // Namespace errors from @walletconnect/universal-provider's validateChain
         // when session has stale namespace data without matching rpcProviders
         message.includes('is not configured') ||
-        message.includes('cannot read properties')
+        message.includes('cannot read properties') ||
+        // UniversalProvider.getProvider() returns undefined for a stale session's namespace,
+        // causing "undefined is not an object" when setDefaultChain is called on it
+        message.includes('undefined is not an object')
       )
     }
     return false
@@ -196,6 +199,30 @@ export class WalletConnectV2Connector extends AbstractConnector {
   }
 
   /**
+   * Validates that a restored session is still alive on the WalletConnect relay
+   * by making a lightweight RPC call. Returns false if the session is stale.
+   */
+  private validateRestoredSession = async (appKit: AppKit): Promise<boolean> => {
+    try {
+      const walletProvider = appKit.getWalletProvider() as EIP1193Provider | undefined
+      if (!walletProvider) {
+        return false
+      }
+      // eth_chainId is a cheap, read-only call that doesn't require user interaction
+      await walletProvider.request({ method: 'eth_chainId' })
+      return true
+    } catch (error) {
+      if (WalletConnectV2Connector.isStaleSessionError(error)) {
+        return false
+      }
+      // Non-stale errors (e.g. network issues) — treat session as potentially valid
+      // to avoid unnecessarily forcing reconnection
+      console.warn('Error validating WalletConnect session:', error)
+      return true
+    }
+  }
+
+  /**
    * Opens the AppKit modal and waits for the user to connect.
    * Handles timeout, user cancellation, and stale session errors.
    */
@@ -276,7 +303,17 @@ export class WalletConnectV2Connector extends AbstractConnector {
     const existingAccount = appKit.getAccount()
     const isConnected = existingAccount?.status === 'connected' && existingAccount?.address
 
-    if (!isConnected) {
+    if (isConnected) {
+      // Session was restored from localStorage, but it may be stale on the relay.
+      // Validate with a lightweight RPC call before trusting it.
+      const isSessionAlive = await this.validateRestoredSession(appKit)
+      if (!isSessionAlive) {
+        console.warn('Restored WalletConnect session is stale, clearing and prompting reconnection...')
+        WalletConnectV2Connector.clearStorage()
+        await this.initAppKit()
+        await this.openModalAndWaitForConnection()
+      }
+    } else {
       await this.openModalAndWaitForConnection()
     }
 
