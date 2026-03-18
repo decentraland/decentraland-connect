@@ -126,10 +126,12 @@ export class WalletConnectV2Connector extends AbstractConnector {
     }
 
     const { createAppKit } = await import('@reown/appkit')
+    const { Ethers5Adapter } = await import('@reown/appkit-adapter-ethers5')
 
     const networks = await this.getNetworks()
 
     this.appKit = createAppKit({
+      adapters: [new Ethers5Adapter()],
       projectId: WalletConnectV2Connector.configuration.projectId,
       networks,
       defaultNetwork: networks[0],
@@ -151,7 +153,9 @@ export class WalletConnectV2Connector extends AbstractConnector {
         socials: false,
         onramp: false,
         swaps: false
-      }
+      },
+      enableInjected: true,
+      enableEIP6963: true
     })
 
     // Store for reuse
