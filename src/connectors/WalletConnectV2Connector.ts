@@ -126,6 +126,7 @@ export class WalletConnectV2Connector extends AbstractConnector {
     }
 
     const { createAppKit } = await import('@reown/appkit')
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     const { Ethers5Adapter } = await import('@reown/appkit-adapter-ethers5')
 
     const networks = await this.getNetworks()
