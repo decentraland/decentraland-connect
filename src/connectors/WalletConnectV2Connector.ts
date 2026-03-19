@@ -126,6 +126,8 @@ export class WalletConnectV2Connector extends AbstractConnector {
     }
 
     const { createAppKit } = await import('@reown/appkit')
+    // Ethers5Adapter enables EIP-6963 wallet discovery for injected wallets (Phantom, MetaMask, etc.).
+    // Without an explicit adapter, AppKit's UniversalAdapter only supports WalletConnect relay connections.
     // eslint-disable-next-line @typescript-eslint/naming-convention
     const { Ethers5Adapter } = await import('@reown/appkit-adapter-ethers5')
 
@@ -156,7 +158,7 @@ export class WalletConnectV2Connector extends AbstractConnector {
         swaps: false
       },
       enableInjected: true,
-      enableEIP6963: true
+      enableEIP6963: true // Default is false — must be explicitly enabled for injected wallet discovery
     })
 
     // Store for reuse
