@@ -99,10 +99,14 @@ export class ConnectionManager {
       }
     }
 
-    const response = this.promiseOfConnection
-      ? await this.promiseOfConnection
-      : await (this.promiseOfConnection = this.connect(connectionData.providerType, connectionData.chainId))
-    this.promiseOfConnection = undefined
+    let response: ConnectionResponse
+    try {
+      response = this.promiseOfConnection
+        ? await this.promiseOfConnection
+        : await (this.promiseOfConnection = this.connect(connectionData.providerType, connectionData.chainId))
+    } finally {
+      this.promiseOfConnection = undefined
+    }
 
     return {
       ...response,
