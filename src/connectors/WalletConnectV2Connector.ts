@@ -126,15 +126,21 @@ export class WalletConnectV2Connector extends AbstractConnector {
     }
 
     const { createAppKit } = await import('@reown/appkit')
-    // Ethers5Adapter enables EIP-6963 wallet discovery for injected wallets (Phantom, MetaMask, etc.).
+    // WagmiAdapter enables EIP-6963 wallet discovery for injected wallets (Phantom, MetaMask, etc.).
     // Without an explicit adapter, AppKit's UniversalAdapter only supports WalletConnect relay connections.
+    // wagmi and viem are already transitive deps (via thirdweb and @reown/appkit), so this adds zero bundle weight.
     // eslint-disable-next-line @typescript-eslint/naming-convention
-    const { Ethers5Adapter } = await import('@reown/appkit-adapter-ethers5')
+    const { WagmiAdapter } = await import('@reown/appkit-adapter-wagmi')
 
     const networks = await this.getNetworks()
 
+    const wagmiAdapter = new WagmiAdapter({
+      networks,
+      projectId: WalletConnectV2Connector.configuration.projectId
+    })
+
     this.appKit = createAppKit({
-      adapters: [new Ethers5Adapter()],
+      adapters: [wagmiAdapter],
       projectId: WalletConnectV2Connector.configuration.projectId,
       networks,
       defaultNetwork: networks[0],
