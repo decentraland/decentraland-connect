@@ -30,7 +30,7 @@ jobs:
       #  if: ${{ failure() }}
       #  run: cp dist/temp/decentraland-ecs-utils.api.md report/decentraland-ecs-utils.api.md && git diff
       - name: Publish
-        uses: menduz/oddish-action@master
+        uses: decentraland/oddish-action@914e7c59e93e708152aa703c50196740c0526c1d # @master
         with:
           #cwd: ./dist
           access: public # 'public' to deploy @scoped/packages
