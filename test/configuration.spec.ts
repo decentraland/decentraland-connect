@@ -22,7 +22,12 @@ describe('#getConfiguration', () => {
           '42161': 'https://rpc.decentraland.org/arbitrum?project=fortmatic',
           '43114': 'https://rpc.decentraland.org/avalanche?project=fortmatic',
           '80002': 'https://rpc.decentraland.org/amoy?project=fortmatic',
-          '11155111': 'https://rpc.decentraland.org/sepolia?project=fortmatic'
+          '11155111': 'https://rpc.decentraland.org/sepolia?project=fortmatic',
+          '33139': 'https://rpc.apechain.com/http?project=fortmatic',
+          '33111': 'https://curtis.rpc.caldera.xyz/http?project=fortmatic',
+          '8453': 'https://mainnet.base.org?project=fortmatic',
+          '84532': 'https://sepolia.base.org?project=fortmatic',
+          '10143': 'https://testnet-rpc.monad.xyz?project=fortmatic'
         }
       },
       network: {
@@ -35,7 +40,12 @@ describe('#getConfiguration', () => {
           [ChainId.OPTIMISM_MAINNET]: 'https://rpc.decentraland.org/optimism',
           [ChainId.AVALANCHE_MAINNET]: 'https://rpc.decentraland.org/avalanche',
           [ChainId.BSC_MAINNET]: 'https://rpc.decentraland.org/binance',
-          [ChainId.FANTOM_MAINNET]: 'https://rpc.decentraland.org/fantom'
+          [ChainId.FANTOM_MAINNET]: 'https://rpc.decentraland.org/fantom',
+          33139: 'https://rpc.apechain.com/http',
+          33111: 'https://curtis.rpc.caldera.xyz/http',
+          8453: 'https://mainnet.base.org',
+          84532: 'https://sepolia.base.org',
+          10143: 'https://testnet-rpc.monad.xyz'
         }
       },
       wallet_connect_v2: {
@@ -60,7 +70,12 @@ describe('#getConfiguration', () => {
           '250': 'https://rpc.decentraland.org/fantom?project=walletconnect-v2',
           '42161': 'https://rpc.decentraland.org/arbitrum?project=walletconnect-v2',
           '43114': 'https://rpc.decentraland.org/avalanche?project=walletconnect-v2',
-          '80002': 'https://rpc.decentraland.org/amoy?project=walletconnect-v2'
+          '80002': 'https://rpc.decentraland.org/amoy?project=walletconnect-v2',
+          '33139': 'https://rpc.apechain.com/http?project=walletconnect-v2',
+          '33111': 'https://curtis.rpc.caldera.xyz/http?project=walletconnect-v2',
+          '8453': 'https://mainnet.base.org?project=walletconnect-v2',
+          '84532': 'https://sepolia.base.org?project=walletconnect-v2',
+          '10143': 'https://testnet-rpc.monad.xyz?project=walletconnect-v2'
         }
       },
       wallet_link: {
@@ -74,7 +89,12 @@ describe('#getConfiguration', () => {
           '42161': 'https://rpc.decentraland.org/arbitrum?project=walletlink',
           '43114': 'https://rpc.decentraland.org/avalanche?project=walletlink',
           '80002': 'https://rpc.decentraland.org/amoy?project=walletlink',
-          '11155111': 'https://rpc.decentraland.org/sepolia?project=walletlink'
+          '11155111': 'https://rpc.decentraland.org/sepolia?project=walletlink',
+          '33139': 'https://rpc.apechain.com/http?project=walletlink',
+          '33111': 'https://curtis.rpc.caldera.xyz/http?project=walletlink',
+          '8453': 'https://mainnet.base.org?project=walletlink',
+          '84532': 'https://sepolia.base.org?project=walletlink',
+          '10143': 'https://testnet-rpc.monad.xyz?project=walletlink'
         }
       },
       magic: {
@@ -88,7 +108,12 @@ describe('#getConfiguration', () => {
           '42161': 'https://rpc.decentraland.org/arbitrum?project=magic',
           '43114': 'https://rpc.decentraland.org/avalanche?project=magic',
           '80002': 'https://rpc.decentraland.org/amoy?project=magic',
-          '11155111': 'https://rpc.decentraland.org/sepolia?project=magic'
+          '11155111': 'https://rpc.decentraland.org/sepolia?project=magic',
+          '33139': 'https://rpc.apechain.com/http?project=magic',
+          '33111': 'https://curtis.rpc.caldera.xyz/http?project=magic',
+          '8453': 'https://mainnet.base.org?project=magic',
+          '84532': 'https://sepolia.base.org?project=magic',
+          '10143': 'https://testnet-rpc.monad.xyz?project=magic'
         },
         chains: [
           ChainId.ETHEREUM_MAINNET,
@@ -113,7 +138,12 @@ describe('#getConfiguration', () => {
           '42161': 'https://rpc.decentraland.org/arbitrum?project=magic',
           '43114': 'https://rpc.decentraland.org/avalanche?project=magic',
           '80002': 'https://rpc.decentraland.org/amoy?project=magic',
-          '11155111': 'https://rpc.decentraland.org/sepolia?project=magic'
+          '11155111': 'https://rpc.decentraland.org/sepolia?project=magic',
+          '33139': 'https://rpc.apechain.com/http?project=magic',
+          '33111': 'https://curtis.rpc.caldera.xyz/http?project=magic',
+          '8453': 'https://mainnet.base.org?project=magic',
+          '84532': 'https://sepolia.base.org?project=magic',
+          '10143': 'https://testnet-rpc.monad.xyz?project=magic'
         },
         chains: [
           ChainId.ETHEREUM_MAINNET,
@@ -147,7 +177,12 @@ describe('#getRpcUrls', () => {
         '42161': 'https://rpc.decentraland.org/arbitrum',
         '43114': 'https://rpc.decentraland.org/avalanche',
         '80002': 'https://rpc.decentraland.org/amoy',
-        '11155111': 'https://rpc.decentraland.org/sepolia'
+        '11155111': 'https://rpc.decentraland.org/sepolia',
+        '33139': 'https://rpc.apechain.com/http',
+        '33111': 'https://curtis.rpc.caldera.xyz/http',
+        '8453': 'https://mainnet.base.org',
+        '84532': 'https://sepolia.base.org',
+        '10143': 'https://testnet-rpc.monad.xyz'
       })
     })
   })
@@ -163,7 +198,12 @@ describe('#getRpcUrls', () => {
         '42161': 'https://rpc.decentraland.org/arbitrum?project=walletconnect-v2',
         '43114': 'https://rpc.decentraland.org/avalanche?project=walletconnect-v2',
         '80002': 'https://rpc.decentraland.org/amoy?project=walletconnect-v2',
-        '11155111': 'https://rpc.decentraland.org/sepolia?project=walletconnect-v2'
+        '11155111': 'https://rpc.decentraland.org/sepolia?project=walletconnect-v2',
+        '33139': 'https://rpc.apechain.com/http?project=walletconnect-v2',
+        '33111': 'https://curtis.rpc.caldera.xyz/http?project=walletconnect-v2',
+        '8453': 'https://mainnet.base.org?project=walletconnect-v2',
+        '84532': 'https://sepolia.base.org?project=walletconnect-v2',
+        '10143': 'https://testnet-rpc.monad.xyz?project=walletconnect-v2'
       })
     })
   })
@@ -179,7 +219,12 @@ describe('#getRpcUrls', () => {
         '42161': 'https://rpc.decentraland.org/arbitrum?project=walletlink',
         '43114': 'https://rpc.decentraland.org/avalanche?project=walletlink',
         '80002': 'https://rpc.decentraland.org/amoy?project=walletlink',
-        '11155111': 'https://rpc.decentraland.org/sepolia?project=walletlink'
+        '11155111': 'https://rpc.decentraland.org/sepolia?project=walletlink',
+        '33139': 'https://rpc.apechain.com/http?project=walletlink',
+        '33111': 'https://curtis.rpc.caldera.xyz/http?project=walletlink',
+        '8453': 'https://mainnet.base.org?project=walletlink',
+        '84532': 'https://sepolia.base.org?project=walletlink',
+        '10143': 'https://testnet-rpc.monad.xyz?project=walletlink'
       })
     })
   })

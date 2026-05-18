@@ -94,7 +94,18 @@ export function getRpcUrls(providerType: ProviderType) {
     [ChainId.OPTIMISM_MAINNET]: 'https://rpc.decentraland.org/optimism',
     [ChainId.AVALANCHE_MAINNET]: 'https://rpc.decentraland.org/avalanche',
     [ChainId.BSC_MAINNET]: 'https://rpc.decentraland.org/binance',
-    [ChainId.FANTOM_MAINNET]: 'https://rpc.decentraland.org/fantom'
+    [ChainId.FANTOM_MAINNET]: 'https://rpc.decentraland.org/fantom',
+    // APE chains — ChainId not yet in @dcl/schemas; use numeric values
+    // TODO: replace with rpc.decentraland.org endpoints once available
+    33139: 'https://rpc.apechain.com/http', // APE_MAINNET
+    33111: 'https://curtis.rpc.caldera.xyz/http', // APE_CALDERA (testnet)
+    // Base chains — ChainId not yet in @dcl/schemas; use numeric values
+    // TODO: replace with rpc.decentraland.org endpoints once available
+    8453: 'https://mainnet.base.org', // BASE_MAINNET
+    84532: 'https://sepolia.base.org', // BASE_SEPOLIA
+    // Monad chains — ChainId not yet in @dcl/schemas; use numeric values
+    // TODO: replace with rpc.decentraland.org endpoints once available
+    10143: 'https://testnet-rpc.monad.xyz' // MONAD_TESTNET
   }
 
   let project = ''
