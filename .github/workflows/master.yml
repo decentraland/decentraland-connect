@@ -39,4 +39,3 @@ jobs:
           access: public # 'public' to deploy @scoped/packages
           ## Sign the deployment
           provenance: false
-        env:
