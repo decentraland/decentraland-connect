@@ -2,7 +2,7 @@ import { ChainId } from '@dcl/schemas/dist/dapps/chain-id'
 import { ProviderType } from '@dcl/schemas/dist/dapps/provider-type'
 import { getConfiguration } from '../src/configuration'
 import { ConnectionManager, connection } from '../src/ConnectionManager'
-import { FortmaticConnector, InjectedConnector, WalletLinkConnector } from '../src/connectors'
+import { FortmaticConnector, InjectedConnector, WalletConnectV2Connector, WalletLinkConnector } from '../src/connectors'
 import { LocalStorage } from '../src/storage'
 import { ClosableConnector, ErrorUnlockingWallet } from '../src/types'
 import { StubClosableConnector, StubConnector, StubLockedWalletConnector, StubStorage, getSendableProvider } from './utils'
@@ -351,6 +351,21 @@ describe('ConnectionManager', () => {
       const connector = connectionManager.buildConnector(ProviderType.WALLET_LINK, chainId)
       expect(connector).toBeInstanceOf(WalletLinkConnector)
       expect(connector.supportedChainIds).toEqual([chainId])
+    })
+
+    it('should return an instance of WalletConnectV2Connector for WALLET_CONNECT_V2', () => {
+      const connector = connectionManager.buildConnector(ProviderType.WALLET_CONNECT_V2, chainId)
+      expect(connector).toBeInstanceOf(WalletConnectV2Connector)
+    })
+
+    it('should return an instance of WalletConnectV2Connector for the deprecated WALLET_CONNECT', () => {
+      const connector = connectionManager.buildConnector(ProviderType.WALLET_CONNECT, chainId)
+      expect(connector).toBeInstanceOf(WalletConnectV2Connector)
+    })
+
+    it('should return an instance of WalletConnectV2Connector for METAMASK_MOBILE', () => {
+      const connector = connectionManager.buildConnector(ProviderType.METAMASK_MOBILE, chainId)
+      expect(connector).toBeInstanceOf(WalletConnectV2Connector)
     })
   })
 })

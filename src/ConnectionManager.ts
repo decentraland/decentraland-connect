@@ -179,7 +179,13 @@ export class ConnectionManager {
         return new WalletLinkConnector(chainId)
       case ProviderType.NETWORK:
         return new NetworkConnector(chainId)
+      case ProviderType.WALLET_CONNECT:
       case ProviderType.WALLET_CONNECT_V2:
+      case ProviderType.METAMASK_MOBILE:
+        // WALLET_CONNECT (v1, deprecated) and METAMASK_MOBILE both resolve to the
+        // WalletConnect v2 connector. METAMASK_MOBILE is surfaced by
+        // getAvailableProviders() on mobile, so it must build a real connector here
+        // instead of falling through to the "Invalid provider" error.
         return new WalletConnectV2Connector(chainId)
       case ProviderType.THIRDWEB:
         // Thirdweb connector for email OTP and social logins
