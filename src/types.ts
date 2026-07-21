@@ -51,6 +51,10 @@ export interface ClosableConnector extends AbstractConnector {
   close: () => Promise<void>
 }
 
+export interface EmailConnector extends AbstractConnector {
+  getEmail: () => Promise<string | undefined>
+}
+
 export class ErrorUnlockingWallet extends Error {
   constructor() {
     super('There was an error unlocking your wallet. Please be sure your wallet is unlocked and try again.')

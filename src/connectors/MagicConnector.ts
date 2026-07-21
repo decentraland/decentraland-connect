@@ -95,6 +95,22 @@ export class MagicConnector extends AbstractConnector {
     return this.account
   }
 
+  getEmail = async (): Promise<string | undefined> => {
+    try {
+      if (!this.magic) {
+        return undefined
+      }
+      const isLoggedIn = await this.magic.user.isLoggedIn()
+      if (!isLoggedIn) {
+        return undefined
+      }
+      const info = await this.magic.user.getInfo()
+      return info?.email ?? undefined
+    } catch (error) {
+      return undefined
+    }
+  }
+
   public close(): Promise<boolean> {
     if (!this.magic) {
       throw new Error('Magic: instance was not initialized')

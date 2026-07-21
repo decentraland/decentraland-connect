@@ -293,6 +293,35 @@ describe('ConnectionManager', () => {
     })
   })
 
+  describe('#getEmail', () => {
+    it('should return undefined if no connector is set', async () => {
+      connectionManager.connector = undefined
+      await expect(connectionManager.getEmail()).resolves.toBeUndefined()
+    })
+
+    it('should return undefined if the connector does not expose getEmail', async () => {
+      connectionManager.connector = new StubConnector()
+      await expect(connectionManager.getEmail()).resolves.toBeUndefined()
+    })
+
+    it('should delegate to the connector getEmail when available', async () => {
+      const stubConnector = new StubConnector() as StubConnector & { getEmail: () => Promise<string | undefined> }
+      stubConnector.getEmail = jest.fn().mockResolvedValue('user@example.com')
+      connectionManager.connector = stubConnector
+
+      await expect(connectionManager.getEmail()).resolves.toBe('user@example.com')
+      expect(stubConnector.getEmail).toHaveBeenCalledTimes(1)
+    })
+
+    it('should resolve to undefined if the connector getEmail throws', async () => {
+      const stubConnector = new StubConnector() as StubConnector & { getEmail: () => Promise<string | undefined> }
+      stubConnector.getEmail = jest.fn().mockRejectedValue(new Error('boom'))
+      connectionManager.connector = stubConnector
+
+      await expect(connectionManager.getEmail()).resolves.toBeUndefined()
+    })
+  })
+
   describe('#getAvailableProviders', () => {
     it('should return an array with the provider types', () => {
       expect(connectionManager.getAvailableProviders()).toEqual([

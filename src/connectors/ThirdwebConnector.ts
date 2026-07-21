@@ -237,6 +237,27 @@ export class ThirdwebConnector extends AbstractConnector {
   }
 
   /**
+   * Get the email of the authenticated in-app wallet user, if any.
+   *
+   * Uses thirdweb's `getUserEmail({ client })` from `thirdweb/wallets/in-app`.
+   * Resolves to `undefined` when the user is not authenticated, has no email
+   * (e.g. social logins without an email), or thirdweb is unavailable.
+   * Never throws.
+   *
+   * @see https://portal.thirdweb.com/references/typescript/v5/getUserEmail
+   */
+  getEmail = async (): Promise<string | undefined> => {
+    try {
+      const client = await this.getClient()
+      const { getUserEmail } = await import('thirdweb/wallets/in-app')
+      const email = await getUserEmail({ client })
+      return email ?? undefined
+    } catch (error) {
+      return undefined
+    }
+  }
+
+  /**
    * Close/disconnect the wallet
    */
   public async close(): Promise<void> {
