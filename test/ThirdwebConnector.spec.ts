@@ -9,6 +9,7 @@ const mockInAppWallet = jest.fn()
 const mockDefineChain = jest.fn()
 const mockToProvider = jest.fn()
 const mockCreateThirdwebClient = jest.fn()
+const mockGetUserEmail = jest.fn()
 
 jest.mock(
   'thirdweb',
@@ -42,6 +43,14 @@ jest.mock(
   'thirdweb/chains',
   () => ({
     defineChain: (chainId: number) => mockDefineChain(chainId)
+  }),
+  { virtual: true }
+)
+
+jest.mock(
+  'thirdweb/wallets/in-app',
+  () => ({
+    getUserEmail: (options: unknown) => mockGetUserEmail(options)
   }),
   { virtual: true }
 )
@@ -162,6 +171,50 @@ describe('ThirdwebConnector', () => {
       it('should return null', async () => {
         const account = await connector.getAccount()
         expect(account).toBeNull()
+      })
+    })
+  })
+
+  describe('when getting the email', () => {
+    beforeEach(() => {
+      connector = new ThirdwebConnector(ChainId.ETHEREUM_MAINNET)
+      mockCreateThirdwebClient.mockReturnValue({ clientId: 'test' })
+    })
+
+    describe('and the user has an email', () => {
+      beforeEach(() => {
+        mockGetUserEmail.mockResolvedValueOnce('user@example.com')
+      })
+
+      it('should return the email', async () => {
+        const email = await connector.getEmail()
+        expect(email).toBe('user@example.com')
+      })
+
+      it('should call getUserEmail with the client', async () => {
+        await connector.getEmail()
+        expect(mockGetUserEmail).toHaveBeenCalledWith(expect.objectContaining({ client: expect.anything() }))
+      })
+    })
+
+    describe('and the user has no email', () => {
+      beforeEach(() => {
+        mockGetUserEmail.mockResolvedValueOnce(undefined)
+      })
+
+      it('should return undefined', async () => {
+        const email = await connector.getEmail()
+        expect(email).toBeUndefined()
+      })
+    })
+
+    describe('and getUserEmail throws', () => {
+      beforeEach(() => {
+        mockGetUserEmail.mockRejectedValueOnce(new Error('boom'))
+      })
+
+      it('should resolve to undefined without throwing', async () => {
+        await expect(connector.getEmail()).resolves.toBeUndefined()
       })
     })
   })

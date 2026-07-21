@@ -16,7 +16,7 @@ import {
 } from './connectors'
 import { ProviderAdapter } from './ProviderAdapter'
 import { LocalStorage, Storage } from './storage'
-import { ClosableConnector, ConnectionData, ConnectionResponse, Provider } from './types'
+import { ClosableConnector, ConnectionData, ConnectionResponse, EmailConnector, Provider } from './types'
 
 export class ConnectionManager {
   connector?: AbstractConnector
@@ -161,6 +161,24 @@ export class ConnectionManager {
     }
 
     return undefined
+  }
+
+  /**
+   * Obtain the email of the signed-in user, when the active connector exposes one.
+   * Only social/embedded-wallet connectors (Magic, Thirdweb) return a value; every
+   * other connector, and the absence of a connection, resolves to `undefined`.
+   * Never throws — resolves to `undefined` on any error or when unsupported.
+   */
+  async getEmail(): Promise<string | undefined> {
+    const connector = this.connector as Partial<EmailConnector> | undefined
+    if (!connector?.getEmail) {
+      return undefined
+    }
+    try {
+      return await connector.getEmail()
+    } catch (error) {
+      return undefined
+    }
   }
 
   async createProvider(providerType: ProviderType, chainId: ChainId = ChainId.ETHEREUM_MAINNET): Promise<Provider> {
