@@ -350,8 +350,13 @@ export class WalletConnectV2Connector extends AbstractConnector {
       await this.openModalAndWaitForConnection()
     }
 
+    // Re-acquire the AppKit instance: a stale-session retry above calls initAppKit() again, which
+    // replaces this.appKit with a fresh instance. The `appKit` captured before the connect block is
+    // then stale, so the provider/account/chain must be read from the current instance instead.
+    const activeAppKit = this.requireAppKit()
+
     // Get the wallet provider (EIP-1193 compatible)
-    const walletProvider = appKit.getWalletProvider() as EIP1193Provider | undefined
+    const walletProvider = activeAppKit.getWalletProvider() as EIP1193Provider | undefined
     if (!walletProvider) {
       throw new Error('Failed to get wallet provider after connection')
     }
@@ -360,21 +365,21 @@ export class WalletConnectV2Connector extends AbstractConnector {
     this.provider = walletProvider
 
     // Subscribe to account changes
-    this.accountUnsubscribe = appKit.subscribeAccount((account: UseAppKitAccountReturn) => {
+    this.accountUnsubscribe = activeAppKit.subscribeAccount((account: UseAppKitAccountReturn) => {
       if (account?.address) {
         this.handleAccountsChanged([account.address])
       }
     }, 'eip155') as (() => void) | undefined
 
     // Subscribe to network changes
-    this.networkUnsubscribe = appKit.subscribeCaipNetworkChange((network?: CaipNetwork) => {
+    this.networkUnsubscribe = activeAppKit.subscribeCaipNetworkChange((network?: CaipNetwork) => {
       if (network?.id) {
         this.handleChainChanged(network.id)
       }
     }) as (() => void) | undefined
 
-    const address = appKit.getAddress('eip155')
-    const chainId = appKit.getChainId()
+    const address = activeAppKit.getAddress('eip155')
+    const chainId = activeAppKit.getChainId()
 
     return {
       chainId: chainId || this.desiredChainId,
