@@ -37,16 +37,27 @@ function createFakeAppKit(options: { account: FakeAccount; connectAddress?: stri
   let account = options.account
   const walletProvider = { request: jest.fn(options.requestImpl ?? (() => Promise.resolve('0x1'))) }
 
+  // Track the unsubscribe functions handed back for each subscription so tests can assert the
+  // connector actually disposes them on close/disconnect.
+  const accountUnsubs: jest.Mock[] = []
+  const networkUnsubs: jest.Mock[] = []
+
   return {
     getAccount: () => account,
     subscribeAccount: (cb: (account: FakeAccount) => void) => {
       accountSubs.push(cb)
-      return () => {
+      const unsub = jest.fn(() => {
         const index = accountSubs.indexOf(cb)
         if (index >= 0) accountSubs.splice(index, 1)
-      }
+      })
+      accountUnsubs.push(unsub)
+      return unsub
     },
-    subscribeCaipNetworkChange: () => () => undefined,
+    subscribeCaipNetworkChange: () => {
+      const unsub = jest.fn()
+      networkUnsubs.push(unsub)
+      return unsub
+    },
     subscribeState: () => () => undefined,
     getWalletProvider: () => walletProvider,
     getAddress: () => account.address ?? null,
@@ -61,7 +72,9 @@ function createFakeAppKit(options: { account: FakeAccount; connectAddress?: stri
       }, 0)
     }),
     disconnect: jest.fn(() => Promise.resolve()),
-    walletProvider
+    walletProvider,
+    accountUnsubs,
+    networkUnsubs
   }
 }
 
@@ -215,6 +228,28 @@ describe('WalletConnectV2Connector', () => {
       expect(fakeAppKit.disconnect).toHaveBeenCalledTimes(1)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect((WalletConnectV2Connector as any).sharedAppKit).toBeNull()
+    })
+
+    it('should unsubscribe from the account and network change subscriptions', async () => {
+      const connector = new WalletConnectV2Connector(ChainId.ETHEREUM_MAINNET)
+      await connector.activate()
+
+      const lastAccountUnsub = fakeAppKit.accountUnsubs[fakeAppKit.accountUnsubs.length - 1]
+      const lastNetworkUnsub = fakeAppKit.networkUnsubs[fakeAppKit.networkUnsubs.length - 1]
+
+      await connector.close()
+
+      expect(lastAccountUnsub).toHaveBeenCalled()
+      expect(lastNetworkUnsub).toHaveBeenCalled()
+    })
+
+    it('should clear the provider so it can no longer be retrieved', async () => {
+      const connector = new WalletConnectV2Connector(ChainId.ETHEREUM_MAINNET)
+      await connector.activate()
+
+      await connector.close()
+
+      await expect(connector.getProvider()).rejects.toThrow('Provider is undefined')
     })
   })
 })

@@ -49,6 +49,36 @@ describe('ConnectionManager', () => {
       expect(activateMock).toHaveBeenCalledTimes(1)
     })
 
+    describe('when a connector is already active', () => {
+      let previous: StubClosableConnector
+      let next: StubConnector
+
+      beforeEach(() => {
+        previous = new StubClosableConnector()
+        next = new StubConnector()
+        connectionManager.connector = previous
+        jest.spyOn(connectionManager, 'buildConnector').mockReturnValue(next)
+      })
+
+      it('should dispose the previous connector before connecting the new one', async () => {
+        const deactivateMock = jest.spyOn(previous, 'deactivate')
+        const closeMock = jest.spyOn(previous as ClosableConnector, 'close')
+        const removeAllListenersMock = jest.spyOn(previous, 'removeAllListeners')
+
+        await connectionManager.connect(ProviderType.INJECTED)
+
+        expect(deactivateMock).toHaveBeenCalledTimes(1)
+        expect(closeMock).toHaveBeenCalledTimes(1)
+        expect(removeAllListenersMock).toHaveBeenCalled()
+      })
+
+      it('should replace the active connector with the new one', async () => {
+        await connectionManager.connect(ProviderType.INJECTED)
+
+        expect(connectionManager.connector).toBe(next)
+      })
+    })
+
     it('should return the connection data', async () => {
       const stubConnector = new StubConnector()
       stubConnector.setChainId(ChainId.ETHEREUM_SEPOLIA)
