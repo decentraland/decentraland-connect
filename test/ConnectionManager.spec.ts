@@ -2,7 +2,7 @@ import { ChainId } from '@dcl/schemas/dist/dapps/chain-id'
 import { ProviderType } from '@dcl/schemas/dist/dapps/provider-type'
 import { getConfiguration } from '../src/configuration'
 import { ConnectionManager, connection } from '../src/ConnectionManager'
-import { FortmaticConnector, InjectedConnector, WalletLinkConnector } from '../src/connectors'
+import { FortmaticConnector, InjectedConnector, WalletConnectV2Connector, WalletLinkConnector } from '../src/connectors'
 import { LocalStorage } from '../src/storage'
 import { ClosableConnector, ErrorUnlockingWallet } from '../src/types'
 import { StubClosableConnector, StubConnector, StubLockedWalletConnector, StubStorage, getSendableProvider } from './utils'
@@ -68,6 +68,20 @@ describe('ConnectionManager', () => {
           chainId: ChainId.ETHEREUM_SEPOLIA
         })
       )
+    })
+
+    it('should use the chain id reported by the WalletConnect connector instead of the requested one', async () => {
+      const stubConnector = new StubConnector()
+      jest.spyOn(stubConnector, 'activate').mockResolvedValue({
+        provider: { request: async () => undefined, send: () => undefined },
+        account: '0xdeadbeef',
+        chainId: ChainId.MATIC_MAINNET
+      })
+      jest.spyOn(connectionManager, 'buildConnector').mockReturnValue(stubConnector)
+
+      const result = await connectionManager.connect(ProviderType.WALLET_CONNECT_V2, ChainId.ETHEREUM_MAINNET)
+
+      expect(result.chainId).toBe(ChainId.MATIC_MAINNET)
     })
 
     it('should not patch the provider with the request method if it already exists', async () => {
@@ -251,6 +265,24 @@ describe('ConnectionManager', () => {
       await connectionManager.disconnect()
 
       expect(connectionManager.connector).toBe(undefined)
+    })
+
+    it('should NOT clear WalletConnect storage when the active connector is not WalletConnect', async () => {
+      const clearStorageMock = jest.spyOn(WalletConnectV2Connector, 'clearStorage').mockImplementation(() => undefined)
+      connectionManager.connector = new StubConnector()
+
+      await connectionManager.disconnect()
+
+      expect(clearStorageMock).not.toHaveBeenCalled()
+    })
+
+    it('should clear WalletConnect storage when the active connector is WalletConnect', async () => {
+      const clearStorageMock = jest.spyOn(WalletConnectV2Connector, 'clearStorage').mockImplementation(() => undefined)
+      connectionManager.connector = new WalletConnectV2Connector(ChainId.ETHEREUM_MAINNET)
+
+      await connectionManager.disconnect()
+
+      expect(clearStorageMock).toHaveBeenCalledTimes(1)
     })
   })
 

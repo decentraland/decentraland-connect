@@ -56,13 +56,24 @@ export class WalletConnectV2Connector extends AbstractConnector {
   }
 
   /**
-   * Clears all WalletConnect v2 session data from localStorage.
+   * Clears all WalletConnect v2 session data from localStorage and tears down the shared AppKit
+   * instance so the next activation starts from a single, clean core.
    */
   static clearStorage = (storage: Storage = new LocalStorage()) => {
     storage.removeRegExp(new RegExp('^wc@2:'))
     storage.removeRegExp(new RegExp('^@appkit'))
-    // Reset the shared AppKit instance so it gets recreated on next activation
+    // Dispose the shared AppKit before dropping the reference. Nulling it alone leaves the old
+    // instance's relay socket and account/network subscriptions alive; the next activation would
+    // then call createAppKit() again, producing a second WalletConnect core ("Core is already
+    // initialized") and an orphaned relay connection. disconnect() is async while callers here are
+    // synchronous, so fire-and-forget on the captured instance after clearing the shared reference.
+    const staleAppKit = WalletConnectV2Connector.sharedAppKit
     WalletConnectV2Connector.sharedAppKit = null
+    if (staleAppKit) {
+      Promise.resolve()
+        .then(() => staleAppKit.disconnect())
+        .catch(() => undefined)
+    }
   }
 
   private static isStaleSessionError(error: unknown): boolean {
@@ -134,9 +145,24 @@ export class WalletConnectV2Connector extends AbstractConnector {
 
     const networks = await this.getNetworks()
 
+    // Route RPC traffic through the configured Decentraland endpoints. Without explicit transports,
+    // WagmiAdapter falls back to each chain's public RPC, bypassing our gateway (rate limits, no
+    // observability). Build one viem http transport per configured chain.
+    const { http } = await import('viem')
+    const rpcUrls = WalletConnectV2Connector.configuration.urls
+    const transports: Record<number, ReturnType<typeof http>> = {}
+    for (const network of networks) {
+      const chainId = Number(network.id)
+      const url = rpcUrls[chainId]
+      if (url) {
+        transports[chainId] = http(url)
+      }
+    }
+
     const wagmiAdapter = new WagmiAdapter({
       networks,
-      projectId: WalletConnectV2Connector.configuration.projectId
+      projectId: WalletConnectV2Connector.configuration.projectId,
+      transports
     })
 
     this.appKit = createAppKit({
@@ -424,6 +450,13 @@ export class WalletConnectV2Connector extends AbstractConnector {
       console.warn('Error during WalletConnect disconnect:', error)
     }
 
+    // Drop the shared singleton when it points at this now-disconnected instance, so the next
+    // activation builds a fresh AppKit rather than reusing a dead one. Keeps the static and
+    // instance references from diverging (clearStorage nulls the static; close nulled only the
+    // instance before this).
+    if (WalletConnectV2Connector.sharedAppKit === this.appKit) {
+      WalletConnectV2Connector.sharedAppKit = null
+    }
     this.appKit = undefined
   }
 
