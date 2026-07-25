@@ -59,7 +59,10 @@ export class ConnectionManager {
       providerType === ProviderType.WALLET_CONNECT_V2
     ) {
       connector.on(ConnectorEvent.Update, ({ chainId }) => {
-        if (chainId) {
+        // Only persist a numeric chain id. WalletConnect surfaces CaipNetwork.id, typed
+        // number | string; storing a string would break downstream numeric chain comparisons.
+        // Mirrors the guard on the activate path above.
+        if (typeof chainId === 'number') {
           this.setConnectionData(providerType, chainId)
         }
       })

@@ -56,24 +56,18 @@ export class WalletConnectV2Connector extends AbstractConnector {
   }
 
   /**
-   * Clears all WalletConnect v2 session data from localStorage and tears down the shared AppKit
-   * instance so the next activation starts from a single, clean core.
+   * Clears all WalletConnect v2 session data from localStorage and drops the shared AppKit
+   * reference so the next activation builds a fresh one.
    */
   static clearStorage = (storage: Storage = new LocalStorage()) => {
     storage.removeRegExp(new RegExp('^wc@2:'))
     storage.removeRegExp(new RegExp('^@appkit'))
-    // Dispose the shared AppKit before dropping the reference. Nulling it alone leaves the old
-    // instance's relay socket and account/network subscriptions alive; the next activation would
-    // then call createAppKit() again, producing a second WalletConnect core ("Core is already
-    // initialized") and an orphaned relay connection. disconnect() is async while callers here are
-    // synchronous, so fire-and-forget on the captured instance after clearing the shared reference.
-    const staleAppKit = WalletConnectV2Connector.sharedAppKit
+    // Drop the shared reference so the next activation rebuilds AppKit. We intentionally do NOT
+    // call disconnect() here: AppKit (1.8.x) has no API to destroy a Core/relay connection —
+    // disconnect() only ends the session, not the relay — so it cannot prevent an orphaned Core,
+    // and firing it here would race the immediate re-init on the same `wc@2:` storage keys. Proper
+    // session teardown happens in close() on the normal disconnect path.
     WalletConnectV2Connector.sharedAppKit = null
-    if (staleAppKit) {
-      Promise.resolve()
-        .then(() => staleAppKit.disconnect())
-        .catch(() => undefined)
-    }
   }
 
   private static isStaleSessionError(error: unknown): boolean {
