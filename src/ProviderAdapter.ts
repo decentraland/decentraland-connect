@@ -23,11 +23,16 @@ export class ProviderAdapter {
   static adapt(provider: LegacyProvider | Provider) {
     const providerAdapter = new ProviderAdapter(provider)
 
+    // Only expose the event methods when the underlying provider actually implements them. The
+    // adapter's on/emit/removeListener delegate straight to the provider, so exposing them
+    // unconditionally makes a consumer's `typeof provider.on === 'function'` guard always true and
+    // then throw at call time for a provider without event support. Exposing them conditionally
+    // keeps that guard meaningful.
     return {
       ...provider,
-      on: providerAdapter.on,
-      emit: providerAdapter.emit,
-      removeListener: providerAdapter.removeListener,
+      ...(typeof provider.on === 'function' ? { on: providerAdapter.on } : {}),
+      ...(typeof provider.emit === 'function' ? { emit: providerAdapter.emit } : {}),
+      ...(typeof provider.removeListener === 'function' ? { removeListener: providerAdapter.removeListener } : {}),
       request: providerAdapter.request,
       sendAsync: providerAdapter.sendAsync,
       send: providerAdapter.send.bind(providerAdapter)

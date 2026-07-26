@@ -1,4 +1,4 @@
-import type { AppKit, CaipNetwork, UseAppKitAccountReturn } from '@reown/appkit' with {
+import type { AppKit, CaipNetwork, CaipNetworkId, UseAppKitAccountReturn } from '@reown/appkit' with {
   'resolution-mode': 'import'
 }
 import type { AppKitNetwork } from '@reown/appkit/networks' with { 'resolution-mode': 'import' }
@@ -56,12 +56,17 @@ export class WalletConnectV2Connector extends AbstractConnector {
   }
 
   /**
-   * Clears all WalletConnect v2 session data from localStorage.
+   * Clears all WalletConnect v2 session data from localStorage and drops the shared AppKit
+   * reference so the next activation builds a fresh one.
    */
   static clearStorage = (storage: Storage = new LocalStorage()) => {
     storage.removeRegExp(new RegExp('^wc@2:'))
     storage.removeRegExp(new RegExp('^@appkit'))
-    // Reset the shared AppKit instance so it gets recreated on next activation
+    // Drop the shared reference so the next activation rebuilds AppKit. We intentionally do NOT
+    // call disconnect() here: AppKit (1.8.x) has no API to destroy a Core/relay connection —
+    // disconnect() only ends the session, not the relay — so it cannot prevent an orphaned Core,
+    // and firing it here would race the immediate re-init on the same `wc@2:` storage keys. Proper
+    // session teardown happens in close() on the normal disconnect path.
     WalletConnectV2Connector.sharedAppKit = null
   }
 
@@ -134,9 +139,24 @@ export class WalletConnectV2Connector extends AbstractConnector {
 
     const networks = await this.getNetworks()
 
+    // Route RPC traffic through the configured Decentraland endpoints instead of AppKit's default
+    // public RPCs (rate limits, no observability through our gateway). Pass them as AppKit
+    // customRpcUrls keyed by CAIP network id; the WagmiAdapter builds the viem transport per network
+    // from these, so we don't import viem directly (it is only a transitive dependency here).
+    const rpcUrls = WalletConnectV2Connector.configuration.urls
+    const customRpcUrls: Record<CaipNetworkId, { url: string }[]> = {}
+    for (const network of networks) {
+      const chainId = Number(network.id)
+      const url = rpcUrls[chainId]
+      if (url) {
+        customRpcUrls[`eip155:${chainId}`] = [{ url }]
+      }
+    }
+
     const wagmiAdapter = new WagmiAdapter({
       networks,
-      projectId: WalletConnectV2Connector.configuration.projectId
+      projectId: WalletConnectV2Connector.configuration.projectId,
+      customRpcUrls
     })
 
     this.appKit = createAppKit({
@@ -240,9 +260,11 @@ export class WalletConnectV2Connector extends AbstractConnector {
    * Handles timeout, user cancellation, and stale session errors.
    */
   private openModalAndWaitForConnection = async (): Promise<void> => {
-    const appKit = this.requireAppKit()
-
-    const waitForConnection = (): Promise<string> => {
+    // Take the AppKit to wait on as a parameter rather than closing over one captured up front: a
+    // stale-session retry below reinitializes this.appKit, and the waiter must subscribe to the
+    // instance we actually open — otherwise it listens to the stale instance and hangs until the
+    // 5-minute timeout.
+    const waitForConnection = (appKit: AppKit): Promise<string> => {
       return new Promise((resolve, reject) => {
         let settled = false
         const cleanup = (accountUnsub?: () => void, stateUnsub?: () => void) => {
@@ -276,19 +298,20 @@ export class WalletConnectV2Connector extends AbstractConnector {
       })
     }
 
+    const appKit = this.requireAppKit()
+
     try {
       await appKit.open({ view: 'Connect' })
-      await waitForConnection()
+      await waitForConnection(appKit)
     } catch (error) {
       if (WalletConnectV2Connector.isStaleSessionError(error)) {
         console.warn('Stale session detected, retrying connection...')
         WalletConnectV2Connector.clearStorage()
         await this.initAppKit()
-        if (!this.appKit) {
-          throw new Error('AppKit reinitialization failed')
-        }
-        await this.appKit.open({ view: 'Connect' })
-        await waitForConnection()
+        // Re-acquire the fresh instance and wait on it, not the stale one captured above.
+        const freshAppKit = this.requireAppKit()
+        await freshAppKit.open({ view: 'Connect' })
+        await waitForConnection(freshAppKit)
       } else {
         throw error
       }
@@ -330,8 +353,13 @@ export class WalletConnectV2Connector extends AbstractConnector {
       await this.openModalAndWaitForConnection()
     }
 
+    // Re-acquire the AppKit instance: a stale-session retry above calls initAppKit() again, which
+    // replaces this.appKit with a fresh instance. The `appKit` captured before the connect block is
+    // then stale, so the provider/account/chain must be read from the current instance instead.
+    const activeAppKit = this.requireAppKit()
+
     // Get the wallet provider (EIP-1193 compatible)
-    const walletProvider = appKit.getWalletProvider() as EIP1193Provider | undefined
+    const walletProvider = activeAppKit.getWalletProvider() as EIP1193Provider | undefined
     if (!walletProvider) {
       throw new Error('Failed to get wallet provider after connection')
     }
@@ -340,21 +368,21 @@ export class WalletConnectV2Connector extends AbstractConnector {
     this.provider = walletProvider
 
     // Subscribe to account changes
-    this.accountUnsubscribe = appKit.subscribeAccount((account: UseAppKitAccountReturn) => {
+    this.accountUnsubscribe = activeAppKit.subscribeAccount((account: UseAppKitAccountReturn) => {
       if (account?.address) {
         this.handleAccountsChanged([account.address])
       }
     }, 'eip155') as (() => void) | undefined
 
     // Subscribe to network changes
-    this.networkUnsubscribe = appKit.subscribeCaipNetworkChange((network?: CaipNetwork) => {
+    this.networkUnsubscribe = activeAppKit.subscribeCaipNetworkChange((network?: CaipNetwork) => {
       if (network?.id) {
         this.handleChainChanged(network.id)
       }
     }) as (() => void) | undefined
 
-    const address = appKit.getAddress('eip155')
-    const chainId = appKit.getChainId()
+    const address = activeAppKit.getAddress('eip155')
+    const chainId = activeAppKit.getChainId()
 
     return {
       chainId: chainId || this.desiredChainId,
@@ -424,6 +452,13 @@ export class WalletConnectV2Connector extends AbstractConnector {
       console.warn('Error during WalletConnect disconnect:', error)
     }
 
+    // Drop the shared singleton when it points at this now-disconnected instance, so the next
+    // activation builds a fresh AppKit rather than reusing a dead one. Keeps the static and
+    // instance references from diverging (clearStorage nulls the static; close nulled only the
+    // instance before this).
+    if (WalletConnectV2Connector.sharedAppKit === this.appKit) {
+      WalletConnectV2Connector.sharedAppKit = null
+    }
     this.appKit = undefined
   }
 

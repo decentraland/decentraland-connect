@@ -38,20 +38,31 @@ export class ConnectionManager {
     connector.on(ConnectorEvent.Deactivate, this.handleWeb3ReactDeactivate)
 
     let { provider, account }: ConnectorUpdate = {}
+    let connectorChainId: ChainId | undefined
 
     try {
       const _connector: ConnectorUpdate = await connector.activate()
       provider = _connector.provider
       account = _connector.account
+      // Only trust a numeric chain id from the connector (WalletConnect/AppKit returns one).
+      connectorChainId = typeof _connector.chainId === 'number' ? (_connector.chainId as ChainId) : undefined
     } catch (error) {
       console.error('Error activating the connector', error)
       throw error
     }
 
-    // Handle chain change events for Magic and Thirdweb
-    if (providerType === ProviderType.MAGIC || providerType === ProviderType.MAGIC_TEST || providerType === ProviderType.THIRDWEB) {
+    // Handle chain change events for connectors that can switch chains after activation.
+    if (
+      providerType === ProviderType.MAGIC ||
+      providerType === ProviderType.MAGIC_TEST ||
+      providerType === ProviderType.THIRDWEB ||
+      providerType === ProviderType.WALLET_CONNECT_V2
+    ) {
       connector.on(ConnectorEvent.Update, ({ chainId }) => {
-        if (chainId) {
+        // Only persist a numeric chain id. WalletConnect surfaces CaipNetwork.id, typed
+        // number | string; storing a string would break downstream numeric chain comparisons.
+        // Mirrors the guard on the activate path above.
+        if (typeof chainId === 'number') {
           this.setConnectionData(providerType, chainId)
         }
       })
@@ -65,6 +76,10 @@ export class ConnectionManager {
         method: 'eth_chainId'
       })) as string
       chainId = currentChainIdHex ? (parseInt(currentChainIdHex, 16) as ChainId) : chainId
+    } else if (providerType === ProviderType.WALLET_CONNECT_V2 && connectorChainId) {
+      // Use the chain the wallet actually connected on, not just the requested one, so the stored
+      // connection data (and every app that restores it) reflects reality.
+      chainId = connectorChainId
     }
 
     this.connector = connector
@@ -238,9 +253,13 @@ export class ConnectionManager {
   private clearConnectionData = () => {
     const { storageKey } = getConfiguration()
     this.storage.remove(storageKey)
-    // Clear any data that might have been stored by the different connectors.
-    // Clearing them even if they were not the ones used is not an issue as it is a cheap operation.
-    WalletConnectV2Connector.clearStorage(this.storage)
+    // Only clear WalletConnect session storage when WalletConnect was the active connector. Its
+    // close() already disconnects the AppKit session; wiping WC storage on an unrelated disconnect
+    // (e.g. switching to Magic/Injected) would destroy a live WC session that other same-origin
+    // apps rely on restoring after the auth handoff. This runs before `this.connector` is cleared.
+    if (this.connector instanceof WalletConnectV2Connector) {
+      WalletConnectV2Connector.clearStorage(this.storage)
+    }
   }
 
   private setConnectionData(providerType: ProviderType, chainId: ChainId) {

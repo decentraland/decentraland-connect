@@ -11,6 +11,26 @@ describe('ProviderAdapter', () => {
       expect(typeof adaptedProvider.request).toBe('function')
       expect(typeof adaptedProvider.send).toBe('function')
     })
+
+    describe('when the underlying provider implements the event methods', () => {
+      it('should expose on, emit and removeListener', () => {
+        const mockProvider = { on: mock, emit: mock, removeListener: mock } as unknown as Provider
+        const adaptedProvider = ProviderAdapter.adapt(mockProvider)
+        expect(typeof adaptedProvider.on).toBe('function')
+        expect(typeof adaptedProvider.emit).toBe('function')
+        expect(typeof adaptedProvider.removeListener).toBe('function')
+      })
+    })
+
+    describe('when the underlying provider does not implement the event methods', () => {
+      it('should not expose on, emit or removeListener so a `typeof provider.on` guard stays meaningful', () => {
+        const mockProvider = { request: mock } as unknown as Provider
+        const adaptedProvider = ProviderAdapter.adapt(mockProvider)
+        expect(adaptedProvider.on).toBeUndefined()
+        expect(adaptedProvider.emit).toBeUndefined()
+        expect(adaptedProvider.removeListener).toBeUndefined()
+      })
+    })
   })
 
   describe('#request', () => {
