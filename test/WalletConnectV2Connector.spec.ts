@@ -6,7 +6,6 @@ import { WalletConnectV2Connector } from '../src/connectors/WalletConnectV2Conne
 // exercise the connector's real activate/session-restore/stale-retry/close logic end to end.
 const mockCreateAppKit = jest.fn()
 const mockWagmiAdapter = jest.fn()
-const mockHttp = jest.fn((url: string) => ({ __http: url }))
 
 jest.mock('@reown/appkit', () => ({ createAppKit: (...args: unknown[]) => mockCreateAppKit(...args) }))
 jest.mock('@reown/appkit-adapter-wagmi', () => ({
@@ -26,13 +25,16 @@ jest.mock('@reown/appkit/networks', () => ({
   bsc: { id: 56 },
   fantom: { id: 250 }
 }))
-jest.mock('viem', () => ({ http: (...args: [string]) => mockHttp(...args) }))
-
 type FakeAccount = { status: string; address?: string; isConnected?: boolean }
 
 type FakeAppKit = ReturnType<typeof createFakeAppKit>
 
-function createFakeAppKit(options: { account: FakeAccount; connectAddress?: string; requestImpl?: () => Promise<unknown> }) {
+function createFakeAppKit(options: {
+  account: FakeAccount
+  connectAddress?: string
+  requestImpl?: () => Promise<unknown>
+  openRejectsWith?: Error
+}) {
   const accountSubs: Array<(account: FakeAccount) => void> = []
   let account = options.account
   const walletProvider = { request: jest.fn(options.requestImpl ?? (() => Promise.resolve('0x1'))) }
@@ -66,6 +68,10 @@ function createFakeAppKit(options: { account: FakeAccount; connectAddress?: stri
     // Simulate the user connecting shortly after the modal opens: flip the account to connected and
     // notify subscribers on a later macrotask (after the connector subscribes in waitForConnection).
     open: jest.fn(async () => {
+      // Simulate the modal open itself failing (e.g. a stale-session error surfacing on open).
+      if (options.openRejectsWith) {
+        throw options.openRejectsWith
+      }
       setTimeout(() => {
         account = { status: 'connected', address: options.connectAddress ?? '0xabc', isConnected: true }
         accountSubs.forEach(cb => cb(account))
@@ -109,7 +115,6 @@ describe('WalletConnectV2Connector', () => {
 
     mockCreateAppKit.mockReset()
     mockWagmiAdapter.mockReset()
-    mockHttp.mockClear()
   })
 
   afterEach(() => {
@@ -137,14 +142,13 @@ describe('WalletConnectV2Connector', () => {
       expect(result.provider).toBe(fakeAppKit.walletProvider)
     })
 
-    it('should wire the configured Decentraland RPC endpoints into the WagmiAdapter transports', async () => {
+    it('should wire the configured Decentraland RPC endpoints into the WagmiAdapter customRpcUrls', async () => {
       const connector = new WalletConnectV2Connector(ChainId.ETHEREUM_MAINNET)
 
       await connector.activate()
 
-      expect(mockHttp).toHaveBeenCalledWith('https://rpc.decentraland.org/mainnet?project=walletconnect-v2')
-      const adapterConfig = mockWagmiAdapter.mock.calls[0][0] as { transports: Record<number, unknown> }
-      expect(adapterConfig.transports[ChainId.ETHEREUM_MAINNET]).toEqual({ __http: 'https://rpc.decentraland.org/mainnet?project=walletconnect-v2' })
+      const adapterConfig = mockWagmiAdapter.mock.calls[0][0] as { customRpcUrls: Record<string, { url: string }[]> }
+      expect(adapterConfig.customRpcUrls['eip155:1']).toEqual([{ url: 'https://rpc.decentraland.org/mainnet?project=walletconnect-v2' }])
     })
   })
 
@@ -188,6 +192,32 @@ describe('WalletConnectV2Connector', () => {
 
       expect(mockCreateAppKit).toHaveBeenCalledTimes(2)
       expect(staleAppKit.open).not.toHaveBeenCalled()
+      expect(freshAppKit.open).toHaveBeenCalledWith({ view: 'Connect' })
+      expect(result.account).toBe('0xdef')
+    })
+  })
+
+  describe('when opening the connect modal throws a stale-session error', () => {
+    let staleOpenAppKit: FakeAppKit
+    let freshAppKit: FakeAppKit
+
+    beforeEach(() => {
+      // No restored session, so activate goes straight to the modal; the open() itself throws a
+      // stale-session error, exercising the retry inside openModalAndWaitForConnection.
+      staleOpenAppKit = createFakeAppKit({
+        account: { status: 'disconnected' },
+        openRejectsWith: new Error("session topic doesn't exist")
+      })
+      freshAppKit = createFakeAppKit({ account: { status: 'disconnected' }, connectAddress: '0xdef' })
+      mockCreateAppKit.mockReturnValueOnce(staleOpenAppKit).mockReturnValueOnce(freshAppKit)
+    })
+
+    it('should reinitialize AppKit and wait on the fresh instance rather than hanging on the stale one', async () => {
+      const connector = new WalletConnectV2Connector(ChainId.ETHEREUM_MAINNET)
+
+      const result = await connector.activate()
+
+      expect(mockCreateAppKit).toHaveBeenCalledTimes(2)
       expect(freshAppKit.open).toHaveBeenCalledWith({ view: 'Connect' })
       expect(result.account).toBe('0xdef')
     })

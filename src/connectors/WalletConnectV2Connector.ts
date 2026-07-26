@@ -1,4 +1,4 @@
-import type { AppKit, CaipNetwork, UseAppKitAccountReturn } from '@reown/appkit' with {
+import type { AppKit, CaipNetwork, CaipNetworkId, UseAppKitAccountReturn } from '@reown/appkit' with {
   'resolution-mode': 'import'
 }
 import type { AppKitNetwork } from '@reown/appkit/networks' with { 'resolution-mode': 'import' }
@@ -139,24 +139,24 @@ export class WalletConnectV2Connector extends AbstractConnector {
 
     const networks = await this.getNetworks()
 
-    // Route RPC traffic through the configured Decentraland endpoints. Without explicit transports,
-    // WagmiAdapter falls back to each chain's public RPC, bypassing our gateway (rate limits, no
-    // observability). Build one viem http transport per configured chain.
-    const { http } = await import('viem')
+    // Route RPC traffic through the configured Decentraland endpoints instead of AppKit's default
+    // public RPCs (rate limits, no observability through our gateway). Pass them as AppKit
+    // customRpcUrls keyed by CAIP network id; the WagmiAdapter builds the viem transport per network
+    // from these, so we don't import viem directly (it is only a transitive dependency here).
     const rpcUrls = WalletConnectV2Connector.configuration.urls
-    const transports: Record<number, ReturnType<typeof http>> = {}
+    const customRpcUrls: Record<CaipNetworkId, { url: string }[]> = {}
     for (const network of networks) {
       const chainId = Number(network.id)
       const url = rpcUrls[chainId]
       if (url) {
-        transports[chainId] = http(url)
+        customRpcUrls[`eip155:${chainId}`] = [{ url }]
       }
     }
 
     const wagmiAdapter = new WagmiAdapter({
       networks,
       projectId: WalletConnectV2Connector.configuration.projectId,
-      transports
+      customRpcUrls
     })
 
     this.appKit = createAppKit({
@@ -260,9 +260,11 @@ export class WalletConnectV2Connector extends AbstractConnector {
    * Handles timeout, user cancellation, and stale session errors.
    */
   private openModalAndWaitForConnection = async (): Promise<void> => {
-    const appKit = this.requireAppKit()
-
-    const waitForConnection = (): Promise<string> => {
+    // Take the AppKit to wait on as a parameter rather than closing over one captured up front: a
+    // stale-session retry below reinitializes this.appKit, and the waiter must subscribe to the
+    // instance we actually open — otherwise it listens to the stale instance and hangs until the
+    // 5-minute timeout.
+    const waitForConnection = (appKit: AppKit): Promise<string> => {
       return new Promise((resolve, reject) => {
         let settled = false
         const cleanup = (accountUnsub?: () => void, stateUnsub?: () => void) => {
@@ -296,19 +298,20 @@ export class WalletConnectV2Connector extends AbstractConnector {
       })
     }
 
+    const appKit = this.requireAppKit()
+
     try {
       await appKit.open({ view: 'Connect' })
-      await waitForConnection()
+      await waitForConnection(appKit)
     } catch (error) {
       if (WalletConnectV2Connector.isStaleSessionError(error)) {
         console.warn('Stale session detected, retrying connection...')
         WalletConnectV2Connector.clearStorage()
         await this.initAppKit()
-        if (!this.appKit) {
-          throw new Error('AppKit reinitialization failed')
-        }
-        await this.appKit.open({ view: 'Connect' })
-        await waitForConnection()
+        // Re-acquire the fresh instance and wait on it, not the stale one captured above.
+        const freshAppKit = this.requireAppKit()
+        await freshAppKit.open({ view: 'Connect' })
+        await waitForConnection(freshAppKit)
       } else {
         throw error
       }
