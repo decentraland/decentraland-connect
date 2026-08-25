@@ -23,19 +23,22 @@ const ALLOWED_TX_PARAMS = new Set([
   'type',
   'chainId',
   'accessList',
-  'blobVersionedHashes'
+  'blobVersionedHashes',
+  'authorizationList'
 ])
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function stripUnknownTxParams(argumentsList: any): any {
   const request = argumentsList?.[0]
-  const tx = request?.params?.[0]
+  const params = request?.params
+  if (!Array.isArray(params)) return argumentsList
+  const tx = params[0]
   if (!tx || typeof tx !== 'object' || Array.isArray(tx)) return argumentsList
   const clean: Record<string, unknown> = {}
   for (const [key, value] of Object.entries(tx)) {
     if (ALLOWED_TX_PARAMS.has(key)) clean[key] = value
   }
-  return [{ ...request, params: [clean, ...request.params.slice(1)] }, ...argumentsList.slice(1)]
+  return [{ ...request, params: [clean, ...params.slice(1)] }, ...argumentsList.slice(1)]
 }
 
 /**
@@ -249,9 +252,14 @@ export class ThirdwebConnector extends AbstractConnector {
           return Reflect.apply(target, thirdwebProvider, argumentsList)
         }
       }),
-      // Add sendAsync for compatibility
+      // Add sendAsync for compatibility. It reaches thirdweb through the same path as request
+      // (e.g. via ProviderAdapter.sendAsync), so it needs the same strip — but not the rest of the
+      // request handler, which would change wallet_switchEthereumChain dispatch.
       sendAsync: new Proxy(thirdwebProvider.request, {
         apply: async (target, _thisArg, argumentsList) => {
+          if (argumentsList[0]?.method === 'eth_sendTransaction') {
+            return Reflect.apply(target, thirdwebProvider, stripUnknownTxParams(argumentsList))
+          }
           return Reflect.apply(target, thirdwebProvider, argumentsList)
         }
       })
