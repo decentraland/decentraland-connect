@@ -1,5 +1,5 @@
 import { ChainId } from '@dcl/schemas'
-import { ThirdwebConnector } from '../src/connectors/ThirdwebConnector'
+import { stripUnknownTxParams, ThirdwebConnector } from '../src/connectors/ThirdwebConnector'
 
 // Mock thirdweb modules as virtual modules (not installed)
 const mockAutoConnect = jest.fn()
@@ -244,5 +244,41 @@ describe('ThirdwebConnector', () => {
       await connector.close()
       expect(mockDisconnect).toHaveBeenCalled()
     })
+  })
+})
+
+describe('stripUnknownTxParams', () => {
+  const request = (tx: unknown, ...rest: unknown[]) => [{ method: 'eth_sendTransaction', params: [tx, ...rest] }]
+
+  it('should drop non-standard fields (extraCallData and the input alias) from the transaction', () => {
+    const [{ params }] = stripUnknownTxParams(
+      request({ to: '0xdef', data: '0x', value: '0x0', extraCallData: '0xa9059cbb', input: '0xa9059cbb' })
+    )
+
+    expect(params[0]).toEqual({ to: '0xdef', data: '0x', value: '0x0' })
+  })
+
+  it('should leave a standard transaction untouched', () => {
+    const tx = { from: '0xabc', to: '0xdef', value: '0x0', data: '0x', gas: '0x5208' }
+
+    const [{ params }] = stripUnknownTxParams(request(tx))
+
+    expect(params[0]).toEqual(tx)
+  })
+
+  it('should preserve the method and any params beyond the transaction object', () => {
+    const [{ method, params }] = stripUnknownTxParams(request({ to: '0xdef', extraCallData: '0xdead' }, 'latest'))
+
+    expect(method).toBe('eth_sendTransaction')
+    expect(params[1]).toBe('latest')
+  })
+
+  it.each([
+    ['a non-object first param', ['not-an-object']],
+    ['an empty params list', []]
+  ])('should return the arguments unchanged for %s', (_label, params) => {
+    const args = [{ method: 'eth_sendTransaction', params }]
+
+    expect(stripUnknownTxParams(args)).toBe(args)
   })
 })

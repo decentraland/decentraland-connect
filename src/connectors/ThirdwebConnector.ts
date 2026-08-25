@@ -7,6 +7,37 @@ import { getConfiguration } from '../configuration'
 import { Provider } from '../types'
 import { AbstractConnector } from './AbstractConnector'
 
+// Standard eth_sendTransaction fields. thirdweb reads calldata only from `data`, so any other key (the `input` alias, extraCallData) is dropped before it reaches thirdweb.
+const ALLOWED_TX_PARAMS = new Set([
+  'from',
+  'to',
+  'value',
+  'data',
+  'gas',
+  'gasLimit',
+  'gasPrice',
+  'maxFeePerGas',
+  'maxPriorityFeePerGas',
+  'maxFeePerBlobGas',
+  'nonce',
+  'type',
+  'chainId',
+  'accessList',
+  'blobVersionedHashes'
+])
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function stripUnknownTxParams(argumentsList: any): any {
+  const request = argumentsList?.[0]
+  const tx = request?.params?.[0]
+  if (!tx || typeof tx !== 'object' || Array.isArray(tx)) return argumentsList
+  const clean: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(tx)) {
+    if (ALLOWED_TX_PARAMS.has(key)) clean[key] = value
+  }
+  return [{ ...request, params: [clean, ...request.params.slice(1)] }, ...argumentsList.slice(1)]
+}
+
 /**
  * ThirdwebConnector - Connects to thirdweb's in-app wallet (email OTP, social logins)
  *
@@ -208,6 +239,11 @@ export class ThirdwebConnector extends AbstractConnector {
 
             this.emitUpdate({ chainId: newChainId })
             return null
+          }
+
+          // Drop unknown fields (e.g. extraCallData) so thirdweb signs only what the consumer showed.
+          if (method === 'eth_sendTransaction') {
+            return Reflect.apply(target, thirdwebProvider, stripUnknownTxParams(argumentsList))
           }
 
           return Reflect.apply(target, thirdwebProvider, argumentsList)
