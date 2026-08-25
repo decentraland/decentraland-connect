@@ -6,26 +6,7 @@ import { ChainId } from '@dcl/schemas/dist/dapps/chain-id'
 import { getConfiguration } from '../configuration'
 import { Provider } from '../types'
 import { AbstractConnector } from './AbstractConnector'
-
-// Standard eth_sendTransaction fields. thirdweb reads calldata only from `data`, so any other key (the `input` alias, extraCallData) is dropped before it reaches thirdweb.
-const ALLOWED_TX_PARAMS = new Set([
-  'from',
-  'to',
-  'value',
-  'data',
-  'gas',
-  'gasLimit',
-  'gasPrice',
-  'maxFeePerGas',
-  'maxPriorityFeePerGas',
-  'maxFeePerBlobGas',
-  'nonce',
-  'type',
-  'chainId',
-  'accessList',
-  'blobVersionedHashes',
-  'authorizationList'
-])
+import { STANDARD_ETH_SEND_TRANSACTION_FIELDS } from '../transactions'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function stripUnknownTxParams(argumentsList: any): any {
@@ -36,7 +17,7 @@ export function stripUnknownTxParams(argumentsList: any): any {
   if (!tx || typeof tx !== 'object' || Array.isArray(tx)) return argumentsList
   const clean: Record<string, unknown> = {}
   for (const [key, value] of Object.entries(tx)) {
-    if (ALLOWED_TX_PARAMS.has(key)) clean[key] = value
+    if (STANDARD_ETH_SEND_TRANSACTION_FIELDS.has(key)) clean[key] = value
   }
   return [{ ...request, params: [clean, ...params.slice(1)] }, ...argumentsList.slice(1)]
 }
