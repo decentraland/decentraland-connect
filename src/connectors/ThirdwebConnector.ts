@@ -6,6 +6,21 @@ import { ChainId } from '@dcl/schemas/dist/dapps/chain-id'
 import { getConfiguration } from '../configuration'
 import { Provider } from '../types'
 import { AbstractConnector } from './AbstractConnector'
+import { STANDARD_ETH_SEND_TRANSACTION_FIELDS } from '../transactions'
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function stripUnknownTxParams(argumentsList: any): any {
+  const request = argumentsList?.[0]
+  const params = request?.params
+  if (!Array.isArray(params)) return argumentsList
+  const tx = params[0]
+  if (!tx || typeof tx !== 'object' || Array.isArray(tx)) return argumentsList
+  const clean: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(tx)) {
+    if (STANDARD_ETH_SEND_TRANSACTION_FIELDS.has(key)) clean[key] = value
+  }
+  return [{ ...request, params: [clean, ...params.slice(1)] }, ...argumentsList.slice(1)]
+}
 
 /**
  * ThirdwebConnector - Connects to thirdweb's in-app wallet (email OTP, social logins)
@@ -210,12 +225,22 @@ export class ThirdwebConnector extends AbstractConnector {
             return null
           }
 
+          // Drop unknown fields (e.g. extraCallData) so thirdweb signs only what the consumer showed.
+          if (method === 'eth_sendTransaction') {
+            return Reflect.apply(target, thirdwebProvider, stripUnknownTxParams(argumentsList))
+          }
+
           return Reflect.apply(target, thirdwebProvider, argumentsList)
         }
       }),
-      // Add sendAsync for compatibility
+      // Add sendAsync for compatibility. It reaches thirdweb through the same path as request
+      // (e.g. via ProviderAdapter.sendAsync), so it needs the same strip — but not the rest of the
+      // request handler, which would change wallet_switchEthereumChain dispatch.
       sendAsync: new Proxy(thirdwebProvider.request, {
         apply: async (target, _thisArg, argumentsList) => {
+          if (argumentsList[0]?.method === 'eth_sendTransaction') {
+            return Reflect.apply(target, thirdwebProvider, stripUnknownTxParams(argumentsList))
+          }
           return Reflect.apply(target, thirdwebProvider, argumentsList)
         }
       })

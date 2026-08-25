@@ -1,5 +1,6 @@
 import { ChainId } from '@dcl/schemas'
-import { ThirdwebConnector } from '../src/connectors/ThirdwebConnector'
+import { stripUnknownTxParams, ThirdwebConnector } from '../src/connectors/ThirdwebConnector'
+import { Provider } from '../src/types'
 
 // Mock thirdweb modules as virtual modules (not installed)
 const mockAutoConnect = jest.fn()
@@ -244,5 +245,90 @@ describe('ThirdwebConnector', () => {
       await connector.close()
       expect(mockDisconnect).toHaveBeenCalled()
     })
+  })
+
+  describe('when dispatching an eth_sendTransaction through the provider', () => {
+    let provider: Provider
+    let thirdwebRequest: jest.Mock
+
+    const withExtra = { method: 'eth_sendTransaction', params: [{ to: '0xdef', data: '0x', value: '0x0', extraCallData: '0xa9059cbb' }] }
+    const stripped = { method: 'eth_sendTransaction', params: [{ to: '0xdef', data: '0x', value: '0x0' }] }
+
+    beforeEach(async () => {
+      connector = new ThirdwebConnector(ChainId.ETHEREUM_MAINNET)
+      thirdwebRequest = jest.fn().mockResolvedValue('0xhash')
+      mockAutoConnect.mockResolvedValueOnce({ address: '0x1234567890abcdef1234567890abcdef12345678' })
+      mockDefineChain.mockReturnValueOnce({ id: ChainId.ETHEREUM_MAINNET })
+      mockToProvider.mockReturnValueOnce({ request: thirdwebRequest })
+      mockCreateThirdwebClient.mockReturnValueOnce({ clientId: 'test' })
+      provider = (await connector.activate()).provider as Provider
+    })
+
+    it('should strip non-standard fields on the request path', async () => {
+      await provider.request(withExtra)
+      expect(thirdwebRequest).toHaveBeenCalledWith(stripped)
+    })
+
+    it('should strip non-standard fields on the sendAsync path', async () => {
+      await provider.sendAsync(withExtra)
+      expect(thirdwebRequest).toHaveBeenCalledWith(stripped)
+    })
+
+    it('should forward non-transaction methods unchanged', async () => {
+      const signRequest = { method: 'personal_sign', params: ['0xdeadbeef', '0xsigner'] }
+      await provider.request(signRequest)
+      expect(thirdwebRequest).toHaveBeenCalledWith(signRequest)
+    })
+  })
+})
+
+describe('stripUnknownTxParams', () => {
+  const request = (tx: unknown, ...rest: unknown[]) => [{ method: 'eth_sendTransaction', params: [tx, ...rest] }]
+
+  it('should drop non-standard fields (extraCallData and the input alias) from the transaction', () => {
+    const [{ params }] = stripUnknownTxParams(
+      request({ to: '0xdef', data: '0x', value: '0x0', extraCallData: '0xa9059cbb', input: '0xa9059cbb' })
+    )
+
+    expect(params[0]).toEqual({ to: '0xdef', data: '0x', value: '0x0' })
+  })
+
+  it('should leave a standard transaction untouched', () => {
+    const tx = { from: '0xabc', to: '0xdef', value: '0x0', data: '0x', gas: '0x5208' }
+
+    const [{ params }] = stripUnknownTxParams(request(tx))
+
+    expect(params[0]).toEqual(tx)
+  })
+
+  it('should preserve the method and any params beyond the transaction object', () => {
+    const [{ method, params }] = stripUnknownTxParams(request({ to: '0xdef', extraCallData: '0xdead' }, 'latest'))
+
+    expect(method).toBe('eth_sendTransaction')
+    expect(params[1]).toBe('latest')
+  })
+
+  it.each([
+    ['a non-object first param', ['not-an-object']],
+    ['an empty params list', []]
+  ])('should return the arguments unchanged for %s', (_label, params) => {
+    const args = [{ method: 'eth_sendTransaction', params }]
+
+    expect(stripUnknownTxParams(args)).toBe(args)
+  })
+
+  it('should keep standard type-4 fields such as authorizationList', () => {
+    const tx = { to: '0xdef', data: '0x', type: '0x4', authorizationList: [{ chainId: '0x1' }] }
+
+    const [{ params }] = stripUnknownTxParams(request(tx))
+
+    expect(params[0]).toEqual(tx)
+  })
+
+  it('should not throw and should return the arguments unchanged when params is not an array', () => {
+    const args = [{ method: 'eth_sendTransaction', params: { 0: { to: '0xdef' } } }]
+
+    expect(() => stripUnknownTxParams(args)).not.toThrow()
+    expect(stripUnknownTxParams(args)).toBe(args)
   })
 })
