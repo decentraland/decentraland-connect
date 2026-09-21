@@ -76,6 +76,13 @@ export class WalletConnectV2Connector extends AbstractConnector {
       return (
         message.includes('no matching key') ||
         message.includes("session topic doesn't exist") ||
+        // UniversalProvider.request() guards every call with `if (!this.session) throw`, so this
+        // is the provider itself stating it has no session. It is the most direct proof a restored
+        // connection is dead, and without it validateRestoredSession() fell through to its
+        // "treat as potentially valid" branch and handed back a provider that can never sign:
+        // the account survives in the adapter's storage while the WalletConnect session does not,
+        // and the first signature fails locally, with no request ever reaching the wallet.
+        message.includes('please call connect() before request()') ||
         message.includes('missing or invalid') ||
         message.includes('expired') ||
         // "User rejected methods" indicates a method negotiation failure with stale session,
