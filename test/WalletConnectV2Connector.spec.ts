@@ -197,6 +197,31 @@ describe('WalletConnectV2Connector', () => {
     })
   })
 
+  describe('and the restored provider reports it has no session at all', () => {
+    let sessionlessAppKit: FakeAppKit
+    let freshAppKit: FakeAppKit
+
+    beforeEach(() => {
+      // What UniversalProvider throws when its session is gone but the adapter still has the
+      // account in storage, so AppKit keeps reporting the connection as restored.
+      sessionlessAppKit = createFakeAppKit({
+        account: { status: 'connected', address: '0xabc', isConnected: true },
+        requestImpl: () => Promise.reject(new Error('Please call connect() before request()'))
+      })
+      freshAppKit = createFakeAppKit({ account: { status: 'disconnected' }, connectAddress: '0xdef' })
+      mockCreateAppKit.mockReturnValueOnce(sessionlessAppKit).mockReturnValueOnce(freshAppKit)
+    })
+
+    it('should treat it as stale and reconnect, rather than returning a provider that can never sign', async () => {
+      const connector = new WalletConnectV2Connector(ChainId.ETHEREUM_MAINNET)
+
+      const result = await connector.activate()
+
+      expect(freshAppKit.open).toHaveBeenCalledWith({ view: 'Connect' })
+      expect(result.account).toBe('0xdef')
+    })
+  })
+
   describe('when opening the connect modal throws a stale-session error', () => {
     let staleOpenAppKit: FakeAppKit
     let freshAppKit: FakeAppKit
