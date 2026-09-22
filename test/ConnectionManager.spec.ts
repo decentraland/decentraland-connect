@@ -443,5 +443,20 @@ describe('ConnectionManager', () => {
       expect(connector).toBeInstanceOf(WalletLinkConnector)
       expect(connector.supportedChainIds).toEqual([chainId])
     })
+
+    it('should return an instance of WalletConnectV2Connector for WALLET_CONNECT_V2', () => {
+      const connector = connectionManager.buildConnector(ProviderType.WALLET_CONNECT_V2, chainId)
+      expect(connector).toBeInstanceOf(WalletConnectV2Connector)
+    })
+
+    it('should return an instance of WalletConnectV2Connector for the deprecated WALLET_CONNECT', () => {
+      const connector = connectionManager.buildConnector(ProviderType.WALLET_CONNECT, chainId)
+      expect(connector).toBeInstanceOf(WalletConnectV2Connector)
+    })
+
+    it('should return an instance of WalletConnectV2Connector for METAMASK_MOBILE', () => {
+      const connector = connectionManager.buildConnector(ProviderType.METAMASK_MOBILE, chainId)
+      expect(connector).toBeInstanceOf(WalletConnectV2Connector)
+    })
   })
 })
