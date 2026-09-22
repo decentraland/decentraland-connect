@@ -62,6 +62,13 @@ export class WalletConnectV2Connector extends AbstractConnector {
   static clearStorage = (storage: Storage = new LocalStorage()) => {
     storage.removeRegExp(new RegExp('^wc@2:'))
     storage.removeRegExp(new RegExp('^@appkit'))
+    // The WagmiAdapter keeps the active connector and account under wagmi's own prefix, separate
+    // from the session. Leaving them behind lets the next AppKit restore a connection whose
+    // WalletConnect session no longer exists — a provider that reports an account and can never
+    // sign — and sends activate() down its recovery branch, building a second AppKit, and a second
+    // relay connection, while the first is still alive on these same keys. Clearing both together
+    // keeps the account and the session from ever disagreeing.
+    storage.removeRegExp(new RegExp('^wagmi\\.'))
     // Drop the shared reference so the next activation rebuilds AppKit. We intentionally do NOT
     // call disconnect() here: AppKit (1.8.x) has no API to destroy a Core/relay connection —
     // disconnect() only ends the session, not the relay — so it cannot prevent an orphaned Core,
