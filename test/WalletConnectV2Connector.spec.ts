@@ -124,6 +124,34 @@ describe('WalletConnectV2Connector', () => {
     delete (global as any).window
   })
 
+  describe('when clearing the stored WalletConnect state', () => {
+    beforeEach(() => {
+      store['wc@2:client:0.3//session'] = 'session'
+      store['@appkit/connection_status'] = 'connected'
+      store['wagmi.store'] = '{"state":{"connections":{}}}'
+      store['wagmi.recentConnectorId'] = '"walletConnect"'
+      store['decentraland-connect-storage-key'] = 'WALLET_CONNECT_V2'
+    })
+
+    it('should remove the session keys', () => {
+      WalletConnectV2Connector.clearStorage()
+
+      expect(Object.keys(store).filter(key => key.startsWith('wc@2:') || key.startsWith('@appkit'))).toEqual([])
+    })
+
+    it("should remove wagmi's connection state too, so no account outlives the session", () => {
+      WalletConnectV2Connector.clearStorage()
+
+      expect(Object.keys(store).filter(key => key.startsWith('wagmi.'))).toEqual([])
+    })
+
+    it('should leave unrelated keys alone', () => {
+      WalletConnectV2Connector.clearStorage()
+
+      expect(store['decentraland-connect-storage-key']).toBe('WALLET_CONNECT_V2')
+    })
+  })
+
   describe('when activating with no existing session', () => {
     let fakeAppKit: FakeAppKit
 
